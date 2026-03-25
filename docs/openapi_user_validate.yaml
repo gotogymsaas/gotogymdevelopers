@@ -1,0 +1,76 @@
+openapi: 3.0.0
+info:
+  title: GoToGym Developers API
+  version: 1.0.0
+  description: API para validación de usuarios afiliados
+paths:
+  /api/user/validate:
+    post:
+      summary: Validar afiliado
+      description: Valida si un usuario está registrado como afiliado en el sistema.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                document:
+                  type: string
+                  description: Número de documento del usuario
+                  example: "12345678"
+                birthdate:
+                  type: string
+                  format: date
+                  description: Fecha de nacimiento (YYYY-MM-DD)
+                  example: "1990-01-01"
+              required:
+                - document
+                - birthdate
+      responses:
+        '200':
+          description: Usuario válido
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  valid:
+                    type: boolean
+                    example: true
+                  userId:
+                    type: integer
+                    example: 1
+                  name:
+                    type: string
+                    example: "Juan Pérez"
+        '400':
+          description: Error de validación de parámetros
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Faltan campos requeridos: document, birthdate"
+        '404':
+          description: Usuario no encontrado
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Usuario no encontrado o datos inválidos"
+        '500':
+          description: Error interno del servidor
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: "Error interno del servidor"
