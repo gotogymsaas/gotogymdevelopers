@@ -1,15 +1,16 @@
 // DTO para la solicitud de validación de usuario
-type ValidateAffiliateRequest = {
-  document: string,
-  birthdate: string,
-};
+/**
+ * @typedef {Object} ValidateAffiliateRequest
+ * @property {string} document
+ * @property {string} birthdate
+ */
 
-// DTO para la respuesta de validación
-type ValidateAffiliateResponse = {
-  valid: boolean,
-  userId?: number,
-  name?: string,
-  error?: string,
-};
+/**
+ * @typedef {Object} ValidateAffiliateResponse
+ * @property {boolean} valid
+ * @property {number} [userId]
+ * @property {string} [name]
+ * @property {string} [error]
+ */
 
-module.exports = { ValidateAffiliateRequest, ValidateAffiliateResponse };
+// Nota: Los DTOs se documentan aquí para referencia y autocompletado en editores compatibles con JSDoc.
