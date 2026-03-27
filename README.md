@@ -1,9 +1,10 @@
 # GoToGym Developers
 
+
 Estructura del repositorio:
 
 - playbooks/: Guías y scripts para backend, frontend, QA y documentación.
-- templates/: Plantillas para backend, frontend, tests y docs.
+- frontend/: Código fuente y plantillas para frontend, tests y docs.
 - workflows/: Flujos de trabajo para Azure y automatización.
 - examples/: Ejemplos de backend, frontend y flujos completos.
 
