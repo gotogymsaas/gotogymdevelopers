@@ -1,4 +1,4 @@
-import { Integration, BodyGraphData } from '../types/types';
+import type { Integration, BodyGraphData } from '../types/types';
 
 export const integrationsMock: Integration[] = [
   {

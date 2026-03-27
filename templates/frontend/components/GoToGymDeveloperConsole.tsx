@@ -1,4 +1,3 @@
-import React from 'react';
 import { useDeveloperDashboard } from '../hooks/useDeveloperDashboard';
 import '../styles/GoToGymDeveloperConsole.css';
 
