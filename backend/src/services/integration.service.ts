@@ -1,19 +1,19 @@
-import { integrations } from '../data/mock-integrations';
+import { IntegrationRepository } from '../repositories/integration.repository';
 import { SyncResult } from '../models/syncresult.model';
 
-export function listIntegrations() {
-  return integrations;
+const integrationRepo = new IntegrationRepository();
+
+export async function listIntegrations() {
+  return integrationRepo.findAll();
 }
 
-export function simulateSync(id: string): SyncResult {
-  const integration = integrations.find(i => i.id === id);
+export async function simulateSync(id: string): Promise<SyncResult> {
+  const integration = await integrationRepo.findById(id);
   if (!integration) {
-    return {
-      integrationId: id,
-      status: 'error',
-      message: 'Integration not found',
-      syncedAt: new Date().toISOString()
-    };
+    const error: any = new Error('Integration not found');
+    error.status = 404;
+    error.code = 'NOT_FOUND';
+    throw error;
   }
   // Simulación simple
   integration.state = 'syncing';

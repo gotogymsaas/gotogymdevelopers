@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getIntegrations, syncIntegration } from '../controllers/integration.controller';
+import { getIntegrations, syncIntegration } from '../../controllers/integration.controller';
 
 const router = Router();
 

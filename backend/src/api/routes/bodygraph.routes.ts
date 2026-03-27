@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { getBodyGraph } from '../controllers/bodygraph.controller';
+import { getBodyGraph } from '../../controllers/bodygraph.controller';
 
 const router = Router();
 

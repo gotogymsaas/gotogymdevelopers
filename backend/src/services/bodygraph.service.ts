@@ -1,6 +1,6 @@
 import { BodyGraphPayload } from '../models/bodygraph.model';
 
-export function getBodyGraphPayload(integrationId: string): BodyGraphPayload {
+export async function getBodyGraphPayload(integrationId: string): Promise<BodyGraphPayload> {
   // Simulación de métricas normalizadas
   return {
     integrationId,
