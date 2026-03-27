@@ -1,0 +1,105 @@
+.gtg-dashboard {
+  font-family: 'Inter', Arial, sans-serif;
+  background: #f7f9fb;
+  color: #222;
+  padding: 32px;
+  min-height: 100vh;
+}
+header h1 {
+  font-size: 2.2rem;
+  margin-bottom: 0.2em;
+}
+.gtg-stats {
+  display: flex;
+  gap: 1.5em;
+  margin: 2em 0;
+}
+.gtg-card {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 8px #0001;
+  padding: 1.2em 2em;
+  min-width: 160px;
+  text-align: center;
+}
+.gtg-card-title {
+  font-size: 1em;
+  color: #888;
+}
+.gtg-card-value {
+  font-size: 1.6em;
+  font-weight: bold;
+  color: #1a73e8;
+}
+.gtg-integrations-list {
+  display: flex;
+  gap: 1em;
+  flex-wrap: wrap;
+}
+.gtg-integration-card {
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px #0001;
+  padding: 1em;
+  min-width: 180px;
+  cursor: pointer;
+  border: 2px solid transparent;
+  transition: border 0.2s;
+}
+.gtg-integration-card[aria-selected="true"] {
+  border: 2px solid #1a73e8;
+}
+.gtg-integration-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  font-weight: 500;
+}
+.gtg-status-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  display: inline-block;
+}
+.gtg-status-connected { background: #4caf50; }
+.gtg-status-disconnected { background: #ccc; }
+.gtg-status-syncing { background: #ff9800; }
+.gtg-status-error { background: #e53935; }
+.gtg-integration-meta {
+  font-size: 0.9em;
+  color: #666;
+  margin: 0.5em 0;
+}
+.gtg-action-btn {
+  background: #1a73e8;
+  color: #fff;
+  border: none;
+  border-radius: 6px;
+  padding: 0.5em 1.2em;
+  cursor: pointer;
+  margin-top: 0.5em;
+  transition: background 0.2s;
+}
+.gtg-action-btn:disabled {
+  background: #b3d1f7;
+  cursor: not-allowed;
+}
+.gtg-action-panel, .gtg-result-panel {
+  margin: 2em 0;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 1px 4px #0001;
+  padding: 1.5em;
+}
+.gtg-json {
+  background: #222;
+  color: #b9f;
+  padding: 1em;
+  border-radius: 6px;
+  font-size: 1em;
+  overflow-x: auto;
+}
+.gtg-error {
+  color: #e53935;
+  font-weight: bold;
+}
