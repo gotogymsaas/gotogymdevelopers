@@ -15,11 +15,11 @@ export const GoToGymDeveloperConsole: React.FC = () => {
 
   const activeIntegrations = integrations.filter(i => i.status === 'connected').length;
   const connectedSources = integrations.filter(i => i.status !== 'disconnected').length;
-  const lastSync = integrations
-    .map(i => i.lastSync)
-    .filter(Boolean)
-    .sort()
-    .reverse()[0] || 'N/A';
+    const lastSync = integrations
+      .map((i: typeof integrations[0]) => i.lastSync)
+      .filter(Boolean)
+      .sort()
+      .reverse()[0] || 'N/A';
   const processedEvents = 1287;
 
   return (
@@ -51,7 +51,7 @@ export const GoToGymDeveloperConsole: React.FC = () => {
       <section className="gtg-integrations">
         <h2>Integraciones conectadas</h2>
         <div className="gtg-integrations-list">
-          {integrations.map(integration => (
+            {integrations.map((integration: typeof integrations[0]) => (
             <div
               key={integration.id}
               className={`gtg-integration-card gtg-status-${integration.status}`}
