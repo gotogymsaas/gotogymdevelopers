@@ -1,9 +1,14 @@
 import React from 'react';
+import type { Integration } from '../../types/types';
+import { useNotifications } from '../../hooks/useNotifications';
+import { NotificationBell } from '../notifications/NotificationBell';
 
 type Section = 'dashboard' | 'cards' | 'integrations' | 'actions' | 'results';
 
 interface AppHeaderProps {
   section: Section;
+  integrations: Integration[];
+  onNavigateToIntegration: (integrationId: string) => void;
 }
 
 const sectionMeta: Record<Section, { title: string; desc: string }> = {
@@ -14,8 +19,13 @@ const sectionMeta: Record<Section, { title: string; desc: string }> = {
   results: { title: 'Panel de Resultados', desc: 'Visualiza respuestas del sistema y datos sincronizados' },
 };
 
-export const AppHeader: React.FC<AppHeaderProps> = ({ section }) => {
+export const AppHeader: React.FC<AppHeaderProps> = ({
+  section,
+  integrations,
+  onNavigateToIntegration,
+}) => {
   const { title, desc } = sectionMeta[section];
+  const { alerts, count, isOpen, toggle, close } = useNotifications(integrations);
 
   return (
     <header className="gtg-header">
@@ -27,7 +37,14 @@ export const AppHeader: React.FC<AppHeaderProps> = ({ section }) => {
       </div>
       <div className="gtg-header-actions">
         <span className="gtg-header-version">v1.0.0</span>
-        <button className="gtg-header-btn" title="Notificaciones" aria-label="Notificaciones">🔔</button>
+        <NotificationBell
+          count={count}
+          alerts={alerts}
+          isOpen={isOpen}
+          onToggle={toggle}
+          onClose={close}
+          onNavigate={onNavigateToIntegration}
+        />
         <button className="gtg-header-btn" title="Configuración" aria-label="Configuración">⚙️</button>
         <div className="gtg-header-avatar" title="GoToGym User">GG</div>
       </div>

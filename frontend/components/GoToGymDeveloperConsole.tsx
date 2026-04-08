@@ -12,6 +12,15 @@ import '../styles/GoToGymDeveloperConsole.css';
 
 export const GoToGymDeveloperConsole: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
+  const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
+
+  const handleNavigateToIntegration = (integrationId: string) => {
+    setActiveSection('integrations');
+    if (integrationId) {
+      setHighlightedIntegrationId(integrationId);
+      setTimeout(() => setHighlightedIntegrationId(null), 3000);
+    }
+  };
 
   const {
     integrations,
@@ -62,6 +71,7 @@ export const GoToGymDeveloperConsole: React.FC = () => {
             uiState={uiState}
             onSelect={setSelectedSource}
             onSync={handleSync}
+            highlightedId={highlightedIntegrationId}
           />
         );
       case 'actions':
@@ -89,7 +99,11 @@ export const GoToGymDeveloperConsole: React.FC = () => {
     <div className="gtg-app">
       <AppSidebar active={activeSection} onNavigate={setActiveSection} />
       <div className="gtg-main-area">
-        <AppHeader section={activeSection} />
+        <AppHeader
+          section={activeSection}
+          integrations={integrations}
+          onNavigateToIntegration={handleNavigateToIntegration}
+        />
         <main className="gtg-content">
           {renderSection()}
         </main>

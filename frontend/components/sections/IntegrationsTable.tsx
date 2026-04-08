@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useRef } from 'react';
 import type { Integration } from '../../types/types';
 
 const integrationIcons: Record<string, string> = {
@@ -15,6 +15,7 @@ interface IntegrationsTableProps {
   uiState: string;
   onSelect: (id: string) => void;
   onSync: () => void;
+  highlightedId?: string | null;
 }
 
 export const IntegrationsTable: React.FC<IntegrationsTableProps> = ({
@@ -23,7 +24,15 @@ export const IntegrationsTable: React.FC<IntegrationsTableProps> = ({
   uiState,
   onSelect,
   onSync,
+  highlightedId,
 }) => {
+  const rowRefs = useRef<Map<string, HTMLTableRowElement>>(new Map());
+
+  useEffect(() => {
+    if (!highlightedId) return;
+    const el = rowRefs.current.get(highlightedId);
+    el?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }, [highlightedId]);
   return (
     <div>
       <div className="gtg-section-header">
@@ -60,7 +69,14 @@ export const IntegrationsTable: React.FC<IntegrationsTableProps> = ({
             {integrations.map(i => (
               <tr
                 key={i.id}
-                className={selectedSource === i.id ? 'gtg-row-selected' : ''}
+                ref={el => {
+                  if (el) rowRefs.current.set(i.id, el);
+                  else rowRefs.current.delete(i.id);
+                }}
+                className={[
+                  selectedSource === i.id ? 'gtg-row-selected' : '',
+                  highlightedId === i.id ? 'gtg-row-highlighted' : '',
+                ].filter(Boolean).join(' ')}
                 onClick={() => onSelect(i.id)}
                 style={{ cursor: 'pointer' }}
               >
