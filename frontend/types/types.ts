@@ -1,4 +1,13 @@
-export type IntegrationStatus = 'connected' | 'disconnected' | 'syncing' | 'error';
+export type IntegrationStatus =
+  | 'connected'
+  | 'disconnected'
+  | 'syncing'
+  | 'error'
+  | 'syncing_error'
+  | 'timeout'
+  | 'pending_review'
+  | 'failed'
+  | 'unauthorized';
 
 export interface Integration {
   id: string;

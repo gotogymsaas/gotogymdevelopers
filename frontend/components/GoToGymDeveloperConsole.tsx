@@ -32,6 +32,8 @@ export const GoToGymDeveloperConsole: React.FC = () => {
     bodyGraph,
     error,
     handleSync,
+    syncIntegration,
+    syncingId,
   } = useDeveloperDashboard();
 
   const activeIntegrations = integrations.filter(i => i.status === 'connected').length;
@@ -73,6 +75,8 @@ export const GoToGymDeveloperConsole: React.FC = () => {
             uiState={uiState}
             onSelect={setSelectedSource}
             onSync={handleSync}
+            onSyncRow={syncIntegration}
+            syncingId={syncingId}
             highlightedId={highlightedIntegrationId}
           />
         );

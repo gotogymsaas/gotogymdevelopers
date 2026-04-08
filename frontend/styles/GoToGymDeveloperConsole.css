@@ -480,6 +480,18 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
 .gtg-badge.disconnected { background: #f8fafc; color: var(--text-light); border: 1px solid var(--border); }
 .gtg-badge.syncing { background: var(--warning-bg); color: #b45309; border: 1px solid #fde68a; }
 .gtg-badge.error { background: var(--error-bg); color: #dc2626; border: 1px solid #fecaca; }
+.gtg-badge.syncing_error { background: #fff7ed; color: #c2410c; border: 1px solid #fed7aa; }
+.gtg-badge.timeout { background: #faf5ff; color: #7c3aed; border: 1px solid #ddd6fe; }
+.gtg-badge.pending_review { background: #fffbeb; color: #b45309; border: 1px solid #fde68a; }
+.gtg-badge.failed { background: var(--error-bg); color: #b91c1c; border: 1px solid #fca5a5; }
+.gtg-badge.unauthorized { background: #fdf2f8; color: #be185d; border: 1px solid #f9a8d4; }
+
+/* Status dots — nuevos estados */
+.status-dot.syncing_error { background: #c2410c; }
+.status-dot.timeout { background: #7c3aed; }
+.status-dot.pending_review { background: #b45309; }
+.status-dot.failed { background: #b91c1c; }
+.status-dot.unauthorized { background: #be185d; }
 
 .gtg-table-action-btn {
   font-size: .74rem; font-weight: 700;

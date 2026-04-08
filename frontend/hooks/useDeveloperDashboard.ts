@@ -1,7 +1,22 @@
 import { useState, useEffect } from 'react';
-import type { Integration, BodyGraphData } from '../types/types';
+import type { Integration, BodyGraphData, IntegrationStatus } from '../types/types';
 
 const API_URL = import.meta.env.VITE_API_URL ?? '';
+
+/** Estados posibles al hacer Sync (nunca "connected") */
+export const NON_CONNECTED_STATUSES: IntegrationStatus[] = [
+  'disconnected',
+  'syncing_error',
+  'timeout',
+  'pending_review',
+  'failed',
+  'unauthorized',
+  'error',
+];
+
+function randomNonConnectedStatus(): IntegrationStatus {
+  return NON_CONNECTED_STATUSES[Math.floor(Math.random() * NON_CONNECTED_STATUSES.length)] ?? 'disconnected';
+}
 
 type UIState = 'initial' | 'loading' | 'success' | 'error';
 
@@ -23,6 +38,8 @@ export function useDeveloperDashboard() {
   const [uiState, setUiState] = useState<UIState>('initial');
   const [bodyGraph, setBodyGraph] = useState<BodyGraphData | null>(null);
   const [error, setError] = useState<string | null>(null);
+  /** ID de la integración que está procesando su Sync local */
+  const [syncingId, setSyncingId] = useState<string | null>(null);
 
   useEffect(() => {
     apiFetch<Integration[]>(`${API_URL}/api/integrations`)
@@ -31,6 +48,23 @@ export function useDeveloperDashboard() {
   }, []);
 
   const handleSelectSource = (id: string) => setSelectedSource(id);
+
+  /** Sync simulado: cambia el estado de la integración a uno aleatorio no-connected */
+  const syncIntegration = (id: string) => {
+    setSyncingId(id);
+    setSelectedSource(id);
+    setTimeout(() => {
+      const newStatus = randomNonConnectedStatus();
+      setIntegrations(prev =>
+        prev.map(i =>
+          i.id === id
+            ? { ...i, status: newStatus, lastSync: new Date().toISOString() }
+            : i,
+        ),
+      );
+      setSyncingId(null);
+    }, 900);
+  };
 
   const handleSync = async () => {
     if (!selectedSource) return;
@@ -55,5 +89,7 @@ export function useDeveloperDashboard() {
     bodyGraph,
     error,
     handleSync,
+    syncIntegration,
+    syncingId,
   };
 }
