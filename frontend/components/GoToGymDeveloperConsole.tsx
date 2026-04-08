@@ -8,11 +8,13 @@ import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
 import { ActionsSection } from './sections/ActionsSection';
 import { ResultsPanel } from './sections/ResultsPanel';
+import { NotificationsSection } from './sections/NotificationsSection';
 import '../styles/GoToGymDeveloperConsole.css';
 
 export const GoToGymDeveloperConsole: React.FC = () => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const handleNavigateToIntegration = (integrationId: string) => {
     setActiveSection('integrations');
@@ -92,17 +94,31 @@ export const GoToGymDeveloperConsole: React.FC = () => {
             error={error}
           />
         );
+      case 'notifications':
+        return (
+          <NotificationsSection
+            integrations={integrations}
+            onNavigateToIntegration={handleNavigateToIntegration}
+          />
+        );
     }
   };
 
   return (
-    <div className="gtg-app">
-      <AppSidebar active={activeSection} onNavigate={setActiveSection} />
+    <div className={`gtg-app${sidebarCollapsed ? ' sidebar-collapsed' : ''}`}>
+      <AppSidebar
+        active={activeSection}
+        onNavigate={setActiveSection}
+        isCollapsed={sidebarCollapsed}
+        onToggle={() => setSidebarCollapsed(c => !c)}
+      />
       <div className="gtg-main-area">
         <AppHeader
           section={activeSection}
           integrations={integrations}
           onNavigateToIntegration={handleNavigateToIntegration}
+          onToggleSidebar={() => setSidebarCollapsed(c => !c)}
+          sidebarCollapsed={sidebarCollapsed}
         />
         <main className="gtg-content">
           {renderSection()}
