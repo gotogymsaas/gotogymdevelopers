@@ -1,11 +1,17 @@
 import { Request, Response, NextFunction } from 'express';
 import * as IntegrationService from '../services/integration.service';
-import { ApiResponse } from '../types/api-response';
+import type { ApiResponse } from '../types/api-response';
 
 export async function getIntegrations(req: Request, res: Response, next: NextFunction) {
   try {
     const integrations = await IntegrationService.listIntegrations();
-    const response: ApiResponse<typeof integrations> = { success: true, data: integrations };
+    const data = integrations.map(i => ({
+      id: i.id,
+      name: i.name,
+      status: i.state === 'success' ? 'connected' : i.state,
+      lastSync: i.lastSync,
+    }));
+    const response: ApiResponse<typeof data> = { success: true, data };
     res.json(response);
   } catch (err) {
     next(err);

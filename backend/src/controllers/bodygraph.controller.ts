@@ -1,6 +1,6 @@
 import { Request, Response, NextFunction } from 'express';
 import * as BodyGraphService from '../services/bodygraph.service';
-import { ApiResponse } from '../types/api-response';
+import type { ApiResponse } from '../types/api-response';
 
 export async function getBodyGraph(req: Request, res: Response, next: NextFunction) {
   try {

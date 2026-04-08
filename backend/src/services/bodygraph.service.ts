@@ -1,25 +1,11 @@
-import { BodyGraphPayload } from '../models/bodygraph.model';
-
-export async function getBodyGraphPayload(integrationId: string): Promise<BodyGraphPayload> {
-  // Simulación de métricas normalizadas
+export async function getBodyGraphPayload(integrationId: string) {
+  // Métricas normalizadas con el shape que espera el frontend
   return {
-    integrationId,
-    metrics: [
-      {
-        type: 'heart_rate',
-        value: 80,
-        unit: 'bpm',
-        source: 'HealthKit',
-        timestamp: new Date().toISOString()
-      },
-      {
-        type: 'steps',
-        value: 1200,
-        unit: 'count',
-        source: 'HealthKit',
-        timestamp: new Date().toISOString()
-      }
-    ],
-    generatedAt: new Date().toISOString()
+    heart_rate: 78 + Math.floor(Math.random() * 10),
+    steps: 1100 + Math.floor(Math.random() * 500),
+    sleep: 7.2,
+    stress: 30 + Math.floor(Math.random() * 20),
+    source: integrationId,
+    timestamp: new Date().toISOString(),
   };
 }
