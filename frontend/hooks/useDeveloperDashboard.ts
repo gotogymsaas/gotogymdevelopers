@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Integration, BodyGraphData } from '../types/types';
+import type { Integration, BodyGraphData } from '../types/types';
 import { integrationsMock, bodyGraphMock } from '../mocks/mockData';
 
 type UIState = 'initial' | 'loading' | 'success' | 'error';
