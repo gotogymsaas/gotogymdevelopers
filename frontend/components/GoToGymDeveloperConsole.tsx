@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
+import { useLocation, useNavigate } from 'react-router-dom';
 import { useDeveloperDashboard } from '../hooks/useDeveloperDashboard';
 import { AppHeader } from './layout/AppHeader';
 import { AppSidebar } from './layout/AppSidebar';
 import type { Section } from './layout/AppSidebar';
 import type { UserRole } from '../auth/rbac';
 import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
-import { DashboardSection } from './sections/DashboardSection';
+import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
 import { ActionsSection } from './sections/ActionsSection';
@@ -21,6 +22,8 @@ interface GoToGymDeveloperConsoleProps {
 }
 
 export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = ({ onLogout, role }) => {
+  const location = useLocation();
+  const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -28,9 +31,12 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const isGym = role === 'gym';
   const roleAccess = getRoleAccess(role);
   const isAdmin = roleAccess.canViewSidebar;
-  const isDashboardOnlyRole = isUser || isGym;
-  const showSidebar = isAdmin || isDashboardOnlyRole;
-  const currentSection: Section = isDashboardOnlyRole ? 'dashboard' : activeSection;
+  const showSidebar = isAdmin || isUser || isGym;
+  const currentSection: Section = isUser
+    ? (location.pathname === '/cards' ? 'cards' : 'dashboard')
+    : isGym
+      ? 'dashboard'
+      : activeSection;
 
   const {
     metrics: smartwatchMetrics,
@@ -41,11 +47,25 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   } = useSmartwatchMetrics({ enabled: isUser });
 
   useEffect(() => {
-    if (isDashboardOnlyRole) {
+    if (isGym) {
       setActiveSection('dashboard');
       setSidebarCollapsed(false);
     }
-  }, [isDashboardOnlyRole]);
+  }, [isGym]);
+
+  const handleSidebarNavigate = (section: Section) => {
+    if (isUser) {
+      navigate(section === 'cards' ? '/cards' : '/dashboard');
+      return;
+    }
+
+    if (isGym) {
+      navigate('/dashboard');
+      return;
+    }
+
+    setActiveSection(section);
+  };
 
   const handleNavigateToIntegration = (integrationId: string) => {
     if (!isAdmin) {
@@ -84,6 +104,8 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const renderSection = () => {
     switch (currentSection) {
       case 'dashboard':
+        return <DashboardWelcomeSection />;
+      case 'cards':
         if (isUser) {
           return (
             <SmartwatchSection
@@ -96,16 +118,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           );
         }
 
-        return (
-          <DashboardSection
-            integrations={integrations}
-            activeIntegrations={activeIntegrations}
-            connectedSources={connectedSources}
-            lastSync={lastSync}
-            processedEvents={processedEvents}
-          />
-        );
-      case 'cards':
         return (
           <CardsSection
             activeIntegrations={activeIntegrations}
@@ -161,13 +173,13 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     >
       {showSidebar && (
         <AppSidebar
-          active={activeSection}
-          onNavigate={setActiveSection}
+          active={currentSection}
+          onNavigate={handleSidebarNavigate}
           isCollapsed={sidebarCollapsed}
           onToggle={() => setSidebarCollapsed(c => !c)}
           adminModules={roleAccess.adminModules}
           roleLabel={getRoleDisplayName(role)}
-          dashboardOnly={isDashboardOnlyRole}
+          role={role}
         />
       )}
       <div className="gtg-main-area">

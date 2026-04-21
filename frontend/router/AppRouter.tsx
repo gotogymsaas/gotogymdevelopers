@@ -3,6 +3,7 @@ import { Navigate, Route, Routes } from 'react-router-dom';
 import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
+import CardsPage from '../pages/CardsPage';
 import ProtectedRoute from './ProtectedRoute';
 
 interface AppRouterProps {
@@ -24,6 +25,14 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
         element={(
           <ProtectedRoute>
             <Dashboard onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/cards"
+        element={(
+          <ProtectedRoute>
+            <CardsPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
       />

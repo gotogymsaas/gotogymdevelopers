@@ -1,6 +1,7 @@
 import React from 'react';
 import { ADMIN_MODULE_LABELS } from '../../auth/rbac';
 import type { AdminModule } from '../../auth/rbac';
+import type { UserRole } from '../../auth/rbac';
 
 export type Section = 'dashboard' | 'cards' | 'integrations' | 'actions' | 'results' | 'notifications';
 
@@ -11,7 +12,7 @@ interface AppSidebarProps {
   onToggle: () => void;
   adminModules: AdminModule[];
   roleLabel: string;
-  dashboardOnly?: boolean;
+  role: UserRole;
 }
 
 /* ── Inline SVG icons ─────────────────────────────────────────── */
@@ -131,11 +132,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   isCollapsed,
   adminModules,
   roleLabel,
-  dashboardOnly = false,
+  role,
 }) => {
-  const visibleMainNav = dashboardOnly
-    ? mainNav.filter(item => item.section === 'dashboard')
-    : mainNav;
+  const isUser = role === 'user';
+  const isGym = role === 'gym';
+  const isAdmin = role === 'admin';
+
+  const visibleMainNav = isUser
+    ? mainNav.filter(item => item.section === 'dashboard' || item.section === 'cards')
+    : isGym
+      ? mainNav.filter(item => item.section === 'dashboard')
+      : mainNav;
 
   return (
     <aside className={`gtg-sidebar${isCollapsed ? ' is-collapsed' : ''}`}>
@@ -166,7 +173,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </button>
         ))}
 
-        {!dashboardOnly && adminModules.length > 0 && (
+        {isAdmin && adminModules.length > 0 && (
           <>
             <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Administracion</span>
 
@@ -187,7 +194,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </>
         )}
 
-        {!dashboardOnly && (
+        {isAdmin && (
           <>
             <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Recursos</span>
 
