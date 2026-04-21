@@ -66,6 +66,8 @@ Las pruebas están en la carpeta `tests/` y cubren:
 - `GET /api/integrations` — Lista integraciones disponibles/conectadas
 - `POST /api/integrations/:id/sync` — Ejecuta una sincronización simulada
 - `GET /api/bodygraph/:integrationId` — Devuelve un payload normalizado tipo BodyGraph
+- `POST /api/v1/auth/login` — Emite JWT firmado para credenciales validas
+- `GET /api/v1/smartwatch/metrics` — Devuelve metricas de smartwatch del usuario autenticado (header `Authorization: Bearer <token>`) en formato `{ success, data }`
 
 ---
 

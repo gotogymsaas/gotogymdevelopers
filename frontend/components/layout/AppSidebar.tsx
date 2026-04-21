@@ -1,4 +1,6 @@
 import React from 'react';
+import { ADMIN_MODULE_LABELS } from '../../auth/rbac';
+import type { AdminModule } from '../../auth/rbac';
 
 export type Section = 'dashboard' | 'cards' | 'integrations' | 'actions' | 'results' | 'notifications';
 
@@ -7,6 +9,8 @@ interface AppSidebarProps {
   onNavigate: (section: Section) => void;
   isCollapsed: boolean;
   onToggle: () => void;
+  adminModules: AdminModule[];
+  roleLabel: string;
 }
 
 /* ── Inline SVG icons ─────────────────────────────────────────── */
@@ -60,6 +64,40 @@ const IcoShield = () => (
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 );
+const IcoUsers = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M23 21v-2a4 4 0 0 0-3-3.87" />
+    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+  </svg>
+);
+const IcoGym = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M2 12h2" /><path d="M20 12h2" />
+    <path d="M6 8v8" /><path d="M18 8v8" />
+    <path d="M8 12h8" />
+  </svg>
+);
+const IcoTrainer = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="7" r="4" />
+    <path d="M5.5 21a6.5 6.5 0 0 1 13 0" />
+  </svg>
+);
+const IcoReport = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <line x1="12" y1="20" x2="12" y2="10" />
+    <line x1="18" y1="20" x2="18" y2="4" />
+    <line x1="6" y1="20" x2="6" y2="16" />
+  </svg>
+);
+const IcoSettings = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <circle cx="12" cy="12" r="3" />
+    <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z" />
+  </svg>
+);
 
 interface NavItem { id: Section | string; label: string; icon: React.ReactNode; section?: Section; }
 
@@ -78,7 +116,21 @@ const resourceNav = [
   { id: 'security',  label: 'Seguridad',      icon: <IcoShield />, disabled: true },
 ];
 
-export const AppSidebar: React.FC<AppSidebarProps> = ({ active, onNavigate, isCollapsed }) => {
+const adminModuleIcons: Record<AdminModule, React.ReactNode> = {
+  users: <IcoUsers />,
+  gyms: <IcoGym />,
+  trainers: <IcoTrainer />,
+  reports: <IcoReport />,
+  settings: <IcoSettings />,
+};
+
+export const AppSidebar: React.FC<AppSidebarProps> = ({
+  active,
+  onNavigate,
+  isCollapsed,
+  adminModules,
+  roleLabel,
+}) => {
   return (
     <aside className={`gtg-sidebar${isCollapsed ? ' is-collapsed' : ''}`}>
       {/* ── Brand ── */}
@@ -108,6 +160,27 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ active, onNavigate, isCo
           </button>
         ))}
 
+        {adminModules.length > 0 && (
+          <>
+            <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Administracion</span>
+
+            {adminModules.map(module => (
+              <button
+                key={module}
+                className="gtg-nav-item"
+                disabled
+                data-label={ADMIN_MODULE_LABELS[module]}
+                title={isCollapsed ? ADMIN_MODULE_LABELS[module] : undefined}
+                aria-label={ADMIN_MODULE_LABELS[module]}
+                style={{ opacity: .7, cursor: 'not-allowed' }}
+              >
+                <span className="gtg-nav-icon">{adminModuleIcons[module]}</span>
+                <span className="gtg-nav-label">{ADMIN_MODULE_LABELS[module]}</span>
+              </button>
+            ))}
+          </>
+        )}
+
         <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Recursos</span>
 
         {resourceNav.map(item => (
@@ -136,7 +209,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({ active, onNavigate, isCo
           <div className="gtg-sidebar-user-avatar">GG</div>
           <div className="gtg-sidebar-user-info">
             <span className="gtg-sidebar-user-name">Dev User</span>
-            <span className="gtg-sidebar-user-role">Administrator</span>
+            <span className="gtg-sidebar-user-role">{roleLabel}</span>
           </div>
         </div>
       </div>

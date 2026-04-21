@@ -10,6 +10,7 @@ interface AppHeaderProps {
   onNavigateToIntegration: (integrationId: string) => void;
   onToggleSidebar: () => void;
   sidebarCollapsed: boolean;
+  showSidebarToggle: boolean;
   onLogout: () => void;
 }
 
@@ -48,6 +49,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onNavigateToIntegration,
   onToggleSidebar,
   sidebarCollapsed,
+  showSidebarToggle,
   onLogout,
 }) => {
   const { title, desc } = sectionMeta[section];
@@ -55,15 +57,16 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
 
   return (
     <header className="gtg-header">
-      {/* Sidebar toggle */}
-      <button
-        className="gtg-header-toggle"
-        onClick={onToggleSidebar}
-        title={sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'}
-        aria-label={sidebarCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
-      >
-        <MenuIcon collapsed={sidebarCollapsed} />
-      </button>
+      {showSidebarToggle && (
+        <button
+          className="gtg-header-toggle"
+          onClick={onToggleSidebar}
+          title={sidebarCollapsed ? 'Expandir menú' : 'Colapsar menú'}
+          aria-label={sidebarCollapsed ? 'Expandir menú lateral' : 'Colapsar menú lateral'}
+        >
+          <MenuIcon collapsed={sidebarCollapsed} />
+        </button>
+      )}
 
       {/* Breadcrumb */}
       <div className="gtg-header-breadcrumb">

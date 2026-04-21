@@ -233,6 +233,7 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   flex: 1; display: flex; flex-direction: column; min-height: 100vh;
   transition: margin-left var(--transition);
 }
+.gtg-app.no-sidebar .gtg-main-area { margin-left: 0; }
 .gtg-app.sidebar-collapsed .gtg-main-area { margin-left: var(--sidebar-width-collapsed); }
 
 /* ===== HEADER ===== */
@@ -364,6 +365,102 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 .gtg-metric-trend {
   font-size: .7rem; color: var(--success); font-weight: 600;
   display: flex; align-items: center; gap: 4px; margin-top: 2px;
+}
+
+/* ===== SMARTWATCH SECTION ===== */
+.gtg-smartwatch-section {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gtg-smartwatch-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gtg-smartwatch-status-row {
+  margin-top: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.gtg-smartwatch-loading {
+  font-size: .74rem;
+  color: var(--text-muted);
+}
+
+.gtg-smartwatch-error {
+  margin-top: 8px;
+  font-size: .74rem;
+  color: #b45309;
+  background: #fffbeb;
+  border: 1px solid #fde68a;
+  border-radius: 8px;
+  padding: 6px 10px;
+  width: fit-content;
+}
+
+.gtg-health-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 9px;
+  min-height: 148px;
+  transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+}
+
+.gtg-health-card:hover {
+  transform: translateY(-2px);
+  border-color: #bfdbfe;
+  box-shadow: var(--shadow-md);
+}
+
+.gtg-health-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.gtg-health-card-title {
+  font-size: .84rem;
+  color: var(--text-muted);
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.gtg-health-card-icon {
+  width: 30px;
+  height: 30px;
+  border-radius: 8px;
+  background: var(--primary-faint);
+  color: var(--primary);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.gtg-health-card-value {
+  font-size: 1.55rem;
+  line-height: 1.1;
+  color: var(--text);
+  font-weight: 800;
+  letter-spacing: -.02em;
+}
+
+.gtg-health-card-note {
+  font-size: .76rem;
+  color: var(--text-light);
+  line-height: 1.45;
 }
 
 /* ===== DASHBOARD GRID ===== */
@@ -677,6 +774,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
 @media (max-width: 1200px) {
   .gtg-metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .gtg-results-layout { grid-template-columns: 1fr; }
+  .gtg-smartwatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 1100px) {
   .gtg-dashboard-grid, .gtg-actions-layout { grid-template-columns: 1fr; }
@@ -692,6 +790,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
 @media (max-width: 480px) {
   .gtg-metrics-grid, .gtg-cards-grid, .gtg-action-buttons { grid-template-columns: 1fr; }
   .gtg-notif-page-grid { grid-template-columns: 1fr; }
+  .gtg-smartwatch-grid { grid-template-columns: 1fr; }
 }
 
 /* ===== NOTIFICATION BELL ===== */

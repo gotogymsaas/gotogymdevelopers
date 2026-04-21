@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
+import { loginWithApi, MOCK_USERS } from '../auth/rbac';
 
 interface LoginProps {
   isAuthenticated: boolean;
@@ -36,21 +37,37 @@ const inputStyle: React.CSSProperties = {
 const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [errorMessage, setErrorMessage] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
   }
 
-  const handleSubmit = (event: React.FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
+    setErrorMessage('');
 
     if (!email.trim() || !password.trim()) {
+      setErrorMessage('Debes ingresar email y password.');
       return;
     }
 
-    onLogin();
-    navigate('/dashboard', { replace: true });
+    setIsSubmitting(true);
+
+    try {
+      const session = await loginWithApi(email, password);
+      if (!session) {
+        setErrorMessage('Credenciales invalidas o backend no disponible.');
+        return;
+      }
+
+      onLogin();
+      navigate('/dashboard', { replace: true });
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -89,6 +106,7 @@ const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
 
         <button
           type="submit"
+          disabled={isSubmitting}
           style={{
             width: '100%',
             padding: '11px 14px',
@@ -96,13 +114,30 @@ const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
             border: 'none',
             fontSize: '0.95rem',
             fontWeight: 600,
-            background: '#0f172a',
+            background: isSubmitting ? '#334155' : '#0f172a',
             color: '#f8fafc',
-            cursor: 'pointer',
+            cursor: isSubmitting ? 'not-allowed' : 'pointer',
           }}
         >
-          Iniciar sesion
+          {isSubmitting ? 'Iniciando...' : 'Iniciar sesion'}
         </button>
+
+        {errorMessage && (
+          <p style={{ color: '#dc2626', marginTop: '14px', fontSize: '0.85rem' }}>
+            {errorMessage}
+          </p>
+        )}
+
+        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
+          <strong>Usuarios mock:</strong>
+          <ul style={{ margin: '8px 0 0 18px' }}>
+            {MOCK_USERS.map(user => (
+              <li key={user.email}>
+                {user.email} / {user.password} ({user.role})
+              </li>
+            ))}
+          </ul>
+        </div>
       </form>
     </section>
   );

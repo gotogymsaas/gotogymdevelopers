@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
 import { BrowserRouter } from 'react-router-dom';
 import AppRouter from './router/AppRouter';
+import { clearStoredSession, isAuthenticated } from './auth/rbac';
 
 const App: React.FC = () => {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [sessionActive, setSessionActive] = useState<boolean>(() => isAuthenticated());
 
   const handleLogin = () => {
-    setIsAuthenticated(true);
+    setSessionActive(true);
   };
 
   const handleLogout = () => {
-    setIsAuthenticated(false);
+    clearStoredSession();
+    setSessionActive(false);
   };
 
   return (
     <BrowserRouter>
       <AppRouter
-        isAuthenticated={isAuthenticated}
+        isAuthenticated={sessionActive}
         onLogin={handleLogin}
         onLogout={handleLogout}
       />
