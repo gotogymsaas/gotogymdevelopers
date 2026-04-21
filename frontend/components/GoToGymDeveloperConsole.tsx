@@ -13,7 +13,13 @@ import { ActionsSection } from './sections/ActionsSection';
 import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { SmartwatchSection } from './sections/SmartwatchSection';
+import { SmartwatchSummary } from './sections/SmartwatchSummary';
 import { useSmartwatchMetrics } from '../hooks/useSmartwatchMetrics';
+import {
+  smartwatchActivitySummaryMock,
+  smartwatchHeartRateTrendMock,
+  smartwatchSleepPhasesMock,
+} from '../mocks/smartwatchData';
 import '../styles/GoToGymDeveloperConsole.css';
 
 interface GoToGymDeveloperConsoleProps {
@@ -104,6 +110,19 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const renderSection = () => {
     switch (currentSection) {
       case 'dashboard':
+        if (isUser) {
+          return (
+            <>
+              <DashboardWelcomeSection />
+              <SmartwatchSummary
+                heartRateTrend={smartwatchHeartRateTrendMock}
+                sleepPhases={smartwatchSleepPhasesMock}
+                activitySummary={smartwatchActivitySummaryMock}
+              />
+            </>
+          );
+        }
+
         return <DashboardWelcomeSection />;
       case 'cards':
         if (isUser) {

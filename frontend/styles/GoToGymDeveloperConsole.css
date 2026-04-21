@@ -606,6 +606,68 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   color: var(--text-light);
 }
 
+.gtg-smartwatch-summary {
+  margin-top: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gtg-smartwatch-summary-header {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gtg-smartwatch-summary-header h2 {
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: -.01em;
+  color: var(--text);
+}
+
+.gtg-smartwatch-summary-header p {
+  font-size: .78rem;
+  color: var(--text-muted);
+}
+
+.gtg-smartwatch-summary-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gtg-chart-card {
+  background: var(--card-bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  padding: 14px;
+  min-height: 290px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.gtg-chart-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 8px;
+}
+
+.gtg-chart-card-header h3 {
+  font-size: .84rem;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.gtg-chart-card-header span {
+  font-size: .72rem;
+  color: var(--text-light);
+  font-weight: 600;
+}
+
 /* ===== DASHBOARD GRID ===== */
 .gtg-dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
@@ -918,6 +980,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-metrics-grid { grid-template-columns: repeat(2, 1fr); }
   .gtg-results-layout { grid-template-columns: 1fr; }
   .gtg-smartwatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gtg-smartwatch-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 1100px) {
   .gtg-dashboard-grid, .gtg-actions-layout { grid-template-columns: 1fr; }
@@ -927,6 +990,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-sidebar { transform: translateX(-100%); }
   .gtg-app.sidebar-collapsed .gtg-main-area { margin-left: 0; }
   .gtg-metrics-grid, .gtg-cards-grid { grid-template-columns: 1fr 1fr; }
+  .gtg-smartwatch-summary-grid { grid-template-columns: 1fr; }
   .gtg-content { padding: 16px; }
   .gtg-header { padding: 0 16px; }
 }

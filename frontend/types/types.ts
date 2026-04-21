@@ -62,3 +62,21 @@ export interface SmartwatchMetricDetail {
 }
 
 export type SmartwatchMetricDetailsMap = Record<SmartwatchMetricId, SmartwatchMetricDetail>;
+
+export interface HeartRateTrendPoint {
+  time: string;
+  bpm: number;
+}
+
+export interface SleepPhaseDatum {
+  phase: 'Ligero' | 'Profundo' | 'REM';
+  hours: number;
+  color: string;
+}
+
+export interface ActivitySummaryDatum {
+  metric: 'Pasos' | 'Calorias' | 'Distancia';
+  value: number;
+  unit: string;
+  color: string;
+}
