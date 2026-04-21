@@ -11,6 +11,7 @@ interface AppSidebarProps {
   onToggle: () => void;
   adminModules: AdminModule[];
   roleLabel: string;
+  dashboardOnly?: boolean;
 }
 
 /* ── Inline SVG icons ─────────────────────────────────────────── */
@@ -130,7 +131,12 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   isCollapsed,
   adminModules,
   roleLabel,
+  dashboardOnly = false,
 }) => {
+  const visibleMainNav = dashboardOnly
+    ? mainNav.filter(item => item.section === 'dashboard')
+    : mainNav;
+
   return (
     <aside className={`gtg-sidebar${isCollapsed ? ' is-collapsed' : ''}`}>
       {/* ── Brand ── */}
@@ -146,7 +152,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       <nav className="gtg-sidebar-nav">
         <span className="gtg-nav-section-label">Principal</span>
 
-        {mainNav.map(item => (
+        {visibleMainNav.map(item => (
           <button
             key={item.id}
             className={`gtg-nav-item${active === item.id ? ' active' : ''}`}
@@ -160,7 +166,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </button>
         ))}
 
-        {adminModules.length > 0 && (
+        {!dashboardOnly && adminModules.length > 0 && (
           <>
             <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Administracion</span>
 
@@ -181,22 +187,26 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </>
         )}
 
-        <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Recursos</span>
+        {!dashboardOnly && (
+          <>
+            <span className="gtg-nav-section-label" style={{ marginTop: 8 }}>Recursos</span>
 
-        {resourceNav.map(item => (
-          <button
-            key={item.id}
-            className="gtg-nav-item"
-            disabled
-            data-label={item.label}
-            title={isCollapsed ? item.label : undefined}
-            aria-label={item.label}
-            style={{ opacity: .45, cursor: 'not-allowed' }}
-          >
-            <span className="gtg-nav-icon">{item.icon}</span>
-            <span className="gtg-nav-label">{item.label}</span>
-          </button>
-        ))}
+            {resourceNav.map(item => (
+              <button
+                key={item.id}
+                className="gtg-nav-item"
+                disabled
+                data-label={item.label}
+                title={isCollapsed ? item.label : undefined}
+                aria-label={item.label}
+                style={{ opacity: .45, cursor: 'not-allowed' }}
+              >
+                <span className="gtg-nav-icon">{item.icon}</span>
+                <span className="gtg-nav-label">{item.label}</span>
+              </button>
+            ))}
+          </>
+        )}
       </nav>
 
       {/* ── Footer ── */}

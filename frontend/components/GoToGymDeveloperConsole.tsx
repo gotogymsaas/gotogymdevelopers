@@ -25,9 +25,12 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isUser = role === 'user';
+  const isGym = role === 'gym';
   const roleAccess = getRoleAccess(role);
   const isAdmin = roleAccess.canViewSidebar;
-  const currentSection: Section = isAdmin ? activeSection : 'dashboard';
+  const isDashboardOnlyRole = isUser || isGym;
+  const showSidebar = isAdmin || isDashboardOnlyRole;
+  const currentSection: Section = isDashboardOnlyRole ? 'dashboard' : activeSection;
 
   const {
     metrics: smartwatchMetrics,
@@ -38,11 +41,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   } = useSmartwatchMetrics({ enabled: isUser });
 
   useEffect(() => {
-    if (!isAdmin) {
+    if (isDashboardOnlyRole) {
       setActiveSection('dashboard');
       setSidebarCollapsed(false);
     }
-  }, [isAdmin]);
+  }, [isDashboardOnlyRole]);
 
   const handleNavigateToIntegration = (integrationId: string) => {
     if (!isAdmin) {
@@ -154,9 +157,9 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
 
   return (
     <div
-      className={`gtg-app${isAdmin && sidebarCollapsed ? ' sidebar-collapsed' : ''}${!isAdmin ? ' no-sidebar' : ''}`}
+      className={`gtg-app${showSidebar && sidebarCollapsed ? ' sidebar-collapsed' : ''}${!showSidebar ? ' no-sidebar' : ''}`}
     >
-      {isAdmin && (
+      {showSidebar && (
         <AppSidebar
           active={activeSection}
           onNavigate={setActiveSection}
@@ -164,6 +167,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           onToggle={() => setSidebarCollapsed(c => !c)}
           adminModules={roleAccess.adminModules}
           roleLabel={getRoleDisplayName(role)}
+          dashboardOnly={isDashboardOnlyRole}
         />
       )}
       <div className="gtg-main-area">
@@ -173,7 +177,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           onNavigateToIntegration={handleNavigateToIntegration}
           onToggleSidebar={() => setSidebarCollapsed(c => !c)}
           sidebarCollapsed={sidebarCollapsed}
-          showSidebarToggle={isAdmin}
+          showSidebarToggle={showSidebar}
           onLogout={onLogout}
         />
         <main className="gtg-content">
