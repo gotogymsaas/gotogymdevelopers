@@ -7,6 +7,7 @@ import Dashboard from '../pages/Dashboard';
 interface AppRouterProps {
   isAuthenticated: boolean;
   onLogin: () => void;
+  onLogout: () => void;
 }
 
 interface ProtectedRouteProps {
@@ -22,7 +23,7 @@ const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ isAuthenticated, childr
   return children;
 };
 
-const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin }) => {
+const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogout }) => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
@@ -34,7 +35,7 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin }) => {
         path="/dashboard"
         element={(
           <ProtectedRoute isAuthenticated={isAuthenticated}>
-            <Dashboard />
+            <Dashboard onLogout={onLogout} />
           </ProtectedRoute>
         )}
       />

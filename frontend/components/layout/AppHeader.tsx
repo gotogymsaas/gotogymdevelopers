@@ -10,6 +10,7 @@ interface AppHeaderProps {
   onNavigateToIntegration: (integrationId: string) => void;
   onToggleSidebar: () => void;
   sidebarCollapsed: boolean;
+  onLogout: () => void;
 }
 
 const sectionMeta: Record<Section, { title: string; desc: string }> = {
@@ -47,6 +48,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   onNavigateToIntegration,
   onToggleSidebar,
   sidebarCollapsed,
+  onLogout,
 }) => {
   const { title, desc } = sectionMeta[section];
   const { alerts, count, isOpen, toggle, close } = useNotifications(integrations);
@@ -76,6 +78,9 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
       {/* Actions */}
       <div className="gtg-header-actions">
         <span className="gtg-header-version">v1.0.0</span>
+        <button className="gtg-header-btn" onClick={onLogout} title="Cerrar sesión" aria-label="Cerrar sesión">
+          Cerrar sesión
+        </button>
         <NotificationBell
           count={count}
           alerts={alerts}

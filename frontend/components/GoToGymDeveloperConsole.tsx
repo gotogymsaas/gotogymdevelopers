@@ -11,7 +11,11 @@ import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import '../styles/GoToGymDeveloperConsole.css';
 
-export const GoToGymDeveloperConsole: React.FC = () => {
+interface GoToGymDeveloperConsoleProps {
+  onLogout: () => void;
+}
+
+export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = ({ onLogout }) => {
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
   const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -123,6 +127,7 @@ export const GoToGymDeveloperConsole: React.FC = () => {
           onNavigateToIntegration={handleNavigateToIntegration}
           onToggleSidebar={() => setSidebarCollapsed(c => !c)}
           sidebarCollapsed={sidebarCollapsed}
+          onLogout={onLogout}
         />
         <main className="gtg-content">
           {renderSection()}

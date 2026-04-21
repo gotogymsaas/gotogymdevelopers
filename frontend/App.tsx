@@ -9,9 +9,17 @@ const App: React.FC = () => {
     setIsAuthenticated(true);
   };
 
+  const handleLogout = () => {
+    setIsAuthenticated(false);
+  };
+
   return (
     <BrowserRouter>
-      <AppRouter isAuthenticated={isAuthenticated} onLogin={handleLogin} />
+      <AppRouter
+        isAuthenticated={isAuthenticated}
+        onLogin={handleLogin}
+        onLogout={handleLogout}
+      />
     </BrowserRouter>
   );
 };
