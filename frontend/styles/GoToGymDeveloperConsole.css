@@ -404,40 +404,52 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   width: fit-content;
 }
 
-.gtg-health-card {
+.gtg-smartwatch-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
   border-radius: var(--radius);
   box-shadow: var(--shadow);
-  padding: 18px;
-  display: flex;
-  flex-direction: column;
-  gap: 9px;
-  min-height: 148px;
   transition: transform var(--transition-fast), box-shadow var(--transition-fast), border-color var(--transition-fast);
+  overflow: hidden;
 }
 
-.gtg-health-card:hover {
+.gtg-smartwatch-card:hover {
   transform: translateY(-2px);
   border-color: #bfdbfe;
   box-shadow: var(--shadow-md);
 }
 
-.gtg-health-card-head {
+.gtg-smartwatch-card.is-expanded {
+  border-color: #93c5fd;
+}
+
+.gtg-smartwatch-card-trigger {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 16px;
+  cursor: pointer;
+  text-align: left;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.gtg-smartwatch-card-head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
 
-.gtg-health-card-title {
+.gtg-smartwatch-card-title {
   font-size: .84rem;
   color: var(--text-muted);
   font-weight: 700;
   line-height: 1.35;
 }
 
-.gtg-health-card-icon {
+.gtg-smartwatch-card-icon {
   width: 30px;
   height: 30px;
   border-radius: 8px;
@@ -449,7 +461,13 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   flex-shrink: 0;
 }
 
-.gtg-health-card-value {
+.gtg-smartwatch-card-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+
+.gtg-smartwatch-card-value {
   font-size: 1.55rem;
   line-height: 1.1;
   color: var(--text);
@@ -457,10 +475,135 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   letter-spacing: -.02em;
 }
 
-.gtg-health-card-note {
+.gtg-smartwatch-card-note {
   font-size: .76rem;
   color: var(--text-light);
   line-height: 1.45;
+}
+
+.gtg-smartwatch-card-chevron {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  background: #f8fafc;
+  color: var(--text-muted);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-end;
+  transition: transform var(--transition-fast), background var(--transition-fast), color var(--transition-fast);
+}
+
+.gtg-smartwatch-card.is-expanded .gtg-smartwatch-card-chevron {
+  transform: rotate(180deg);
+  background: var(--primary-faint);
+  color: var(--primary);
+}
+
+.gtg-smartwatch-card-expand {
+  display: grid;
+  grid-template-rows: 0fr;
+  transition: grid-template-rows var(--transition), border-color var(--transition);
+  border-top: 1px solid transparent;
+}
+
+.gtg-smartwatch-card.is-expanded .gtg-smartwatch-card-expand {
+  grid-template-rows: 1fr;
+  border-top-color: var(--border-light);
+}
+
+.gtg-smartwatch-card-expand-inner {
+  overflow: hidden;
+  padding: 0 16px;
+}
+
+.gtg-smartwatch-card.is-expanded .gtg-smartwatch-card-expand-inner {
+  padding: 12px 16px 16px;
+}
+
+.gtg-smartwatch-detail-section {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.gtg-smartwatch-detail-section + .gtg-smartwatch-detail-section {
+  margin-top: 12px;
+}
+
+.gtg-smartwatch-detail-title {
+  font-size: .72rem;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: .06em;
+  font-weight: 700;
+}
+
+.gtg-smartwatch-detail-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.gtg-smartwatch-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 8px;
+  border: 1px solid var(--border-light);
+  border-radius: 8px;
+  background: #f8fafc;
+}
+
+.gtg-smartwatch-detail-label {
+  font-size: .75rem;
+  color: var(--text-muted);
+}
+
+.gtg-smartwatch-detail-value {
+  font-size: .71rem;
+  font-weight: 700;
+  border-radius: 999px;
+  padding: 3px 8px;
+  border: 1px solid transparent;
+}
+
+.gtg-smartwatch-detail-value.is-normal {
+  color: var(--text);
+  background: #f1f5f9;
+  border-color: #e2e8f0;
+}
+
+.gtg-smartwatch-detail-value.is-good {
+  color: #047857;
+  background: #ecfdf5;
+  border-color: #a7f3d0;
+}
+
+.gtg-smartwatch-detail-value.is-warning {
+  color: #b45309;
+  background: #fffbeb;
+  border-color: #fde68a;
+}
+
+.gtg-smartwatch-detail-value.is-danger {
+  color: #b91c1c;
+  background: #fef2f2;
+  border-color: #fecaca;
+}
+
+.gtg-smartwatch-detail-value.is-info {
+  color: #1d4ed8;
+  background: #eff6ff;
+  border-color: #bfdbfe;
+}
+
+.gtg-smartwatch-detail-note {
+  font-size: .72rem;
+  line-height: 1.5;
+  color: var(--text-light);
 }
 
 /* ===== DASHBOARD GRID ===== */

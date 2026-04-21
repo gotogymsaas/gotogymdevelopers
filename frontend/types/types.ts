@@ -42,3 +42,23 @@ export interface SmartwatchMetric {
   value: string;
   note: string;
 }
+
+export type SmartwatchDetailTone = 'normal' | 'good' | 'warning' | 'danger' | 'info';
+
+export interface SmartwatchDetailItem {
+  label: string;
+  value: string;
+  tone?: SmartwatchDetailTone;
+}
+
+export interface SmartwatchDetailSection {
+  title: string;
+  items: SmartwatchDetailItem[];
+  note?: string;
+}
+
+export interface SmartwatchMetricDetail {
+  sections: SmartwatchDetailSection[];
+}
+
+export type SmartwatchMetricDetailsMap = Record<SmartwatchMetricId, SmartwatchMetricDetail>;
