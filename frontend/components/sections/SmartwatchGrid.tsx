@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import type {
   SmartwatchMetric,
   SmartwatchMetricDetail,
@@ -12,6 +12,20 @@ interface SmartwatchGridProps {
   detailsByMetric: SmartwatchMetricDetailsMap;
   preferredMetricId?: SmartwatchMetricId | null;
 }
+
+interface SmartwatchGridCard {
+  cardId: string;
+  metric: SmartwatchMetric;
+  detail: SmartwatchMetricDetail;
+}
+
+const buildCardId = (metric: SmartwatchMetric, index: number): string => {
+  const metricId = typeof metric.id === 'string' && metric.id.trim().length > 0
+    ? metric.id
+    : 'metric';
+
+  return `${metricId}__${index}`;
+};
 
 const getMetricIcon = (metricId: SmartwatchMetricId): React.ReactNode => {
   switch (metricId) {
@@ -98,42 +112,54 @@ export const SmartwatchGrid: React.FC<SmartwatchGridProps> = ({
   detailsByMetric,
   preferredMetricId = null,
 }) => {
-  const [activeMetricId, setActiveMetricId] = useState<SmartwatchMetricId | null>(metrics[0]?.id ?? null);
+  const [activeCard, setActiveCard] = useState<string | null>(null);
+
+  const cards = useMemo<SmartwatchGridCard[]>(() => {
+    return metrics.map((metric, index) => ({
+      cardId: buildCardId(metric, index),
+      metric,
+      detail: detailsByMetric[metric.id] ?? buildFallbackDetail(metric),
+    }));
+  }, [detailsByMetric, metrics]);
+
+  const handleToggle = (cardId: string) => {
+    setActiveCard(prev => (prev === cardId ? null : cardId));
+  };
 
   useEffect(() => {
-    setActiveMetricId(prev => {
-      if (prev && metrics.some(metric => metric.id === prev)) {
-        return prev;
-      }
+    if (!activeCard) {
+      return;
+    }
 
-      return metrics[0]?.id ?? null;
-    });
-  }, [metrics]);
+    if (!cards.some(card => card.cardId === activeCard)) {
+      setActiveCard(null);
+    }
+  }, [activeCard, cards]);
 
   useEffect(() => {
     if (!preferredMetricId) {
       return;
     }
 
-    if (metrics.some(metric => metric.id === preferredMetricId)) {
-      setActiveMetricId(preferredMetricId);
+    const preferredCard = cards.find(card => card.metric.id === preferredMetricId);
+    if (preferredCard) {
+      setActiveCard(preferredCard.cardId);
     }
-  }, [preferredMetricId, metrics]);
+  }, [cards, preferredMetricId]);
 
   return (
     <div className="gtg-smartwatch-grid">
-      {metrics.map(metric => {
-        const detail = detailsByMetric[metric.id] ?? buildFallbackDetail(metric);
-        const isExpanded = activeMetricId === metric.id;
+      {cards.map(card => {
+        const isOpen = activeCard === card.cardId;
 
         return (
           <SmartwatchCard
-            key={metric.id}
-            metric={metric}
-            detail={detail}
-            icon={getMetricIcon(metric.id)}
-            isExpanded={isExpanded}
-            onToggle={() => setActiveMetricId(prev => (prev === metric.id ? null : metric.id))}
+            key={card.cardId}
+            metric={card.metric}
+            detail={card.detail}
+            icon={getMetricIcon(card.metric.id)}
+            isOpen={isOpen}
+            onToggle={() => handleToggle(card.cardId)}
           />
         );
       })}

@@ -5,7 +5,7 @@ interface SmartwatchCardProps {
   metric: SmartwatchMetric;
   detail: SmartwatchMetricDetail;
   icon?: React.ReactNode;
-  isExpanded: boolean;
+  isOpen: boolean;
   onToggle: () => void;
 }
 
@@ -28,17 +28,17 @@ export const SmartwatchCard: React.FC<SmartwatchCardProps> = ({
   metric,
   detail,
   icon,
-  isExpanded,
+  isOpen,
   onToggle,
 }) => {
   return (
-    <article className={`gtg-smartwatch-card${isExpanded ? ' is-expanded' : ''}`}>
+    <article className={`gtg-smartwatch-card${isOpen ? ' is-expanded' : ''}`}>
       <button
         type="button"
         className="gtg-smartwatch-card-trigger"
         onClick={onToggle}
-        aria-expanded={isExpanded}
-        aria-label={`${isExpanded ? 'Contraer' : 'Expandir'} ${metric.title}`}
+        aria-expanded={isOpen}
+        aria-label={`${isOpen ? 'Contraer' : 'Expandir'} ${metric.title}`}
       >
         <div className="gtg-smartwatch-card-head">
           <h3 className="gtg-smartwatch-card-title">{metric.title}</h3>
@@ -59,7 +59,7 @@ export const SmartwatchCard: React.FC<SmartwatchCardProps> = ({
 
       <div className="gtg-smartwatch-card-expand">
         <div className="gtg-smartwatch-card-expand-inner">
-          {detail.sections.map((section, sectionIndex) => (
+          {isOpen && detail.sections.map((section, sectionIndex) => (
             <section className="gtg-smartwatch-detail-section" key={`${section.title}-${sectionIndex}`}>
               <h4 className="gtg-smartwatch-detail-title">{section.title}</h4>
               <ul className="gtg-smartwatch-detail-list">

@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_root="$(git rev-parse --show-toplevel)"
+
+if "$repo_root/scripts/update-commit-history.sh"; then
+  git -C "$repo_root" add COMMIT_HISTORY.md >/dev/null 2>&1 || true
+  echo "COMMIT_HISTORY.md actualizado y agregado al stage para tu proximo commit." >&2
+fi
