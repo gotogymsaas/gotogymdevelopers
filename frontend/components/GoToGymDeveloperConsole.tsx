@@ -20,14 +20,20 @@ import {
   smartwatchHeartRateTrendMock,
   smartwatchSleepPhasesMock,
 } from '../mocks/smartwatchData';
+import type { SmartwatchMetricId } from '../types/types';
 import '../styles/GoToGymDeveloperConsole.css';
 
 interface GoToGymDeveloperConsoleProps {
   onLogout: () => void;
   role: UserRole;
+  initialUserMetricId?: SmartwatchMetricId | null;
 }
 
-export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = ({ onLogout, role }) => {
+export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = ({
+  onLogout,
+  role,
+  initialUserMetricId = null,
+}) => {
   const location = useLocation();
   const navigate = useNavigate();
   const [activeSection, setActiveSection] = useState<Section>('dashboard');
@@ -133,6 +139,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
               error={smartwatchError}
               dataSource={smartwatchDataSource}
               onRetry={reloadMetrics}
+              preferredMetricId={initialUserMetricId}
             />
           );
         }

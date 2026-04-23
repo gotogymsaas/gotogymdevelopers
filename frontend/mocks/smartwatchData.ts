@@ -201,7 +201,7 @@ export const smartwatchHeartRateTrendMock: HeartRateTrendPoint[] = [
 export const smartwatchSleepPhasesMock: SleepPhaseDatum[] = [
   { phase: 'Ligero', hours: 4.1, color: '#60a5fa' },
   { phase: 'Profundo', hours: 1.8, color: '#2563eb' },
-  { phase: 'REM', hours: 1.6, color: '#14b8a6' },
+  { phase: 'REM', hours: 1.6, color: '#8b5cf6' },
 ];
 
 export const smartwatchActivitySummaryMock: ActivitySummaryDatum[] = [

@@ -1,8 +1,11 @@
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import type { ActivitySummaryDatum, HeartRateTrendPoint, SleepPhaseDatum } from '../../types/types';
 import { ActivityChart } from './ActivityChart';
 import { HeartRateChart } from './HeartRateChart';
 import { SleepChart } from './SleepChart';
+
+type SummaryCardTarget = 'heart_rate' | 'sleep' | 'physical_activity';
 
 interface SmartwatchSummaryProps {
   heartRateTrend: HeartRateTrendPoint[];
@@ -15,6 +18,8 @@ export const SmartwatchSummary: React.FC<SmartwatchSummaryProps> = ({
   sleepPhases,
   activitySummary,
 }) => {
+  const navigate = useNavigate();
+
   const averageHeartRate =
     heartRateTrend.length > 0
       ? Math.round(heartRateTrend.reduce((sum, point) => sum + point.bpm, 0) / heartRateTrend.length)
@@ -22,6 +27,10 @@ export const SmartwatchSummary: React.FC<SmartwatchSummaryProps> = ({
 
   const totalSleepHours = sleepPhases.reduce((sum, phase) => sum + phase.hours, 0);
   const steps = activitySummary.find(metric => metric.metric === 'Pasos')?.value ?? 0;
+
+  const handleChartNavigate = (activeCard: SummaryCardTarget) => {
+    navigate('/cards', { state: { activeCard } });
+  };
 
   return (
     <section className="gtg-smartwatch-summary" aria-label="Resumen Smartwatch">
@@ -36,7 +45,14 @@ export const SmartwatchSummary: React.FC<SmartwatchSummaryProps> = ({
             <h3>Frecuencia cardiaca</h3>
             <span>{averageHeartRate} bpm promedio</span>
           </header>
-          <HeartRateChart data={heartRateTrend} />
+          <button
+            type="button"
+            className="gtg-chart-click-area"
+            onClick={() => handleChartNavigate('heart_rate')}
+            aria-label="Abrir card de ritmo cardiaco"
+          >
+            <HeartRateChart data={heartRateTrend} />
+          </button>
         </article>
 
         <article className="gtg-chart-card">
@@ -44,7 +60,14 @@ export const SmartwatchSummary: React.FC<SmartwatchSummaryProps> = ({
             <h3>Calidad de sueno</h3>
             <span>{totalSleepHours.toFixed(1)} h totales</span>
           </header>
-          <SleepChart data={sleepPhases} />
+          <button
+            type="button"
+            className="gtg-chart-click-area"
+            onClick={() => handleChartNavigate('sleep')}
+            aria-label="Abrir card de sueno"
+          >
+            <SleepChart data={sleepPhases} />
+          </button>
         </article>
 
         <article className="gtg-chart-card">
@@ -52,7 +75,14 @@ export const SmartwatchSummary: React.FC<SmartwatchSummaryProps> = ({
             <h3>Actividad diaria</h3>
             <span>{steps.toLocaleString('es-ES')} pasos</span>
           </header>
-          <ActivityChart data={activitySummary} />
+          <button
+            type="button"
+            className="gtg-chart-click-area"
+            onClick={() => handleChartNavigate('physical_activity')}
+            aria-label="Abrir card de actividad fisica"
+          >
+            <ActivityChart data={activitySummary} />
+          </button>
         </article>
       </div>
     </section>

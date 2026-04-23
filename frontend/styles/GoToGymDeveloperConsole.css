@@ -668,6 +668,58 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   font-weight: 600;
 }
 
+.gtg-chart-click-area {
+  width: 100%;
+  border: none;
+  background: transparent;
+  padding: 0;
+  margin: 0;
+  cursor: pointer;
+  text-align: left;
+  color: inherit;
+  font: inherit;
+}
+
+.gtg-chart-click-area:focus-visible {
+  outline: 2px solid #93c5fd;
+  outline-offset: 3px;
+  border-radius: 10px;
+}
+
+.gtg-sleep-chart-layout {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.gtg-sleep-chart-canvas {
+  flex: 1;
+  min-width: 0;
+}
+
+.gtg-sleep-legend {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-width: 120px;
+}
+
+.gtg-sleep-legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: .72rem;
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+.gtg-sleep-legend-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
 /* ===== DASHBOARD GRID ===== */
 .gtg-dashboard-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
 
@@ -981,6 +1033,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-results-layout { grid-template-columns: 1fr; }
   .gtg-smartwatch-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gtg-smartwatch-summary-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gtg-sleep-legend { min-width: 108px; }
 }
 @media (max-width: 1100px) {
   .gtg-dashboard-grid, .gtg-actions-layout { grid-template-columns: 1fr; }
@@ -991,6 +1044,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-app.sidebar-collapsed .gtg-main-area { margin-left: 0; }
   .gtg-metrics-grid, .gtg-cards-grid { grid-template-columns: 1fr 1fr; }
   .gtg-smartwatch-summary-grid { grid-template-columns: 1fr; }
+  .gtg-sleep-legend-item { font-size: .68rem; }
   .gtg-content { padding: 16px; }
   .gtg-header { padding: 0 16px; }
 }

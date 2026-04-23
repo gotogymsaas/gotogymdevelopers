@@ -10,6 +10,7 @@ import { SmartwatchCard } from './SmartwatchCard';
 interface SmartwatchGridProps {
   metrics: SmartwatchMetric[];
   detailsByMetric: SmartwatchMetricDetailsMap;
+  preferredMetricId?: SmartwatchMetricId | null;
 }
 
 const getMetricIcon = (metricId: SmartwatchMetricId): React.ReactNode => {
@@ -92,7 +93,11 @@ const buildFallbackDetail = (metric: SmartwatchMetric): SmartwatchMetricDetail =
   ],
 });
 
-export const SmartwatchGrid: React.FC<SmartwatchGridProps> = ({ metrics, detailsByMetric }) => {
+export const SmartwatchGrid: React.FC<SmartwatchGridProps> = ({
+  metrics,
+  detailsByMetric,
+  preferredMetricId = null,
+}) => {
   const [activeMetricId, setActiveMetricId] = useState<SmartwatchMetricId | null>(metrics[0]?.id ?? null);
 
   useEffect(() => {
@@ -104,6 +109,16 @@ export const SmartwatchGrid: React.FC<SmartwatchGridProps> = ({ metrics, details
       return metrics[0]?.id ?? null;
     });
   }, [metrics]);
+
+  useEffect(() => {
+    if (!preferredMetricId) {
+      return;
+    }
+
+    if (metrics.some(metric => metric.id === preferredMetricId)) {
+      setActiveMetricId(preferredMetricId);
+    }
+  }, [preferredMetricId, metrics]);
 
   return (
     <div className="gtg-smartwatch-grid">

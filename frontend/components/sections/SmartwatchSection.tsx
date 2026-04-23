@@ -1,5 +1,5 @@
 import React from 'react';
-import type { SmartwatchMetric } from '../../types/types';
+import type { SmartwatchMetric, SmartwatchMetricId } from '../../types/types';
 import { smartwatchMetricDetailsMock } from '../../mocks/smartwatchMetrics';
 import { SmartwatchGrid } from './SmartwatchGrid';
 
@@ -9,6 +9,7 @@ interface SmartwatchSectionProps {
   error?: string | null;
   dataSource?: 'api' | 'mock';
   onRetry?: () => void;
+  preferredMetricId?: SmartwatchMetricId | null;
 }
 
 export const SmartwatchSection: React.FC<SmartwatchSectionProps> = ({
@@ -17,6 +18,7 @@ export const SmartwatchSection: React.FC<SmartwatchSectionProps> = ({
   error = null,
   dataSource = 'mock',
   onRetry,
+  preferredMetricId = null,
 }) => {
   return (
     <section className="gtg-smartwatch-section">
@@ -45,7 +47,11 @@ export const SmartwatchSection: React.FC<SmartwatchSectionProps> = ({
         {error && <p className="gtg-smartwatch-error">{error}</p>}
       </div>
 
-      <SmartwatchGrid metrics={metrics} detailsByMetric={smartwatchMetricDetailsMock} />
+      <SmartwatchGrid
+        metrics={metrics}
+        detailsByMetric={smartwatchMetricDetailsMock}
+        preferredMetricId={preferredMetricId}
+      />
     </section>
   );
 };
