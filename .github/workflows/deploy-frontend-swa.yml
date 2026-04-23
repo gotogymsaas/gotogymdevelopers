@@ -48,5 +48,6 @@ jobs:
           azure_static_web_apps_api_token: ${{ env.SWA_DEPLOY_TOKEN }}
           action: upload
           app_location: frontend/dist
+          config_file_location: frontend
           output_location: ''
           skip_app_build: true
