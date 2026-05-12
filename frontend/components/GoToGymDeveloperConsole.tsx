@@ -14,6 +14,8 @@ import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { SmartwatchSection } from './sections/SmartwatchSection';
 import { SmartwatchSummary } from './sections/SmartwatchSummary';
+import { CoachContextSection } from './sections/CoachContextSection';
+import { AppGoToGymSection } from './sections/AppGoToGymSection';
 import { useSmartwatchMetrics } from '../hooks/useSmartwatchMetrics';
 import {
   smartwatchActivitySummaryMock,
@@ -120,11 +122,13 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           return (
             <>
               <DashboardWelcomeSection />
+              <CoachContextSection />
               <SmartwatchSummary
                 heartRateTrend={smartwatchHeartRateTrendMock}
                 sleepPhases={smartwatchSleepPhasesMock}
                 activitySummary={smartwatchActivitySummaryMock}
               />
+              <AppGoToGymSection />
             </>
           );
         }

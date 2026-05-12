@@ -5,6 +5,7 @@ export type AdminModule = 'users' | 'gyms' | 'trainers' | 'reports' | 'settings'
 export interface AuthSession {
   token: string;
   role: UserRole;
+  email: string;
 }
 
 interface RoleAccess {
@@ -94,10 +95,11 @@ const parseSession = (value: string | null): AuthSession | null => {
 
   try {
     const parsed = JSON.parse(value) as Partial<AuthSession>;
-    if (typeof parsed.token === 'string' && parsed.token.length > 0 && isUserRole(parsed.role)) {
+    if (typeof parsed.token === 'string' && parsed.token.length > 0 && isUserRole(parsed.role) && typeof parsed.email === 'string') {
       return {
         token: parsed.token,
         role: parsed.role,
+        email: parsed.email,
       };
     }
   } catch {
@@ -134,6 +136,8 @@ export const clearStoredSession = (): void => {
 export const getAuthToken = (): string | null => getStoredSession()?.token ?? null;
 
 export const getUserRole = (): UserRole | null => getStoredSession()?.role ?? null;
+
+export const getUserEmail = (): string | null => getStoredSession()?.email ?? null;
 
 export const getRoleDisplayName = (role: UserRole): string => ROLE_LABELS[role];
 
@@ -178,6 +182,7 @@ export const authenticateWithMockUsers = (email: string, password: string): Auth
   return {
     token: FAKE_TOKEN,
     role: user.role,
+    email: user.email,
   };
 };
 
@@ -213,12 +218,12 @@ export const loginWithApi = async (email: string, password: string): Promise<Aut
       return null;
     }
 
-    const { token, role } = payload.data;
-    if (typeof token !== 'string' || token.length === 0 || !isUserRole(role)) {
+    const { token, role, email } = payload.data;
+    if (typeof token !== 'string' || token.length === 0 || !isUserRole(role) || typeof email !== 'string') {
       return null;
     }
 
-    const session: AuthSession = { token, role };
+    const session: AuthSession = { token, role, email };
     setStoredSession(session);
     return session;
   } catch {
