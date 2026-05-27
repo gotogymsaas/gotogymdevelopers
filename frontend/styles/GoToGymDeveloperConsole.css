@@ -638,6 +638,97 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   gap: 16px;
 }
 
+/* ===== APP GOTO GYM CARDS ===== */
+.gtg-app-gym-section {
+  margin-top: 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.gtg-app-gym-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gtg-app-gym-card {
+  min-height: 72px;
+  border-radius: 8px;
+  border: 1px solid #1f3334;
+  background: #101414;
+  box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 12px;
+}
+
+.gtg-app-gym-card.is-empty {
+  border-color: #26313b;
+  background: #15191c;
+}
+
+.gtg-app-gym-card-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.gtg-app-gym-card-head h3 {
+  margin: 0;
+  min-width: 0;
+  color: #f8fafc;
+  font-size: .96rem;
+  font-weight: 800;
+  line-height: 1.25;
+  overflow-wrap: anywhere;
+}
+
+.gtg-app-gym-score {
+  flex-shrink: 0;
+  color: #20d3c7;
+  font-size: .95rem;
+  line-height: 1.2;
+  font-weight: 900;
+}
+
+.gtg-app-gym-track {
+  position: relative;
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: #26363a;
+}
+
+.gtg-app-gym-fill {
+  position: absolute;
+  inset: 0 auto 0 0;
+  border-radius: inherit;
+  background: #20d3c7;
+}
+
+.gtg-app-gym-status {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid #bfdbfe;
+  border-radius: 8px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: .78rem;
+  font-weight: 700;
+  line-height: 1.45;
+  padding: 8px 11px;
+}
+
+.gtg-app-gym-status.is-error {
+  border-color: #fecaca;
+  background: #fef2f2;
+  color: #b91c1c;
+}
+
 .gtg-chart-card {
   background: var(--card-bg);
   border: 1px solid var(--border);
@@ -1053,6 +1144,7 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-metrics-grid, .gtg-cards-grid, .gtg-action-buttons { grid-template-columns: 1fr; }
   .gtg-notif-page-grid { grid-template-columns: 1fr; }
   .gtg-smartwatch-grid { grid-template-columns: 1fr; }
+  .gtg-app-gym-grid { grid-template-columns: 1fr; }
 }
 
 /* ===== NOTIFICATION BELL ===== */

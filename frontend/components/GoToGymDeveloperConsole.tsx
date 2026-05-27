@@ -16,6 +16,7 @@ import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { SmartwatchSection } from './sections/SmartwatchSection';
 import { SmartwatchSummary } from './sections/SmartwatchSummary';
+import { AppGoToGymCardsSection } from './sections/AppGoToGymCardsSection';
 import { useSmartwatchMetrics } from '../hooks/useSmartwatchMetrics';
 import { useCoachContext } from '../hooks/useCoachContext';
 import {
@@ -155,14 +156,22 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
       case 'cards':
         if (isUser) {
           return (
-            <SmartwatchSection
-              metrics={smartwatchMetrics}
-              loading={smartwatchLoading}
-              error={smartwatchError}
-              dataSource={smartwatchDataSource}
-              onRetry={reloadMetrics}
-              preferredMetricId={initialUserMetricId}
-            />
+            <>
+              <SmartwatchSection
+                metrics={smartwatchMetrics}
+                loading={smartwatchLoading}
+                error={smartwatchError}
+                dataSource={smartwatchDataSource}
+                onRetry={reloadMetrics}
+                preferredMetricId={initialUserMetricId}
+              />
+              <AppGoToGymCardsSection
+                data={coachContext}
+                loading={coachLoading}
+                error={coachError}
+                forbidden={coachForbidden}
+              />
+            </>
           );
         }
 
