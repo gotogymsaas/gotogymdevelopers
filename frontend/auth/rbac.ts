@@ -4,8 +4,10 @@ export type AdminModule = 'users' | 'gyms' | 'trainers' | 'reports' | 'settings'
 
 export interface AuthSession {
   token: string;
+  refreshToken?: string;
   role: UserRole;
   email: string;
+  username?: string;
 }
 
 interface RoleAccess {
@@ -22,6 +24,20 @@ interface MockUser {
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
+}
+
+interface AppDesplegadaLoginResponse {
+  success?: boolean;
+  access?: string;
+  refresh?: string;
+  user?: {
+    username?: string;
+    email?: string;
+    account_type?: string;
+    is_staff?: boolean;
+    is_superuser?: boolean;
+    role?: string;
+  };
 }
 
 export const MOCK_USERS: MockUser[] = [
@@ -67,6 +83,29 @@ const getApiBaseUrl = (): string => {
   );
 };
 
+const inferRoleFromBackendUser = (user: AppDesplegadaLoginResponse['user']): UserRole => {
+  if (!user) {
+    return 'user';
+  }
+
+  if (user.is_superuser || user.is_staff || user.role === 'admin') {
+    return 'admin';
+  }
+
+  const accountType = String(user.account_type || '').toLowerCase();
+  const backendRole = String(user.role || '').toLowerCase();
+  if (
+    accountType.includes('business')
+    || accountType.includes('gym')
+    || backendRole.includes('business')
+    || backendRole.includes('gym')
+  ) {
+    return 'gym';
+  }
+
+  return 'user';
+};
+
 const ROLE_ACCESS: Record<UserRole, RoleAccess> = {
   user: {
     canViewSidebar: false,
@@ -99,13 +138,13 @@ const parseSession = (value: string | null): AuthSession | null => {
       typeof parsed.token === 'string'
       && parsed.token.length > 0
       && isUserRole(parsed.role)
-      && typeof parsed.email === 'string'
-      && parsed.email.length > 0
     ) {
       return {
         token: parsed.token,
+        refreshToken: typeof parsed.refreshToken === 'string' ? parsed.refreshToken : undefined,
         role: parsed.role,
-        email: parsed.email,
+        email: typeof parsed.email === 'string' ? parsed.email : '',
+        username: typeof parsed.username === 'string' ? parsed.username : undefined,
       };
     }
   } catch {
@@ -204,12 +243,14 @@ export const loginWithMockUsers = (email: string, password: string): AuthSession
 
 export const loginWithApi = async (email: string, password: string): Promise<AuthSession | null> => {
   try {
-    const response = await fetch(`${getApiBaseUrl()}/api/v1/auth/login`, {
+    const baseUrl = getApiBaseUrl().replace(/\/$/, '');
+    const response = await fetch(`${baseUrl}/api/login/`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
+        username: email.trim(),
         email: email.trim(),
         password,
       }),
@@ -219,21 +260,30 @@ export const loginWithApi = async (email: string, password: string): Promise<Aut
       return null;
     }
 
-    const payload = await response.json() as ApiResponse<Partial<AuthSession>>;
-    if (!payload?.data) {
-      return null;
-    }
+    const payload = await response.json() as AppDesplegadaLoginResponse | ApiResponse<Partial<AuthSession>>;
+    const legacyData = 'data' in payload ? payload.data : undefined;
+    const token = 'access' in payload ? payload.access : legacyData?.token;
+    const refreshToken = 'refresh' in payload ? payload.refresh : legacyData?.refreshToken;
+    const backendUser = 'user' in payload ? payload.user : undefined;
+    const role = legacyData?.role && isUserRole(legacyData.role)
+      ? legacyData.role
+      : inferRoleFromBackendUser(backendUser);
 
-    const { token, role, email: responseEmail } = payload.data;
-    if (typeof token !== 'string' || token.length === 0 || !isUserRole(role)) {
+    if (typeof token !== 'string' || token.length === 0) {
       return null;
     }
 
     const session: AuthSession = {
       token,
+      refreshToken,
       role,
-      email: typeof responseEmail === 'string' && responseEmail.length > 0
-        ? responseEmail.toLowerCase()
+      email: typeof backendUser?.email === 'string' && backendUser.email.length > 0
+        ? backendUser.email.toLowerCase()
+        : typeof legacyData?.email === 'string' && legacyData.email.length > 0
+          ? legacyData.email.toLowerCase()
+          : email.trim().toLowerCase(),
+      username: typeof backendUser?.username === 'string' && backendUser.username.length > 0
+        ? backendUser.username
         : email.trim().toLowerCase(),
     };
     setStoredSession(session);

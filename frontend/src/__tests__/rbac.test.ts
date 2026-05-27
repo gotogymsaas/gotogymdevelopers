@@ -21,6 +21,7 @@ describe('RBAC helpers', () => {
     expect(session).toEqual({
       token: 'fake-token',
       role: 'admin',
+      email: 'admin@test.com',
     });
   });
 
@@ -50,7 +51,7 @@ describe('RBAC helpers', () => {
   });
 
   test('persiste y limpia sesion con role helper', () => {
-    setStoredSession({ token: 'fake-token', role: 'gym' });
+    setStoredSession({ token: 'fake-token', role: 'gym', email: 'gym@test.com' });
     expect(getUserRole()).toBe('gym');
 
     clearStoredSession();

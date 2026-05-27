@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
-import { loginWithApi, MOCK_USERS } from '../auth/rbac';
+import { loginWithApi } from '../auth/rbac';
 
 interface LoginProps {
   isAuthenticated: boolean;
@@ -128,16 +128,9 @@ const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
           </p>
         )}
 
-        <div style={{ marginTop: '16px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
-          <strong>Usuarios mock:</strong>
-          <ul style={{ margin: '8px 0 0 18px' }}>
-            {MOCK_USERS.map(user => (
-              <li key={user.email}>
-                {user.email} / {user.password} ({user.role})
-              </li>
-            ))}
-          </ul>
-        </div>
+        <p style={{ marginTop: '16px', fontSize: '0.8rem', color: '#475569', lineHeight: 1.5 }}>
+          Usa las credenciales reales de GoToGym. La consola consume el backend productivo con JWT.
+        </p>
       </form>
     </section>
   );

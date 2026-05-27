@@ -2,10 +2,21 @@ import axios from 'axios';
 import { api } from './api';
 
 export interface CoachContextResponse {
-  global_wellbeing: string;
-  generated_at: string;
-  portfolio_summary: string;
-  experience_value_pack: string;
+  profile?: Record<string, unknown>;
+  documents?: Record<string, unknown>;
+  devices?: Record<string, unknown>;
+  if_snapshot?: Record<string, unknown>;
+  business?: Record<string, unknown>;
+  wellbeing_experience_value_v1?: {
+    contract?: string;
+    generated_at?: string;
+    global_wellbeing?: unknown;
+    if_variable_payload?: unknown;
+    experience_value_pack?: unknown;
+    portfolio_summary?: unknown;
+    guardrails?: unknown;
+    [key: string]: unknown;
+  };
   [key: string]: unknown;
 }
 
@@ -15,10 +26,13 @@ interface CoachContextParams {
 }
 
 const FALLBACK_COACH_CONTEXT: CoachContextResponse = {
-  global_wellbeing: 'No disponible',
-  generated_at: new Date().toISOString(),
-  portfolio_summary: 'No se pudo cargar el resumen de bienestar.',
-  experience_value_pack: 'Datos no disponibles en este momento.',
+  wellbeing_experience_value_v1: {
+    contract: 'wellbeing_experience_value_v1',
+    generated_at: new Date().toISOString(),
+    global_wellbeing: 'No disponible',
+    portfolio_summary: 'No se pudo cargar el resumen de bienestar.',
+    experience_value_pack: 'Datos no disponibles en este momento.',
+  },
 };
 
 export const getCoachContext = async (
