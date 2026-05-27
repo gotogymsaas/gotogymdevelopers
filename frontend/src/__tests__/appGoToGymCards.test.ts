@@ -1,4 +1,7 @@
-import { extractAppGoToGymScores } from '../../components/sections/AppGoToGymCardsSection';
+import {
+  extractAppGoToGymScores,
+  extractAppGoToGymUpdatedAt,
+} from '../../components/sections/AppGoToGymCardsSection';
 import type { CoachContextResponse } from '../services/wellbeingService';
 
 describe('AppGoToGymCardsSection helpers', () => {
@@ -30,8 +33,8 @@ describe('AppGoToGymCardsSection helpers', () => {
       },
       wellbeing_experience_value_v1: {
         if_variable_payload: {
-          answers: [
-            { question_id: 's_circadian', score: 0.9 },
+          responses: [
+            { question_id: 's_circadian', score: 1 },
           ],
         },
       },
@@ -39,7 +42,30 @@ describe('AppGoToGymCardsSection helpers', () => {
 
     expect(extractAppGoToGymScores(response)).toMatchObject({
       s_stress_inv: 7,
-      s_circadian: 9,
+      s_circadian: 1,
     });
+  });
+
+  test('prioriza responses del payload cuando el endpoint trae datos recientes', () => {
+    const response: CoachContextResponse = {
+      if_snapshot: {
+        scores: {
+          s_steps: 10,
+        },
+      },
+      wellbeing_experience_value_v1: {
+        generated_at: '2026-05-27T22:30:17.646Z',
+        if_variable_payload: {
+          responses: [
+            { question_id: 's_steps', score: 1 },
+          ],
+        },
+      },
+    };
+
+    expect(extractAppGoToGymScores(response)).toMatchObject({
+      s_steps: 1,
+    });
+    expect(extractAppGoToGymUpdatedAt(response)).toBe('2026-05-27T22:30:17.646Z');
   });
 });

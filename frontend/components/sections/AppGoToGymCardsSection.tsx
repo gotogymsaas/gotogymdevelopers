@@ -34,8 +34,7 @@ const normalizeScore = (value: unknown): number | null => {
     return null;
   }
 
-  const normalized = raw > 0 && raw <= 1 ? raw * 10 : raw;
-  return Math.min(10, Math.max(0, normalized));
+  return Math.min(10, Math.max(0, raw));
 };
 
 const mergeScoresFromRecord = (target: ScoreMap, source: unknown) => {
@@ -100,10 +99,59 @@ export const extractAppGoToGymScores = (data: CoachContextResponse | null): Scor
     mergeScoresFromRecord(scores, wellbeingPayload.scores);
     mergeScoresFromArray(scores, wellbeingPayload.scores);
     mergeScoresFromArray(scores, wellbeingPayload.answers);
+    mergeScoresFromArray(scores, wellbeingPayload.responses);
     mergeScoresFromArray(scores, wellbeingPayload.questions);
   }
 
   return scores;
+};
+
+const findTimestamp = (source: unknown): string | null => {
+  if (!isRecord(source)) {
+    return null;
+  }
+
+  const candidates = [
+    source.updated_at,
+    source.generated_at,
+    source.created_at,
+    source.timestamp,
+    source.submitted_at,
+  ];
+
+  const found = candidates.find(candidate => typeof candidate === 'string' && candidate.trim());
+  return typeof found === 'string' ? found : null;
+};
+
+export const extractAppGoToGymUpdatedAt = (data: CoachContextResponse | null): string | null => {
+  const ifSnapshot = data?.if_snapshot;
+  const wellbeing = data?.wellbeing_experience_value_v1;
+  const wellbeingPayload = wellbeing?.if_variable_payload;
+  const latestRecord = isRecord(ifSnapshot) ? ifSnapshot.latest_record : undefined;
+
+  return (
+    findTimestamp(latestRecord) ??
+    findTimestamp(ifSnapshot) ??
+    findTimestamp(wellbeingPayload) ??
+    findTimestamp(wellbeing) ??
+    null
+  );
+};
+
+const formatUpdatedAt = (value: string | null): string => {
+  if (!value) {
+    return 'Actualizacion sin fecha';
+  }
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) {
+    return `Actualizado: ${value}`;
+  }
+
+  return `Actualizado: ${new Intl.DateTimeFormat('es-CO', {
+    dateStyle: 'medium',
+    timeStyle: 'short',
+  }).format(date)}`;
 };
 
 export const AppGoToGymCardsSection: React.FC<AppGoToGymCardsSectionProps> = ({
@@ -113,6 +161,7 @@ export const AppGoToGymCardsSection: React.FC<AppGoToGymCardsSectionProps> = ({
   forbidden,
 }) => {
   const scores = useMemo(() => extractAppGoToGymScores(data), [data]);
+  const updatedAt = useMemo(() => formatUpdatedAt(extractAppGoToGymUpdatedAt(data)), [data]);
   const hasScores = appGoToGymQuestions.some(question => scores[question.id] !== undefined);
 
   return (
@@ -147,8 +196,9 @@ export const AppGoToGymCardsSection: React.FC<AppGoToGymCardsSectionProps> = ({
               <article className={`gtg-app-gym-card${score === undefined ? ' is-empty' : ''}`} key={question.id}>
                 <div className="gtg-app-gym-card-head">
                   <h3>{question.label}</h3>
-                  <span className="gtg-app-gym-score">{score === undefined ? 'Sin dato' : Math.round(score * 10) / 10}</span>
+                  <span className="gtg-app-gym-score">{score === undefined ? 'Sin dato' : `${Math.round(score * 10) / 10}/10`}</span>
                 </div>
+                <p className="gtg-app-gym-card-note">{updatedAt}</p>
                 <div className="gtg-app-gym-track" aria-hidden="true">
                   <span className="gtg-app-gym-fill" style={{ width: `${width}%` }} />
                 </div>
