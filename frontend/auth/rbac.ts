@@ -178,7 +178,10 @@ export const clearStoredSession = (): void => {
   window.localStorage.removeItem(SESSION_STORAGE_KEY);
 };
 
-export const getAuthToken = (): string | null => getStoredSession()?.token ?? null;
+export const getAuthToken = (): string | null => {
+  const token = getStoredSession()?.token ?? null;
+  return token && token !== FAKE_TOKEN ? token : null;
+};
 
 export const getUserEmail = (): string | null => getStoredSession()?.email ?? null;
 

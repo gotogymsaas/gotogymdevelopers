@@ -30,7 +30,7 @@ describe('useSmartwatchMetrics', () => {
     } as Response);
 
     window.localStorage.setItem('gotogym_session', JSON.stringify({
-      token: 'fake-token',
+      token: 'valid-jwt',
       role: 'user',
     }));
 
@@ -45,7 +45,7 @@ describe('useSmartwatchMetrics', () => {
     expect(result.current.error).toBeNull();
     expect(global.fetch).toHaveBeenCalledWith('/api/v1/smartwatch/metrics', {
       headers: {
-        Authorization: 'Bearer fake-token',
+        Authorization: 'Bearer valid-jwt',
       },
     });
   });

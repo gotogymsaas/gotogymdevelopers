@@ -25,16 +25,6 @@ interface CoachContextParams {
   include_text?: boolean;
 }
 
-const FALLBACK_COACH_CONTEXT: CoachContextResponse = {
-  wellbeing_experience_value_v1: {
-    contract: 'wellbeing_experience_value_v1',
-    generated_at: new Date().toISOString(),
-    global_wellbeing: 'No disponible',
-    portfolio_summary: 'No se pudo cargar el resumen de bienestar.',
-    experience_value_pack: 'Datos no disponibles en este momento.',
-  },
-};
-
 export const getCoachContext = async (
   username?: string,
 ): Promise<CoachContextResponse> => {
@@ -53,11 +43,16 @@ export const getCoachContext = async (
 
     return response.data;
   } catch (error) {
-    if (axios.isAxiosError(error) && error.response?.status === 403) {
-      throw new Error('Forbidden');
+    if (axios.isAxiosError(error)) {
+      if (error.response?.status === 403) {
+        throw new Error('Forbidden');
+      }
+
+      if (error.response?.status === 401) {
+        throw new Error('Unauthorized');
+      }
     }
 
-    console.warn('Fallo al recuperar coach context, usando fallback:', error);
-    return FALLBACK_COACH_CONTEXT;
+    throw error;
   }
 };

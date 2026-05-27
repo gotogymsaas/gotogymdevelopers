@@ -3,7 +3,6 @@ import { DynamicInfoCard } from '../ui/DynamicInfoCard';
 import type { CoachContextResponse } from '../../src/services/wellbeingService';
 
 interface AppGoToGymSectionProps {
-  userEmail: string | null;
   data: CoachContextResponse | null;
   loading: boolean;
   error: string | null;
@@ -64,20 +63,18 @@ const formatValue = (value: unknown): string => {
 };
 
 export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
-  userEmail,
   data,
   loading,
   error,
   forbidden,
 }) => {
-  const isShown = userEmail?.toLowerCase() === 'user@test.com';
-
   const cards = useMemo(() => {
-    if (!data) {
+    const wellbeing = data?.wellbeing_experience_value_v1;
+    if (!wellbeing) {
       return [];
     }
 
-    return Object.entries(data)
+    return Object.entries(wellbeing)
       .filter(([key, value]) => fieldMetadata[key] && value !== undefined && value !== null)
       .map(([key, value]) => ({
         key,
@@ -85,10 +82,6 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
         value: formatValue(value),
       }));
   }, [data]);
-
-  if (!isShown) {
-    return null;
-  }
 
   return (
     <section style={{ marginTop: '32px' }}>

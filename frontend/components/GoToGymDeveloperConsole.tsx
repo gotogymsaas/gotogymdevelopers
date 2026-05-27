@@ -5,7 +5,7 @@ import { AppHeader } from './layout/AppHeader';
 import { AppSidebar } from './layout/AppSidebar';
 import type { Section } from './layout/AppSidebar';
 import type { UserRole } from '../auth/rbac';
-import { getRoleAccess, getRoleDisplayName, getUserEmail } from '../auth/rbac';
+import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
 import { WellbeingContextSection } from './sections/WellbeingContextSection';
 import { AppGoToGymSection } from './sections/AppGoToGymSection';
@@ -45,8 +45,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const isUser = role === 'user';
   const isGym = role === 'gym';
   const roleAccess = getRoleAccess(role);
-  const userEmail = getUserEmail();
-
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
   const currentSection: Section = isUser
@@ -144,7 +142,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
                 activitySummary={smartwatchActivitySummaryMock}
               />
               <AppGoToGymSection
-                userEmail={userEmail}
                 data={coachContext}
                 loading={coachLoading}
                 error={coachError}

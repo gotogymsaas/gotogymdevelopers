@@ -31,8 +31,10 @@ export function useCoachContext(username?: string, enabled = true): UseCoachCont
       if (err instanceof Error && err.message === 'Forbidden') {
         setForbidden(true);
         setError('Acceso prohibido. Revisa tu token o permisos.');
+      } else if (err instanceof Error && err.message === 'Unauthorized') {
+        setError('Tu sesion no tiene un JWT valido. Cierra sesion e ingresa con credenciales reales de GoToGym.');
       } else {
-        setError('No se pudo cargar el contexto de bienestar. Se utiliza información de respaldo.');
+        setError('No se pudo cargar el contexto de bienestar desde el backend.');
       }
     } finally {
       setLoading(false);
