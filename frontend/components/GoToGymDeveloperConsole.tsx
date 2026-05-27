@@ -77,47 +77,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     }
   }, [isGym]);
 
-  useEffect(() => {
-    if (!isUser) {
-      return;
-    }
-
-    let isMounted = true;
-    setCoachLoading(true);
-    setCoachError(null);
-    setCoachForbidden(false);
-
-    getCoachContext()
-      .then((data) => {
-        if (!isMounted) {
-          return;
-        }
-        setCoachContext(data);
-      })
-      .catch((error) => {
-        if (!isMounted) {
-          return;
-        }
-
-        if (error instanceof Error && error.message === 'Forbidden') {
-          setCoachForbidden(true);
-          setCoachError('Acceso prohibido. Revisa tu token o tus permisos.');
-          return;
-        }
-
-        setCoachError('No se pudo cargar el contexto. Se está mostrando información de respaldo.');
-      })
-      .finally(() => {
-        if (isMounted) {
-          setCoachLoading(false);
-        }
-      });
-
-    return () => {
-      isMounted = false;
-    };
-  }, [isUser]);
-
   const handleSidebarNavigate = (section: Section) => {
     if (isUser) {
       navigate(section === 'cards' ? '/cards' : '/dashboard');
@@ -291,4 +250,3 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     </div>
   );
 };
-
