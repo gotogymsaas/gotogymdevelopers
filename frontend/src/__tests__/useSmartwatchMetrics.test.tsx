@@ -29,12 +29,9 @@ describe('useSmartwatchMetrics', () => {
       json: async () => ({ success: true, data: apiData }),
     } as Response);
 
-    // In tests include `email` so `getStoredSession` parses the session and
-    // `getAuthToken()` returns the token used in request headers.
     window.localStorage.setItem('gotogym_session', JSON.stringify({
       token: 'fake-token',
       role: 'user',
-      email: 'user@test.com',
     }));
 
     const { result } = renderHook(() => useSmartwatchMetrics());

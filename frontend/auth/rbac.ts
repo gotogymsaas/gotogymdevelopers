@@ -95,7 +95,13 @@ const parseSession = (value: string | null): AuthSession | null => {
 
   try {
     const parsed = JSON.parse(value) as Partial<AuthSession>;
-    if (typeof parsed.token === 'string' && parsed.token.length > 0 && isUserRole(parsed.role) && typeof parsed.email === 'string') {
+    if (
+      typeof parsed.token === 'string'
+      && parsed.token.length > 0
+      && isUserRole(parsed.role)
+      && typeof parsed.email === 'string'
+      && parsed.email.length > 0
+    ) {
       return {
         token: parsed.token,
         role: parsed.role,
@@ -135,9 +141,9 @@ export const clearStoredSession = (): void => {
 
 export const getAuthToken = (): string | null => getStoredSession()?.token ?? null;
 
-export const getUserRole = (): UserRole | null => getStoredSession()?.role ?? null;
-
 export const getUserEmail = (): string | null => getStoredSession()?.email ?? null;
+
+export const getUserRole = (): UserRole | null => getStoredSession()?.role ?? null;
 
 export const getRoleDisplayName = (role: UserRole): string => ROLE_LABELS[role];
 
@@ -218,12 +224,18 @@ export const loginWithApi = async (email: string, password: string): Promise<Aut
       return null;
     }
 
-    const { token, role, email } = payload.data;
-    if (typeof token !== 'string' || token.length === 0 || !isUserRole(role) || typeof email !== 'string') {
+    const { token, role, email: responseEmail } = payload.data;
+    if (typeof token !== 'string' || token.length === 0 || !isUserRole(role)) {
       return null;
     }
 
-    const session: AuthSession = { token, role, email };
+    const session: AuthSession = {
+      token,
+      role,
+      email: typeof responseEmail === 'string' && responseEmail.length > 0
+        ? responseEmail.toLowerCase()
+        : email.trim().toLowerCase(),
+    };
     setStoredSession(session);
     return session;
   } catch {

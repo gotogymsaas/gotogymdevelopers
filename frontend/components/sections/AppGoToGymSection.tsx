@@ -1,151 +1,140 @@
-import React from 'react';
-import { useCoachContext } from '../../hooks/useCoachContext';
-import { getUserEmail } from '../../auth/rbac';
-import { DynamicInfoCard } from './DynamicInfoCard';
+import React, { useMemo } from 'react';
+import { DynamicInfoCard } from '../ui/DynamicInfoCard';
+import type { CoachContextResponse } from '../../src/services/wellbeingService';
 
 interface AppGoToGymSectionProps {
-  username?: string;
+  userEmail: string | null;
+  data: CoachContextResponse | null;
+  loading: boolean;
+  error: string | null;
+  forbidden: boolean;
 }
 
-export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({ username }) => {
-  const userEmail = getUserEmail();
+const fieldMetadata: Record<string, { title: string; description: string; status: 'success' | 'info' | 'warning' | 'error'; icon: string }> = {
+  wellbeing_experience_value_v1: {
+    title: 'Wellbeing Experience',
+    description: 'Experiencia de bienestar del usuario generada por la plataforma.',
+    status: 'info',
+    icon: '🌱',
+  },
+  experience_value_pack: {
+    title: 'Experience Value Pack',
+    description: 'Resumen del paquete de experiencia asociado al coach.',
+    status: 'success',
+    icon: '✨',
+  },
+  portfolio_summary: {
+    title: 'Portfolio Summary',
+    description: 'Resumen de portafolio para la experiencia de usuario.',
+    status: 'info',
+    icon: '📊',
+  },
+  if_variable_payload: {
+    title: 'Variable Payload',
+    description: 'Payload dinámico utilizado para generar recomendaciones.',
+    status: 'warning',
+    icon: '🧬',
+  },
+  global_wellbeing: {
+    title: 'Global Wellbeing',
+    description: 'Indicador global de bienestar del usuario.',
+    status: 'success',
+    icon: '💚',
+  },
+};
 
-  // Solo mostrar para user@test.com
-  if (userEmail !== 'user@test.com') {
+const formatValue = (value: unknown): string => {
+  if (value === null || value === undefined) {
+    return 'No disponible';
+  }
+
+  if (typeof value === 'string') {
+    return value.trim() || 'No disponible';
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return String(value);
+  }
+
+  try {
+    return JSON.stringify(value, null, 2);
+  } catch {
+    return String(value);
+  }
+};
+
+export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
+  userEmail,
+  data,
+  loading,
+  error,
+  forbidden,
+}) => {
+  const isShown = userEmail?.toLowerCase() === 'user@test.com';
+
+  const cards = useMemo(() => {
+    if (!data) {
+      return [];
+    }
+
+    return Object.entries(data)
+      .filter(([key, value]) => fieldMetadata[key] && value !== undefined && value !== null)
+      .map(([key, value]) => ({
+        key,
+        metadata: fieldMetadata[key],
+        value: formatValue(value),
+      }));
+  }, [data]);
+
+  if (!isShown) {
     return null;
   }
 
-  const { context, loading, error, status, reload } = useCoachContext({
-    username,
-    includeText: true,
-  });
-
-  const renderCards = () => {
-    if (!context) return null;
-
-    const cards = [];
-
-    // wellbeing_experience_value_v1
-    if (context.wellbeing_experience_value_v1 !== undefined) {
-      cards.push(
-        <DynamicInfoCard
-          key="wellbeing-experience"
-          title="Wellbeing Experience Value"
-          value={context.wellbeing_experience_value_v1}
-          description="Valor de experiencia de bienestar calculado dinámicamente"
-          status="success"
-          icon="💚"
-          expandable
-          expandedContent={<p>Este valor representa tu nivel actual de bienestar basado en métricas personalizadas.</p>}
-        />
-      );
-    }
-
-    // experience_value_pack
-    if (context.experience_value_pack) {
-      cards.push(
-        <DynamicInfoCard
-          key="experience-pack"
-          title="Experience Value Pack"
-          value={context.experience_value_pack}
-          description="Paquete de valor de experiencia disponible"
-          status="info"
-          icon="📦"
-        />
-      );
-    }
-
-    // portfolio_summary
-    if (context.portfolio_summary) {
-      cards.push(
-        <DynamicInfoCard
-          key="portfolio-summary"
-          title="Portfolio Summary"
-          value={context.portfolio_summary}
-          description="Resumen de tu portfolio de bienestar"
-          status="info"
-          icon="📊"
-          expandable
-          expandedContent={<p>Información detallada sobre tu progreso y logros en el programa de bienestar.</p>}
-        />
-      );
-    }
-
-    // if_variable_payload (asumiendo que es un objeto o string)
-    if (context.if_variable_payload) {
-      const payloadValue = typeof context.if_variable_payload === 'object'
-        ? JSON.stringify(context.if_variable_payload, null, 2)
-        : String(context.if_variable_payload);
-
-      cards.push(
-        <DynamicInfoCard
-          key="variable-payload"
-          title="Variable Payload"
-          value={payloadValue.length > 50 ? `${payloadValue.substring(0, 50)}...` : payloadValue}
-          description="Datos variables dinámicos del contexto"
-          status="warning"
-          icon="🔄"
-          expandable
-          expandedContent={<pre className="gtg-json-content">{payloadValue}</pre>}
-        />
-      );
-    }
-
-    // global_wellbeing
-    if (context.global_wellbeing) {
-      cards.push(
-        <DynamicInfoCard
-          key="global-wellbeing"
-          title="Global Wellbeing"
-          value={context.global_wellbeing}
-          description="Estado global de bienestar"
-          status="success"
-          icon="🌟"
-        />
-      );
-    }
-
-    return cards.length > 0 ? (
-      <div className="gtg-app-gym-grid">
-        {cards}
-      </div>
-    ) : (
-      <div className="gtg-empty-state">
-        <p>No hay información disponible para mostrar.</p>
-      </div>
-    );
-  };
-
   return (
-    <section>
+    <section style={{ marginTop: '32px' }}>
       <div className="gtg-section-header">
-        <h2 className="gtg-section-title">
-          <span className="gtg-section-title-icon">
-            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
-              <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
-              <polyline points="9,22 9,12 15,12 15,22"/>
-            </svg>
-          </span>
-          APP GOTO GYM
-        </h2>
-        <p className="gtg-section-desc">Información dinámica de bienestar desde el backend de producción.</p>
+        <h2 className="gtg-section-title">APP GOTO GYM</h2>
+        <p className="gtg-section-desc">Contenido dinámico extraído desde el backend usando JWT.</p>
       </div>
 
-      <div className="gtg-panel-card">
-        {loading ? (
-          <p>Cargando información de APP GOTO GYM…</p>
-        ) : error ? (
-          <div className={`gtg-alert ${status === 'forbidden' ? 'gtg-alert-warning' : 'gtg-alert-error'}`}>
-            {error}
-            {status === 'fallback' && (
-              <button onClick={reload} className="gtg-btn gtg-btn-secondary">
-                Reintentar
-              </button>
-            )}
+      <div style={{ display: 'grid', gap: '20px', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))' }}>
+        {loading && (
+          <div className="gtg-panel-card" style={{ minHeight: '180px' }}>
+            <p>Cargando información de APP GOTO GYM...</p>
           </div>
-        ) : (
-          renderCards()
         )}
+
+        {!loading && forbidden && (
+          <div className="gtg-panel-card" style={{ minHeight: '180px' }}>
+            <p style={{ color: '#dc2626' }}>
+              No tienes permisos para ver la sección APP GOTO GYM. Verifica tu sesión JWT.
+            </p>
+          </div>
+        )}
+
+        {!loading && error && (
+          <div className="gtg-panel-card" style={{ minHeight: '180px' }}>
+            <p style={{ color: '#dc2626' }}>{error}</p>
+          </div>
+        )}
+
+        {!loading && !error && !forbidden && cards.length === 0 && (
+          <div className="gtg-panel-card" style={{ minHeight: '180px' }}>
+            <p>No hay información disponible para mostrar en APP GOTO GYM.</p>
+          </div>
+        )}
+
+        {!loading && cards.map(card => (
+          <DynamicInfoCard
+            key={card.key}
+            title={card.metadata.title}
+            value={card.value}
+            description={card.metadata.description}
+            status={card.metadata.status}
+            icon={card.metadata.icon}
+            detail={card.value.length > 120 ? card.value : undefined}
+          />
+        ))}
       </div>
     </section>
   );

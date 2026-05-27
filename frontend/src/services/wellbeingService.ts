@@ -1,96 +1,49 @@
-import type { AxiosError } from 'axios';
-import { apiClient } from './api';
-
-export interface CoachContext {
-  global_wellbeing?: string;
-  generated_at?: string;
-  portfolio_summary?: string;
-  experience_value_pack?: string;
-  wellbeing_experience_value_v1?: string | number;
-  if_variable_payload?: any;
-}
+import axios from 'axios';
+import { api } from './api';
 
 export interface CoachContextResponse {
-  success: boolean;
-  data: CoachContext;
+  global_wellbeing: string;
+  generated_at: string;
+  portfolio_summary: string;
+  experience_value_pack: string;
+  [key: string]: unknown;
 }
 
-export type CoachContextStatus = 'success' | 'fallback' | 'forbidden' | 'error';
-
-export interface GetCoachContextResult {
-  status: CoachContextStatus;
-  data: CoachContext;
-  errorMessage?: string;
-  rawStatus: number | null;
+interface CoachContextParams {
+  username?: string;
+  include_text?: boolean;
 }
 
-const fallbackCoachContext: CoachContext = {
-  global_wellbeing: 'No disponible en este momento.',
+const FALLBACK_COACH_CONTEXT: CoachContextResponse = {
+  global_wellbeing: 'No disponible',
   generated_at: new Date().toISOString(),
-  portfolio_summary: 'No hay resumen disponible. Intenta nuevamente más tarde.',
-  experience_value_pack: 'N/A',
+  portfolio_summary: 'No se pudo cargar el resumen de bienestar.',
+  experience_value_pack: 'Datos no disponibles en este momento.',
 };
 
-const getErrorResponse = (error: unknown): { message: string; status: number | null } => {
-  if (error instanceof Error) {
-    return { message: error.message, status: null };
-  }
-
-  const axiosError = error as AxiosError;
-
-  if (axiosError?.isAxiosError && axiosError.response) {
-    return {
-      message: axiosError.response.data?.detail || axiosError.response.statusText || 'Error de red inesperado.',
-      status: axiosError.response.status,
-    };
-  }
-
-  return { message: 'Error inesperado al contactar al backend.', status: null };
-};
-
-export async function getCoachContext(
+export const getCoachContext = async (
   username?: string,
-  includeText = true,
-): Promise<GetCoachContextResult> {
+): Promise<CoachContextResponse> => {
+  const params: CoachContextParams = {
+    include_text: true,
+  };
+
+  if (username) {
+    params.username = username;
+  }
+
   try {
-    const response = await apiClient.get<CoachContextResponse>('/api/coach_context/', {
-      params: {
-        username,
-        include_text: includeText,
-      },
+    const response = await api.get<CoachContextResponse>('/api/coach_context/', {
+      params,
     });
 
-    if (!response.data || !response.data.success) {
-      return {
-        status: 'fallback',
-        data: response.data?.data ?? fallbackCoachContext,
-        errorMessage: 'Respuesta inesperada del backend. Mostrando datos de respaldo.',
-        rawStatus: response.status,
-      };
-    }
-
-    return {
-      status: 'success',
-      data: response.data.data,
-      rawStatus: response.status,
-    };
+    return response.data;
   } catch (error) {
-    const { message, status } = getErrorResponse(error);
-
-    if (status === 403) {
-      return {
-        status: 'forbidden',
-        data: fallbackCoachContext,
-        errorMessage: 'Acceso denegado. El token JWT no es válido o no tiene permiso para este endpoint.',
-        rawStatus: status,
-      };
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      throw new Error('Forbidden');
     }
 
-    return {
-      status: 'fallback',
-      data: fallbackCoachContext,
-      errorMessage: `No se pudo obtener coach context: ${message}`,
-      rawStatus: status,
-    };
+    console.warn('Fallo al recuperar coach context, usando fallback:', error);
+    return FALLBACK_COACH_CONTEXT;
   }
-}
+};

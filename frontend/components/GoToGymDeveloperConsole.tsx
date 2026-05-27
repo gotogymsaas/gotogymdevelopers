@@ -5,8 +5,10 @@ import { AppHeader } from './layout/AppHeader';
 import { AppSidebar } from './layout/AppSidebar';
 import type { Section } from './layout/AppSidebar';
 import type { UserRole } from '../auth/rbac';
-import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
+import { getRoleAccess, getRoleDisplayName, getUserEmail } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
+import { WellbeingContextSection } from './sections/WellbeingContextSection';
+import { AppGoToGymSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
 import { ActionsSection } from './sections/ActionsSection';
@@ -14,9 +16,8 @@ import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { SmartwatchSection } from './sections/SmartwatchSection';
 import { SmartwatchSummary } from './sections/SmartwatchSummary';
-import { CoachContextSection } from './sections/CoachContextSection';
-import { AppGoToGymSection } from './sections/AppGoToGymSection';
 import { useSmartwatchMetrics } from '../hooks/useSmartwatchMetrics';
+import { useCoachContext } from '../hooks/useCoachContext';
 import {
   smartwatchActivitySummaryMock,
   smartwatchHeartRateTrendMock,
@@ -44,6 +45,8 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const isUser = role === 'user';
   const isGym = role === 'gym';
   const roleAccess = getRoleAccess(role);
+  const userEmail = getUserEmail();
+
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
   const currentSection: Section = isUser
@@ -51,6 +54,13 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     : isGym
       ? 'dashboard'
       : activeSection;
+
+  const {
+    data: coachContext,
+    loading: coachLoading,
+    error: coachError,
+    forbidden: coachForbidden,
+  } = useCoachContext(undefined, isUser);
 
   const {
     metrics: smartwatchMetrics,
@@ -66,6 +76,47 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
       setSidebarCollapsed(false);
     }
   }, [isGym]);
+
+  useEffect(() => {
+    if (!isUser) {
+      return;
+    }
+
+    let isMounted = true;
+    setCoachLoading(true);
+    setCoachError(null);
+    setCoachForbidden(false);
+
+    getCoachContext()
+      .then((data) => {
+        if (!isMounted) {
+          return;
+        }
+        setCoachContext(data);
+      })
+      .catch((error) => {
+        if (!isMounted) {
+          return;
+        }
+
+        if (error instanceof Error && error.message === 'Forbidden') {
+          setCoachForbidden(true);
+          setCoachError('Acceso prohibido. Revisa tu token o tus permisos.');
+          return;
+        }
+
+        setCoachError('No se pudo cargar el contexto. Se está mostrando información de respaldo.');
+      })
+      .finally(() => {
+        if (isMounted) {
+          setCoachLoading(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, [isUser]);
 
   const handleSidebarNavigate = (section: Section) => {
     if (isUser) {
@@ -121,14 +172,25 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         if (isUser) {
           return (
             <>
+              <WellbeingContextSection
+                data={coachContext}
+                loading={coachLoading}
+                error={coachError}
+                forbidden={coachForbidden}
+              />
               <DashboardWelcomeSection />
-              <CoachContextSection />
               <SmartwatchSummary
                 heartRateTrend={smartwatchHeartRateTrendMock}
                 sleepPhases={smartwatchSleepPhasesMock}
                 activitySummary={smartwatchActivitySummaryMock}
               />
-              <AppGoToGymSection />
+              <AppGoToGymSection
+                userEmail={userEmail}
+                data={coachContext}
+                loading={coachLoading}
+                error={coachError}
+                forbidden={coachForbidden}
+              />
             </>
           );
         }

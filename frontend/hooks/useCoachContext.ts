@@ -1,47 +1,43 @@
-import { useCallback, useEffect, useState } from 'react';
-import { getCoachContext, type CoachContext, type CoachContextStatus, type GetCoachContextResult } from '../src/services/wellbeingService';
+import { useEffect, useState } from 'react';
+import { getCoachContext, type CoachContextResponse } from '../src/services/wellbeingService';
 
-interface UseCoachContextOptions {
-  enabled?: boolean;
-  username?: string;
-  includeText?: boolean;
-}
-
-interface UseCoachContextReturn {
-  context: CoachContext | null;
+interface UseCoachContextResult {
+  data: CoachContextResponse | null;
   loading: boolean;
   error: string | null;
-  status: CoachContextStatus;
-  reload: () => void;
+  forbidden: boolean;
+  reload: () => Promise<void>;
 }
 
-export function useCoachContext(options: UseCoachContextOptions = {}): UseCoachContextReturn {
-  const { enabled = true, username, includeText = true } = options;
-
-  const [context, setContext] = useState<CoachContext | null>(null);
+export function useCoachContext(username?: string, enabled = true): UseCoachContextResult {
+  const [data, setData] = useState<CoachContextResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(enabled);
   const [error, setError] = useState<string | null>(null);
-  const [status, setStatus] = useState<CoachContextStatus>('success');
+  const [forbidden, setForbidden] = useState<boolean>(false);
 
-  const loadContext = useCallback(async () => {
+  const load = async () => {
     if (!enabled) {
       return;
     }
 
     setLoading(true);
     setError(null);
+    setForbidden(false);
 
-    const result: GetCoachContextResult = await getCoachContext(username, includeText);
-
-    setContext(result.data);
-    setStatus(result.status);
-
-    if (result.status !== 'success') {
-      setError(result.errorMessage ?? 'No se pudo cargar el contexto del coach.');
+    try {
+      const response = await getCoachContext(username);
+      setData(response);
+    } catch (err) {
+      if (err instanceof Error && err.message === 'Forbidden') {
+        setForbidden(true);
+        setError('Acceso prohibido. Revisa tu token o permisos.');
+      } else {
+        setError('No se pudo cargar el contexto de bienestar. Se utiliza información de respaldo.');
+      }
+    } finally {
+      setLoading(false);
     }
-
-    setLoading(false);
-  }, [enabled, username, includeText]);
+  };
 
   useEffect(() => {
     if (!enabled) {
@@ -49,14 +45,14 @@ export function useCoachContext(options: UseCoachContextOptions = {}): UseCoachC
       return;
     }
 
-    void loadContext();
-  }, [enabled, loadContext]);
+    void load();
+  }, [username, enabled]);
 
   return {
-    context,
+    data,
     loading,
     error,
-    status,
-    reload: loadContext,
+    forbidden,
+    reload: load,
   };
 }

@@ -6,30 +6,41 @@ const getApiBaseUrl = (): string => {
     return window.__APP_ENV__.VITE_API_URL;
   }
 
-  return import.meta.env.VITE_API_URL ?? '';
+  if (typeof import.meta !== 'undefined' && typeof import.meta.env !== 'undefined') {
+    const apiUrl = (import.meta.env as { VITE_API_URL?: string }).VITE_API_URL;
+    if (apiUrl) {
+      return apiUrl;
+    }
+  }
+
+  if (typeof process !== 'undefined' && process.env?.VITE_API_URL) {
+    return process.env.VITE_API_URL;
+  }
+
+  return '';
 };
 
-const apiUrl = getApiBaseUrl();
-
-export const apiClient = axios.create({
-  baseURL: apiUrl,
+const api = axios.create({
+  baseURL: getApiBaseUrl(),
   headers: {
     'Content-Type': 'application/json',
   },
-  timeout: 15000,
 });
 
-apiClient.interceptors.request.use((config) => {
-  const token = getAuthToken();
+api.interceptors.request.use(
+  config => {
+    if (!config.headers) {
+      config.headers = {};
+    }
 
-  if (token) {
-    config.headers = {
-      ...config.headers,
-      Authorization: `Bearer ${token}`,
-    };
-  }
+    const token = getAuthToken();
+    if (token) {
+      config.headers.Authorization = `Bearer ${token}`;
+    }
 
-  return config;
-});
+    return config;
+  },
+  error => Promise.reject(error),
+);
 
-export const isApiConfigured = (): boolean => apiUrl.length > 0;
+export { api, getApiBaseUrl };
