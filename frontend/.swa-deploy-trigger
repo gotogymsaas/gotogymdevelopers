@@ -1,2 +1,2 @@
-trigger: 2026-04-23T17:30:54-05:00
-reason: production deployment requested (all)
+trigger: 2026-05-27T18:06:03-05:00
+reason: retry production deployment after APP GOTO GYM cards update
