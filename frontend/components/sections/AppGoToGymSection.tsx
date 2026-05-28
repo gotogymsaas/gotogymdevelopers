@@ -88,7 +88,15 @@ const getHappinessValue = (data: CoachContextResponse | null): number | null => 
     return null;
   }
 
-  return value <= 1 ? value * 100 : Math.min(100, value);
+  if (value <= 1) {
+    return value * 100;
+  }
+
+  if (value <= 10) {
+    return value * 10;
+  }
+
+  return Math.min(100, value);
 };
 
 const getHappinessMessage = (value: number | null): string => {
