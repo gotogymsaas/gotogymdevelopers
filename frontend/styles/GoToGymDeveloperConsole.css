@@ -1987,6 +1987,519 @@ tr.gtg-row-highlighted td {
   animation: rowHighlight 3s ease-out forwards;
 }
 
+/* ===== PUBLIC HOME ===== */
+.gtg-home {
+  min-height: 100vh;
+  background:
+    linear-gradient(180deg, rgba(0, 214, 203, .12) 0%, transparent 20%),
+    radial-gradient(circle at 50% 0%, rgba(227, 194, 105, .12), transparent 28%),
+    #030505;
+  color: #f8fafc;
+  overflow-x: hidden;
+}
+
+.gtg-home a {
+  color: inherit;
+}
+
+.gtg-home-nav {
+  position: sticky;
+  top: 0;
+  z-index: 20;
+  min-height: 72px;
+  padding: 14px clamp(18px, 5vw, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 22px;
+  background: rgba(3, 5, 5, .82);
+  border-bottom: 1px solid rgba(0, 214, 203, .22);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+}
+
+.gtg-home-brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 12px;
+  text-decoration: none;
+  font-weight: 800;
+  font-size: 1.28rem;
+  color: #e3c269;
+}
+
+.gtg-home-brand-logo {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 1px solid rgba(0, 214, 203, .75);
+  box-shadow: 0 0 18px rgba(0, 214, 203, .34);
+  object-fit: cover;
+}
+
+.gtg-home-nav-links {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.gtg-home-nav-links a,
+.gtg-home-nav-links button {
+  min-height: 38px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: #d9e7e5;
+  border-radius: 8px;
+  padding: 9px 12px;
+  font: inherit;
+  font-size: .86rem;
+  font-weight: 700;
+  text-decoration: none;
+  cursor: pointer;
+  transition: color .16s, border-color .16s, background .16s, transform .16s;
+}
+
+.gtg-home-nav-links a:hover,
+.gtg-home-nav-links button:hover {
+  color: #00d6cb;
+  border-color: rgba(0, 214, 203, .38);
+  background: rgba(0, 214, 203, .08);
+}
+
+.gtg-home-nav-links .gtg-home-login {
+  color: #071010;
+  background: #00d6cb;
+  border-color: #00d6cb;
+  box-shadow: 0 0 18px rgba(0, 214, 203, .22);
+}
+
+.gtg-home-nav-links .gtg-home-login:hover {
+  color: #06100f;
+  background: #21eee3;
+  transform: translateY(-1px);
+}
+
+.gtg-home-hero {
+  min-height: calc(100vh - 72px);
+  padding: clamp(54px, 8vw, 106px) clamp(18px, 5vw, 72px) 64px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.08fr) minmax(300px, .72fr);
+  gap: clamp(34px, 6vw, 84px);
+  align-items: center;
+}
+
+.gtg-home-hero-content {
+  max-width: 760px;
+}
+
+.gtg-home-kicker,
+.gtg-home-section-label {
+  display: inline-flex;
+  align-items: center;
+  color: #00d6cb;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.gtg-home-hero h1 {
+  margin-top: 18px;
+  max-width: 760px;
+  font-size: clamp(2.5rem, 7vw, 5.8rem);
+  line-height: .95;
+  letter-spacing: 0;
+  color: #ffffff;
+}
+
+.gtg-home-hero p {
+  margin-top: 24px;
+  max-width: 650px;
+  color: #c9d6d4;
+  font-size: clamp(1rem, 2vw, 1.22rem);
+  line-height: 1.65;
+}
+
+.gtg-home-hero-actions,
+.gtg-home-contact-actions {
+  margin-top: 30px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.gtg-home-primary-action,
+.gtg-home-secondary-action,
+.gtg-home-mission-panel button {
+  min-height: 46px;
+  border-radius: 8px;
+  padding: 12px 18px;
+  font: inherit;
+  font-size: .93rem;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  transition: transform .16s, box-shadow .16s, background .16s, border-color .16s, color .16s;
+}
+
+.gtg-home-primary-action {
+  border: 1px solid #00d6cb;
+  background: #00d6cb;
+  color: #04100f;
+  box-shadow: 0 0 24px rgba(0, 214, 203, .24);
+}
+
+.gtg-home-secondary-action,
+.gtg-home-mission-panel button {
+  border: 1px solid rgba(227, 194, 105, .55);
+  background: rgba(227, 194, 105, .08);
+  color: #f3d986;
+}
+
+.gtg-home-primary-action:hover,
+.gtg-home-secondary-action:hover,
+.gtg-home-mission-panel button:hover {
+  transform: translateY(-2px);
+}
+
+.gtg-home-signal {
+  position: relative;
+  min-height: 470px;
+  display: grid;
+  place-items: center;
+  border-left: 1px solid rgba(0, 214, 203, .22);
+}
+
+.gtg-home-signal img {
+  width: min(310px, 72vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 214, 203, .82);
+  box-shadow: 0 0 0 18px rgba(0, 214, 203, .07), 0 0 42px rgba(0, 214, 203, .48);
+  object-fit: cover;
+}
+
+.gtg-home-signal-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 214, 203, .88), transparent);
+  z-index: 0;
+}
+
+.gtg-home-signal img,
+.gtg-home-signal-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.gtg-home-signal-copy {
+  align-self: end;
+  width: min(100%, 360px);
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(5, 12, 12, .78);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .28);
+}
+
+.gtg-home-signal-copy strong,
+.gtg-home-contact-side strong {
+  display: block;
+  color: #ffffff;
+  font-size: .98rem;
+}
+
+.gtg-home-signal-copy span,
+.gtg-home-contact-side span {
+  display: block;
+  margin-top: 6px;
+  color: #a9b9b6;
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+.gtg-home-section {
+  padding: clamp(54px, 8vw, 92px) clamp(18px, 5vw, 72px);
+}
+
+.gtg-home-intro-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(280px, .55fr);
+  gap: 18px;
+  background: #071010;
+  border-top: 1px solid rgba(0, 214, 203, .16);
+  border-bottom: 1px solid rgba(0, 214, 203, .16);
+}
+
+.gtg-home-panel,
+.gtg-home-research-card,
+.gtg-home-contact-main,
+.gtg-home-contact-side {
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.gtg-home-focus-panel {
+  padding: clamp(22px, 4vw, 36px);
+}
+
+.gtg-home-tabs {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
+
+.gtg-home-tabs button {
+  min-height: 46px;
+  border: 1px solid rgba(255, 255, 255, .12);
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .18);
+  color: #dce9e7;
+  font: inherit;
+  font-size: .82rem;
+  font-weight: 800;
+  cursor: pointer;
+  transition: border-color .16s, background .16s, color .16s;
+}
+
+.gtg-home-tabs button:hover,
+.gtg-home-tabs button.is-active {
+  border-color: #00d6cb;
+  background: rgba(0, 214, 203, .14);
+  color: #00d6cb;
+}
+
+.gtg-home-focus-copy {
+  margin-top: clamp(28px, 5vw, 54px);
+  max-width: 820px;
+}
+
+.gtg-home-focus-copy h2,
+.gtg-home-mission-panel h2,
+.gtg-home-section-heading h2,
+.gtg-home-contact-main h2 {
+  color: #ffffff;
+  font-size: clamp(1.65rem, 4vw, 3.2rem);
+  line-height: 1.05;
+  letter-spacing: 0;
+}
+
+.gtg-home-focus-copy p,
+.gtg-home-mission-panel p,
+.gtg-home-section-heading p,
+.gtg-home-research-card p,
+.gtg-home-contact-main p {
+  margin-top: 16px;
+  color: #c4d2cf;
+  font-size: .98rem;
+  line-height: 1.7;
+}
+
+.gtg-home-mission-panel {
+  padding: 28px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  gap: 28px;
+  background: linear-gradient(180deg, rgba(227, 194, 105, .13), rgba(255, 255, 255, .04));
+}
+
+.gtg-home-mission-panel h2 {
+  margin-top: 14px;
+  font-size: clamp(1.45rem, 3vw, 2.35rem);
+}
+
+.gtg-home-mission-panel button {
+  width: fit-content;
+}
+
+.gtg-home-research {
+  background: #030505;
+}
+
+.gtg-home-section-heading {
+  max-width: 780px;
+}
+
+.gtg-home-section-heading h2,
+.gtg-home-contact-main h2 {
+  margin-top: 12px;
+}
+
+.gtg-home-research-grid {
+  margin-top: 30px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 16px;
+}
+
+.gtg-home-research-card {
+  padding: 24px;
+  min-height: 230px;
+  transition: transform .16s, border-color .16s, background .16s;
+}
+
+.gtg-home-research-card:hover {
+  transform: translateY(-4px);
+  border-color: rgba(0, 214, 203, .65);
+  background: rgba(0, 214, 203, .08);
+}
+
+.gtg-home-research-card span {
+  color: #e3c269;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+}
+
+.gtg-home-research-card h3 {
+  margin-top: 38px;
+  color: #ffffff;
+  font-size: 1.18rem;
+}
+
+.gtg-home-contact {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(300px, .9fr);
+  gap: 18px;
+  background: #071010;
+}
+
+.gtg-home-contact-main,
+.gtg-home-contact-side {
+  padding: clamp(24px, 4vw, 36px);
+}
+
+.gtg-home-contact-actions a {
+  display: inline-flex;
+  align-items: center;
+  min-height: 44px;
+  border-radius: 8px;
+  padding: 10px 14px;
+  background: rgba(0, 214, 203, .12);
+  border: 1px solid rgba(0, 214, 203, .48);
+  color: #00d6cb;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.gtg-home-contact-actions a:hover {
+  background: rgba(0, 214, 203, .2);
+}
+
+.gtg-home-contact-side {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+}
+
+.gtg-home-socials {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.gtg-home-socials a {
+  border: 1px solid rgba(227, 194, 105, .42);
+  border-radius: 8px;
+  padding: 9px 12px;
+  color: #f3d986;
+  font-size: .84rem;
+  font-weight: 800;
+  text-decoration: none;
+}
+
+.gtg-home-socials a:hover {
+  background: rgba(227, 194, 105, .1);
+}
+
+.gtg-home-footer {
+  padding: 22px clamp(18px, 5vw, 72px);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  flex-wrap: wrap;
+  border-top: 1px solid rgba(255, 255, 255, .1);
+  background: #020303;
+  color: #91a4a0;
+  font-size: .84rem;
+}
+
+.gtg-home-footer span:first-child {
+  color: #e3c269;
+  font-weight: 900;
+}
+
+@media (max-width: 900px) {
+  .gtg-home-nav {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .gtg-home-nav-links {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .gtg-home-hero,
+  .gtg-home-intro-grid,
+  .gtg-home-contact {
+    grid-template-columns: 1fr;
+  }
+
+  .gtg-home-hero {
+    min-height: auto;
+  }
+
+  .gtg-home-signal {
+    min-height: 420px;
+    border-left: none;
+    border-top: 1px solid rgba(0, 214, 203, .18);
+    padding-top: 34px;
+  }
+
+  .gtg-home-research-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 560px) {
+  .gtg-home-nav-links a,
+  .gtg-home-nav-links button {
+    flex: 1 1 auto;
+    justify-content: center;
+    text-align: center;
+  }
+
+  .gtg-home-tabs {
+    grid-template-columns: 1fr;
+  }
+
+  .gtg-home-signal img {
+    width: min(238px, 72vw);
+  }
+
+  .gtg-home-signal {
+    min-height: 360px;
+  }
+
+  .gtg-home-contact-actions a,
+  .gtg-home-primary-action,
+  .gtg-home-secondary-action {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
 /* ===== NOTIFICATION ANIMATIONS ===== */
 @keyframes badgePop {
   from { transform: scale(0); opacity: 0; }
