@@ -11,6 +11,7 @@ interface AppGoToGymSectionProps {
 interface DynamicItem {
   key: string;
   label: string;
+  description?: string;
   value: unknown;
   type: 'metric' | 'text' | 'list' | 'object';
 }
@@ -24,7 +25,7 @@ interface DynamicSegment {
 
 const labelMap: Record<string, string> = {
   username: 'Usuario',
-  email: 'Email',
+  email: 'Correo',
   plan: 'Plan',
   account_type: 'Tipo de cuenta',
   full_name: 'Nombre',
@@ -38,7 +39,6 @@ const labelMap: Record<string, string> = {
   favorite_sport: 'Deporte favorito',
   goal_type: 'Objetivo',
   activity_level: 'Nivel de actividad',
-  happiness_index: 'Indice de felicidad',
   current_streak: 'Racha actual',
   week_id: 'Semana',
   generated_at: 'Generado en',
@@ -52,8 +52,8 @@ const labelMap: Record<string, string> = {
   if_variable_payload: 'Variables IF',
   experience_value_pack: 'Valor de experiencia',
   portfolio_summary: 'Resumen de portafolio',
-  guardrails: 'Guardrails',
-  scores: 'Scores',
+  guardrails: 'Reglas de proteccion',
+  scores: 'Puntajes',
   qualitative_interpretation: 'Interpretacion cualitativa',
   latest_record: 'Ultimo registro',
   answers: 'Respuestas',
@@ -61,6 +61,113 @@ const labelMap: Record<string, string> = {
   fitness: 'Datos fitness',
   summary: 'Resumen',
   active_breaks_memory: 'Memoria de pausas activas',
+  answered_questions: 'Variables respondidas',
+  responses: 'Variables de bienestar respondidas',
+  top_scores: 'Fortalezas',
+  low_scores: 'Prioridades de mejora',
+  score: 'Puntaje',
+  question_id: 'Variable',
+  question_label: 'Pregunta',
+  value: 'Valor',
+  slot: 'Momento del dia',
+  answered_at: 'Respondido en',
+  answered_date: 'Fecha de respuesta',
+  source: 'Origen',
+  provider: 'Proveedor',
+  status: 'Estado',
+  last_sync_at: 'Ultima sincronizacion',
+  updated_at: 'Actualizado en',
+  start_time: 'Inicio del periodo',
+  end_time: 'Fin del periodo',
+  created_at: 'Creado en',
+  metrics: 'Metricas',
+  doc_type: 'Tipo de documento',
+  file_name: 'Archivo',
+  extracted_text: 'Texto extraido',
+  workspaces: 'Workspaces',
+  organization_name: 'Organizacion',
+  organization_status: 'Estado de organizacion',
+  organization_plan: 'Plan empresarial',
+  role: 'Rol',
+  permission_scope: 'Alcance de permisos',
+  module_access: 'Modulos habilitados',
+  happiness_index: 'Bienestar actual',
+  avg_7d: 'Promedio ultimos 7 dias',
+  avg_prev_7d: 'Promedio semana anterior',
+  delta_7d: 'Cambio semanal',
+  records_14d: 'Registros en 14 dias',
+  experiences_tracked: 'Experiencias con datos',
+  accepted_experiences: 'Experiencias listas',
+  average_confidence: 'Confianza promedio',
+  analysis_summary: 'Resumen de analisis',
+  experience_id: 'Experiencia',
+  label: 'Nombre',
+  decision: 'Resultado',
+  decision_reason: 'Motivo del resultado',
+  confidence: 'Confianza',
+  value_metrics: 'Metricas de valor',
+  share_only_variable_data: 'Solo comparte datos variables',
+  static_catalog_excluded: 'Catalogo estatico excluido',
+  contains_personal_identifiers: 'Contiene identificadores personales',
+  excluded_categories: 'Categorias excluidas',
+};
+
+const meaningMap: Record<string, string> = {
+  profile: 'Contexto basico del usuario autenticado: plan, preferencias, objetivo y estado del coach.',
+  documents: 'Documentos cargados por el usuario. Pueden incluir informacion sensible.',
+  devices: 'Conexiones fitness o smartwatch y su ultima sincronizacion.',
+  if_snapshot: 'Foto de respuestas y puntajes IF de la semana actual.',
+  wellbeing_experience_value_v1: 'Bloque recomendado para pintar cards de bienestar de forma mas segura y funcional.',
+  global_wellbeing: 'Estado general de bienestar del usuario.',
+  if_variable_payload: 'Variables IF listas para mostrar como cards.',
+  experience_value_pack: 'Resultados calculados por experiencias del coach.',
+  portfolio_summary: 'Resumen general de experiencias disponibles y nivel de confianza.',
+  guardrails: 'Reglas de privacidad y alcance de datos del contrato.',
+  happiness_index: 'Bienestar actual. Si viene 0.66, se puede leer como 66%.',
+  avg_7d: 'Promedio de bienestar de los ultimos 7 dias.',
+  avg_prev_7d: 'Promedio de la semana anterior, si hay historial suficiente.',
+  delta_7d: 'Diferencia entre esta semana y la anterior.',
+  records_14d: 'Cantidad de registros usados en los ultimos 14 dias.',
+  answered_questions: 'Cantidad de variables IF con respuesta valida.',
+  responses: 'Lista de variables IF con su puntaje.',
+  top_scores: 'Variables mejor calificadas. Representan fortalezas.',
+  low_scores: 'Variables con menor puntaje. Representan prioridades de mejora.',
+  connected_providers: 'Fuentes conectadas como Google Fit, Fitbit, Garmin o Whoop.',
+  fitness: 'Ultima informacion fitness sincronizada por proveedor.',
+  active_breaks_memory: 'Memoria especifica de pausas activas guardada por el coach.',
+  current_streak: 'Racha actual del usuario.',
+  badges: 'Insignias o logros obtenidos.',
+  scores: 'Puntajes actuales de variables IF.',
+  qualitative_interpretation: 'Lectura estructurada de las variables IF.',
+  latest_record: 'Ultimo registro historico de bienestar/felicidad.',
+};
+
+const ifVariableMap: Record<string, { name: string; meaning: string }> = {
+  s_steps: { name: 'Actividad fisica / pasos', meaning: 'Movimiento diario.' },
+  s_sleep: { name: 'Horas de sueno', meaning: 'Duracion del descanso.' },
+  s_stress_inv: { name: 'Manejo del estres', meaning: 'Capacidad de regular el estres. Mientras mas alto, mejor manejo.' },
+  s_intensity: { name: 'Intensidad de entrenamiento', meaning: 'Nivel de exigencia fisica percibida.' },
+  s_emotional: { name: 'Estabilidad emocional', meaning: 'Balance emocional percibido.' },
+  s_social: { name: 'Vida social y conexiones', meaning: 'Calidad de las conexiones sociales.' },
+  s_hrv: { name: 'Recuperacion / variabilidad cardiaca', meaning: 'Sensacion de recuperacion fisica.' },
+  s_bio_age: { name: 'Vitalidad percibida', meaning: 'Energia o edad biologica percibida.' },
+  s_sleep_quality: { name: 'Calidad del sueno', meaning: 'Que tan reparador fue el descanso.' },
+  s_circadian: { name: 'Rutina circadiana', meaning: 'Regularidad de horarios y ritmo diario.' },
+  s_focus: { name: 'Capacidad de enfoque', meaning: 'Concentracion y atencion sostenida.' },
+  s_mood_sust: { name: 'Estado de animo sostenido', meaning: 'Estabilidad del animo en el tiempo.' },
+  s_flow: { name: 'Estado de flow', meaning: 'Frecuencia de momentos de concentracion profunda.' },
+  s_purpose: { name: 'Sentido de proposito', meaning: 'Claridad de sentido, motivacion o direccion personal.' },
+  s_hobbies: { name: 'Tiempo para hobbies', meaning: 'Tiempo dedicado a ocio saludable o restaurativo.' },
+  s_prosocial: { name: 'Ayuda a otros', meaning: 'Conductas prosociales o de apoyo.' },
+};
+
+const experienceMap: Record<string, string> = {
+  'exp-002_goal_coherence': 'Coherencia de comida con el objetivo del usuario.',
+  'exp-003_metabolic_profile': 'Perfil metabolico semanal.',
+  'exp-007_lifestyle_intelligence': 'Inteligencia de estilo de vida.',
+  'exp-008_motivation': 'Dinamica motivacional.',
+  'exp-009_progression': 'Progresion de entrenamiento o habitos.',
+  'exp-005_body_trend': 'Proyeccion de tendencia corporal.',
 };
 
 const segmentOrder: Array<{
@@ -135,9 +242,12 @@ const isEmptyValue = (value: unknown): boolean => {
 };
 
 const titleize = (key: string): string =>
-  labelMap[key] ?? key
+  ifVariableMap[key]?.name ?? labelMap[key] ?? key
     .replace(/_/g, ' ')
     .replace(/\b\w/g, char => char.toUpperCase());
+
+const getMeaning = (key: string): string | undefined =>
+  ifVariableMap[key]?.meaning ?? meaningMap[key];
 
 const getItemType = (value: unknown): DynamicItem['type'] => {
   if (Array.isArray(value)) {
@@ -165,6 +275,7 @@ const getPrimaryItems = (source: unknown): DynamicItem[] => {
     .map(([key, value]) => ({
       key,
       label: titleize(key),
+      description: getMeaning(key),
       value,
       type: getItemType(value),
     }));
@@ -220,6 +331,14 @@ const summarizeObject = (value: Record<string, unknown>): string => {
   return entries
     .slice(0, 4)
     .map(([key, entryValue]) => {
+      if (key === 'question_id' && typeof entryValue === 'string') {
+        return `${titleize(key)}: ${titleize(entryValue)}`;
+      }
+
+      if (key === 'experience_id' && typeof entryValue === 'string') {
+        return `${titleize(key)}: ${experienceMap[entryValue] ?? entryValue}`;
+      }
+
       if (Array.isArray(entryValue)) {
         return `${titleize(key)}: ${entryValue.length}`;
       }
@@ -233,15 +352,63 @@ const summarizeObject = (value: Record<string, unknown>): string => {
     .join(' · ');
 };
 
+const normalizeScore = (value: unknown): number | null => {
+  const raw = typeof value === 'number' ? value : typeof value === 'string' ? Number(value) : NaN;
+  return Number.isFinite(raw) ? raw : null;
+};
+
+const scoreReading = (score: unknown): string => {
+  const normalized = normalizeScore(score);
+  if (normalized === null) {
+    return 'Sin informacion suficiente.';
+  }
+
+  if (normalized >= 1 && normalized <= 3) {
+    return 'Lectura: bajo. Prioridad alta de mejora.';
+  }
+
+  if (normalized >= 4 && normalized <= 6) {
+    return 'Lectura: medio. Hay margen claro de mejora.';
+  }
+
+  if (normalized >= 7) {
+    return 'Lectura: favorable. Conviene mantener consistencia.';
+  }
+
+  return 'Lectura disponible.';
+};
+
+const renderIfVariableCard = (value: Record<string, unknown>, index: number) => {
+  const questionId = typeof value.question_id === 'string' ? value.question_id : '';
+  const variable = ifVariableMap[questionId];
+  const score = value.score ?? value.value ?? value.answer;
+  const title = variable?.name ?? (questionId || 'Variable de bienestar');
+
+  return (
+    <li className="gtg-dynamic-if-item" key={`${questionId}-${index}`}>
+      <strong>{title}</strong>
+      {score !== undefined && !isEmptyValue(score) ? <span>{formatPrimitive(score)}/10</span> : null}
+      <p>{variable?.meaning ?? 'Variable IF de bienestar.'}</p>
+      <small>{scoreReading(score)}</small>
+    </li>
+  );
+};
+
 const renderValue = (item: DynamicItem) => {
   if (item.type === 'list' && Array.isArray(item.value)) {
     const visibleItems = item.value.filter(value => !isEmptyValue(value)).slice(0, 5);
+    const isIfList = visibleItems.some(value => isRecord(value) && typeof value.question_id === 'string');
+
     return (
       <ul className="gtg-dynamic-list">
         {visibleItems.map((value, index) => (
-          <li key={`${item.key}-${index}`}>
-            {isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
-          </li>
+          isIfList && isRecord(value)
+            ? renderIfVariableCard(value, index)
+            : (
+              <li key={`${item.key}-${index}`}>
+                {isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
+              </li>
+            )
         ))}
       </ul>
     );
@@ -254,7 +421,8 @@ const renderValue = (item: DynamicItem) => {
         {entries.slice(0, 8).map(([key, value]) => (
           <span key={`${item.key}-${key}`}>
             <strong>{titleize(key)}</strong>
-            {Array.isArray(value) ? `${value.length} items` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
+            {getMeaning(key) ? <em>{getMeaning(key)}</em> : null}
+            {Array.isArray(value) ? `${value.length} elementos` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
           </span>
         ))}
       </div>
@@ -322,6 +490,7 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
                     key={`${segment.id}-${item.key}`}
                   >
                     <span className="gtg-dynamic-label">{item.label}</span>
+                    {item.description ? <p className="gtg-dynamic-help">{item.description}</p> : null}
                     {renderValue(item)}
                   </div>
                 ))}

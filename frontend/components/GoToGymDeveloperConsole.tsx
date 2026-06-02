@@ -152,6 +152,17 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
                 forbidden={coachForbidden}
               />
               <DashboardWelcomeSection />
+              <SmartwatchSummary
+                heartRateTrend={smartwatchHeartRateTrendMock}
+                sleepPhases={smartwatchSleepPhasesMock}
+                activitySummary={smartwatchActivitySummaryMock}
+              />
+              <AppGoToGymSection
+                data={coachContext}
+                loading={coachLoading}
+                error={coachError}
+                forbidden={coachForbidden}
+              />
             </>
           );
         }
