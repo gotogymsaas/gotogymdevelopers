@@ -1,20 +1,32 @@
-# Mapa tecnico del endpoint `/api/coach_context/`
+# Guia funcional del endpoint `/api/coach_context/`
 
-Este documento explica que retorna el endpoint de bienestar usado por `gotogymdevelopers`, de donde sale cada dato en el backend de `appdesplegada` y como interpretar los campos que vienen en ingles.
+Este documento explica, en lenguaje funcional, que informacion envia AppGotoGym cuando se consulta el endpoint `/api/coach_context/`.
 
-Fuente revisada:
+La idea es que una persona que no conoce el codigo pueda responder estas preguntas:
 
-- `backend/api/urls.py`: registra `coach_context/`.
-- `backend/api/views.py`: vista `coach_context` y builders del contrato `wellbeing_experience_value_v1`.
-- `backend/api/if_questions.py`: catalogo de preguntas IF.
-- `backend/api/models.py`: modelos `User`, `HappinessRecord`, `IFQuestion`, `IFAnswer`, `UserDocument`, `OrganizationMembership`.
-- `backend/devices/models.py`: modelos `DeviceConnection` y `FitnessSync`.
+- Que datos recibe otra app o pantalla desde AppGotoGym.
+- Para que sirve cada bloque de informacion.
+- Que campos son datos personales, datos de bienestar, documentos, dispositivos o informacion empresarial.
+- Cuales datos se recomiendan para pintar las cards de APP GOTO GYM.
 
-## Resumen rapido
+## Resumen ejecutivo
 
-`GET /api/coach_context/` entrega un contexto del usuario autenticado para que otra app pueda consumir datos de bienestar sin pedirlos campo por campo.
+`GET /api/coach_context/` entrega una foto consolidada del usuario autenticado. Esa foto combina perfil, documentos, dispositivos conectados, respuestas de bienestar, contexto empresarial y un bloque especial llamado `wellbeing_experience_value_v1`.
 
-El payload principal tiene esta forma:
+En terminos simples, el endpoint envia:
+
+| Bloque | Que contiene | Para que sirve |
+| --- | --- | --- |
+| `profile` | Datos generales del usuario y su perfil de bienestar. | Identificar al usuario y conocer su contexto basico: plan, edad, peso, objetivos, nivel de actividad, preferencias y estado del coach. |
+| `documents` | Documentos cargados por el usuario. | Saber si existen planes o historias relacionadas con nutricion, entrenamiento o salud. |
+| `devices` | Dispositivos o proveedores fitness conectados. | Saber si el usuario tiene fuentes como Google Fit, Fitbit, Garmin o Whoop, y cual fue la ultima sincronizacion. |
+| `if_snapshot` | Respuestas y puntajes IF de bienestar. | Ver como esta el usuario en variables como sueno, enfoque, estres, actividad, proposito y vida social. |
+| `business` | Relacion del usuario con empresas u organizaciones. | Saber si el usuario pertenece a un workspace empresarial y que permisos tiene. |
+| `wellbeing_experience_value_v1` | Resumen funcional de bienestar listo para consumir. | Pintar cards, mostrar score global, detectar fortalezas y prioridades de mejora. |
+
+## Forma general de la respuesta
+
+El endpoint responde un objeto parecido a este:
 
 ```json
 {
@@ -27,148 +39,141 @@ El payload principal tiene esta forma:
 }
 ```
 
-La seccion mas importante para las cards de APP GOTO GYM es:
+No todos los usuarios tienen todos los datos. Por ejemplo, un usuario nuevo puede no tener documentos, dispositivos conectados o respuestas recientes.
 
-```json
-{
-  "wellbeing_experience_value_v1": {
-    "if_variable_payload": {
-      "answered_questions": 16,
-      "responses": [
-        { "question_id": "s_steps", "score": 1 }
-      ],
-      "summary": {
-        "top_scores": [],
-        "low_scores": []
-      }
-    }
-  }
-}
-```
+## Datos personales y de perfil: `profile`
 
-## Seguridad y comportamiento
+Este bloque describe quien es el usuario y cual es su contexto basico dentro de AppGotoGym.
 
-| Campo / regla | Descripcion |
+| Dato enviado | Que significa funcionalmente |
 | --- | --- |
-| Ruta | `/api/coach_context/` |
-| Metodo | `GET`, `OPTIONS` |
-| Autenticacion | JWT obligatoria |
-| Permiso | Usuario autenticado |
-| `username` | Opcional. Si se envia, debe coincidir con el `username` autenticado. |
-| `include_text` | Opcional booleano. Si es verdadero, incluye `extracted_text` de documentos. |
-| Mismatch de usuario | Retorna `403 Forbidden`. |
-| Error interno | Retorna `200 OK` con fallback resiliente. El contrato `wellbeing_experience_value_v1` sigue existiendo, pero con datos reducidos. |
+| `username` | Identificador del usuario dentro de AppGotoGym. |
+| `full_name` | Nombre completo registrado. Es dato personal. |
+| `email` | Correo del usuario. Es dato personal. |
+| `plan` | Plan del usuario, por ejemplo Gratis o Premium. |
+| `account_type` | Tipo de cuenta: usuario individual, empresa, interno o mixto. |
+| `timezone` | Zona horaria configurada por el usuario. |
+| `sex` | Sexo registrado en el perfil, si existe. |
+| `age`, `weight`, `height` | Edad, peso y estatura registrados. Son datos sensibles de salud/bienestar. |
+| `age_range`, `weight_range`, `height_range` | Versiones agrupadas de edad, peso y estatura. Sirven cuando no se quiere mostrar el valor exacto. |
+| `profession` | Profesion u ocupacion. |
+| `favorite_exercise_time` | Momento preferido para entrenar. |
+| `favorite_sport` | Deporte favorito. |
+| `goal_type` | Objetivo principal: deficit, mantenimiento o ganancia. |
+| `activity_level` | Nivel de actividad declarado: bajo, moderado o alto. |
+| `daily_target_kcal_override` | Meta diaria de calorias configurada manualmente, si existe. |
+| `happiness_index` | Indicador global actual de bienestar/felicidad. Normalmente se interpreta de 0 a 1. |
+| `scores` | Puntajes actuales de las variables IF del usuario. |
+| `current_streak` | Racha actual del usuario. |
+| `badges` | Insignias o logros obtenidos. |
+| `coach_state` | Memoria reciente del coach sobre experiencias o resultados del usuario. |
+| `coach_weekly_state` | Memoria semanal del coach. |
+| `active_breaks_memory` | Memoria especifica de pausas activas, si existe. |
 
-## Origen de cada bloque
+Lectura funcional:
 
-### `profile`
+- Este bloque sirve para entender el contexto general del usuario.
+- Puede contener datos personales y datos sensibles.
+- No es el bloque recomendado para compartir externamente si solo se necesitan cards de bienestar.
 
-Sale principalmente del modelo `User`.
+## Documentos del usuario: `documents`
 
-| Campo | Origen backend | Significado |
-| --- | --- | --- |
-| `username` | `user.username` | Usuario autenticado. |
-| `plan` | `user.plan` | Plan del usuario, por ejemplo `Gratis` o `Premium`. |
-| `account_type` | `user.account_type` | Tipo de cuenta: `consumer`, `business`, `internal`, `hybrid`. |
-| `full_name` | `user.full_name` | Nombre completo guardado en perfil. |
-| `email` | `user.email` | Email del usuario. |
-| `timezone` | `user.timezone` | Zona horaria configurada. |
-| `sex` | `user.sex` | Sexo registrado. |
-| `age`, `weight`, `height` | `user.age`, `user.weight`, `user.height` | Datos corporales del perfil. |
-| `profession` | `user.profession` | Profesion. |
-| `favorite_exercise_time` | `user.favorite_exercise_time` | Hora preferida para entrenar. |
-| `favorite_sport` | `user.favorite_sport` | Deporte favorito. |
-| `goal_type` | `user.goal_type` | Objetivo nutricional: `deficit`, `maintenance`, `gain`. |
-| `activity_level` | `user.activity_level` | Nivel de actividad: `low`, `moderate`, `high`. |
-| `daily_target_kcal_override` | `user.daily_target_kcal_override` | Meta diaria de calorias definida manualmente. |
-| `age_range`, `weight_range`, `height_range` | Calculados con `_range_bucket(...)` | Rangos anonimizados/agrupados del perfil. |
-| `happiness_index` | `user.happiness_index` | Ultimo indice global de bienestar/felicidad guardado en el usuario. |
-| `scores` | `user.scores` | Diccionario actual de scores IF por `question_id`. |
-| `current_streak` | `user.current_streak` | Racha actual del usuario. |
-| `badges` | `user.badges` | Insignias ganadas. |
-| `coach_state` | `user.coach_state` | Estado JSON de experiencias del coach de corto plazo. |
-| `coach_state_updated_at` | `user.coach_state_updated_at` | Ultima actualizacion de `coach_state`. |
-| `coach_weekly_state` | `user.coach_weekly_state` | Estado JSON semanal del coach. |
-| `coach_weekly_updated_at` | `user.coach_weekly_updated_at` | Ultima actualizacion del estado semanal. |
-| `active_breaks_memory` | `user.coach_state.active_breaks_memory_v1` | Memoria especifica para pausas activas si existe. |
+Este bloque informa si el usuario tiene documentos cargados en AppGotoGym.
 
-### `documents`
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `summary` | Lista de documentos disponibles, tomando el mas reciente por tipo. |
+| `summary[].doc_type` | Tipo de documento, por ejemplo plan de nutricion, plan de entrenamiento o historia clinica. |
+| `summary[].file_name` | Nombre del archivo cargado. |
+| `summary[].updated_at` | Fecha de ultima actualizacion. |
+| `summary[].extracted_text` | Texto extraido del documento. Solo debe usarse si realmente se necesita. |
+| `types` | Tipos de documentos encontrados. |
+| `count` | Cantidad de tipos de documento disponibles. |
 
-Sale del modelo `UserDocument`.
+Lectura funcional:
 
-El endpoint busca documentos del usuario, ordena por `updated_at` descendente y toma el mas reciente por cada tipo (`doc_type`).
+- Permite saber que documentos tiene el usuario.
+- Si `include_text=true`, el endpoint puede incluir texto extraido de documentos.
+- Ese texto puede contener informacion sensible. Se debe mostrar o compartir solo cuando sea necesario.
 
-| Campo | Origen backend | Significado |
-| --- | --- | --- |
-| `summary` | Lista construida desde `UserDocument` | Documentos mas recientes por tipo. |
-| `summary[].doc_type` | `doc.doc_type` | Tipo de documento: `nutrition_plan`, `training_plan`, `medical_history`. |
-| `summary[].file_name` | `doc.file_name` | Nombre del archivo. |
-| `summary[].updated_at` | `doc.updated_at` | Fecha de actualizacion. |
-| `summary[].extracted_text` | `doc.extracted_text` | Texto extraido. Solo aparece si `include_text=true`. |
-| `types` | Llaves de documentos encontrados | Tipos de documento disponibles. |
-| `count` | Largo de `summary` | Cantidad de tipos de documento retornados. |
+## Dispositivos y fuentes fitness: `devices`
 
-### `devices`
+Este bloque describe las conexiones del usuario con proveedores de datos fitness o smartwatch.
 
-Sale de `devices.models.DeviceConnection` y `devices.models.FitnessSync`.
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `connected_providers` | Lista de proveedores conectados, como `google_fit`, `fitbit`, `garmin` o `whoop`. |
+| `devices[]` | Lista de conexiones configuradas por el usuario. |
+| `devices[].provider` | Nombre del proveedor. |
+| `devices[].status` | Estado de conexion: conectado, desconectado, pendiente o error. |
+| `devices[].last_sync_at` | Ultima sincronizacion exitosa. |
+| `devices[].updated_at` | Ultima actualizacion de esa conexion. |
+| `fitness` | Ultima informacion fitness sincronizada por proveedor. |
+| `fitness[provider].metrics` | Metricas normalizadas recibidas desde ese proveedor. |
+| `fitness[provider].start_time` / `end_time` | Periodo que cubren las metricas. |
+| `fitness[provider].created_at` | Momento en que AppGotoGym guardo esa sincronizacion. |
 
-| Campo | Origen backend | Significado |
-| --- | --- | --- |
-| `connected_providers` | `DeviceConnection` con `status == "connected"` | Proveedores conectados, por ejemplo `google_fit`, `fitbit`, `garmin`, `whoop`. |
-| `devices[]` | `DeviceConnection.objects.filter(user=user)` | Estado de conexiones del usuario. |
-| `devices[].provider` | `d.provider` | Proveedor del dispositivo. |
-| `devices[].status` | `d.status` | Estado: `connected`, `disconnected`, `pending`, `error`. |
-| `devices[].last_sync_at` | `d.last_sync_at` | Ultima sincronizacion real. |
-| `devices[].updated_at` | `d.updated_at` | Ultima actualizacion de la conexion. |
-| `fitness` | Ultimos `FitnessSync` agrupados por proveedor | Ultima data fitness sincronizada por proveedor. |
-| `fitness[provider].metrics` | `sync.metrics` | Metricas normalizadas del proveedor. |
-| `fitness[provider].start_time` / `end_time` | `sync.start_time` / `sync.end_time` | Ventana de datos sincronizada. |
-| `fitness[provider].created_at` | `sync.created_at` | Momento en que se guardo la sincronizacion. |
+Lectura funcional:
 
-Nota: al abrir `coach_context`, el backend intenta encolar o ejecutar una sincronizacion invisible si el proveedor conectado lleva 3 horas o mas sin sincronizar.
+- Sirve para saber si el usuario tiene datos externos de actividad, sueno, recuperacion u otras metricas.
+- Si no hay dispositivos conectados, este bloque puede venir vacio.
+- Al consultar el endpoint, AppGotoGym puede intentar refrescar la sincronizacion si una conexion lleva varias horas sin actualizarse.
 
-### `if_snapshot`
+## Foto de bienestar IF: `if_snapshot`
 
-Es una foto de las respuestas IF del usuario para la semana actual y del ultimo registro historico.
+Este bloque muestra una foto de las respuestas de bienestar del usuario.
 
-| Campo | Origen backend | Significado |
-| --- | --- | --- |
-| `week_id` | `_week_id()` | Semana ISO actual, formato `YYYY-W##`. |
-| `scores` | `user.scores` | Diccionario vigente de scores por pregunta IF. |
-| `qualitative_interpretation` | `_build_if_variable_sharing_payload(user.scores)` | Resumen variable basado en `user.scores`. Aunque el nombre dice "qualitative", actualmente retorna estructura variable con scores, no narrativa larga. |
-| `latest_record.value` | `HappinessRecord.value` mas reciente | Ultimo valor historico de bienestar/felicidad. |
-| `latest_record.scores` | `HappinessRecord.scores` mas reciente | Scores IF guardados en ese registro historico. |
-| `latest_record.date` | `HappinessRecord.date` | Fecha del registro historico. |
-| `answers[]` | `IFAnswer` de la semana actual | Respuestas capturadas por pregunta, dia y slot. |
-| `answers[].question_id` | `IFAnswer.question.key` | ID tecnico de la pregunta. |
-| `answers[].question_label` | `IFAnswer.question.label` | Label humano de la pregunta. |
-| `answers[].value` | `IFAnswer.value` | Valor respondido por el usuario. |
-| `answers[].slot` | `IFAnswer.slot` | Franja: `morning`, `afternoon`, `night`. |
-| `answers[].answered_at` | `IFAnswer.answered_at` | Ultima actualizacion de esa respuesta. |
-| `answers[].answered_date` | `IFAnswer.answered_date` | Dia al que pertenece la respuesta. |
-| `answers[].source` | `IFAnswer.source` | Origen, normalmente `app`. |
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `week_id` | Semana a la que pertenecen las respuestas. |
+| `scores` | Puntajes actuales por variable IF. |
+| `qualitative_interpretation` | Resumen estructurado de las variables IF. |
+| `latest_record.value` | Ultimo valor historico de bienestar/felicidad. |
+| `latest_record.scores` | Puntajes guardados en ese ultimo registro historico. |
+| `latest_record.date` | Fecha del ultimo registro historico. |
+| `answers[]` | Respuestas detalladas de la semana actual. |
+| `answers[].question_id` | Identificador de la variable respondida. |
+| `answers[].question_label` | Nombre legible de la pregunta. |
+| `answers[].value` | Valor respondido por el usuario. |
+| `answers[].slot` | Momento del dia: manana, tarde o noche. |
+| `answers[].answered_at` | Fecha y hora en que se respondio o actualizo. |
+| `answers[].answered_date` | Dia al que pertenece la respuesta. |
+| `answers[].source` | Origen de la respuesta, normalmente la app. |
 
-### `business`
+Lectura funcional:
 
-Sale del modelo `OrganizationMembership` y su relacion con `Organization`.
+- Sirve para ver respuestas con mas detalle, incluyendo fechas.
+- Es util cuando se necesita saber cuando respondio el usuario una variable.
+- Para pintar cards simples, suele ser mejor usar `wellbeing_experience_value_v1.if_variable_payload.responses`.
 
-| Campo | Origen backend | Significado |
-| --- | --- | --- |
-| `workspaces` | Membresias activas del usuario | Empresas/organizaciones donde participa el usuario. |
-| `has_business_workspace` | `bool(workspaces)` | Indica si tiene workspace empresarial activo. |
-| `active_workspace` | Primer workspace ordenado por default/nombre | Workspace principal. |
-| `workspaces[].organization_id` | `m.organization_id` | ID de la organizacion. |
-| `workspaces[].organization_name` | `m.organization.name` | Nombre de la organizacion. |
-| `workspaces[].organization_slug` | `m.organization.slug` | Slug. |
-| `workspaces[].organization_status` | `m.organization.status` | Estado de organizacion: `active`, `trial`, etc. |
-| `workspaces[].organization_plan` | `m.organization.plan` | Plan B2B. |
-| `workspaces[].role` | `m.role` | Rol del usuario en la organizacion. |
-| `workspaces[].permission_scope` | `m.permission_scope` | Alcance de permisos. |
-| `workspaces[].module_access` | `m.module_access` | Modulos habilitados para ese usuario. |
+## Contexto empresarial: `business`
 
-## Contrato `wellbeing_experience_value_v1`
+Este bloque indica si el usuario pertenece a una empresa u organizacion dentro de AppGotoGym.
 
-Este es el contrato de bienestar pensado para compartir datos variables del usuario con otras experiencias.
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `has_business_workspace` | Indica si el usuario tiene al menos un workspace empresarial activo. |
+| `active_workspace` | Workspace principal del usuario. |
+| `workspaces[]` | Lista de empresas u organizaciones donde participa. |
+| `workspaces[].organization_id` | Identificador de la organizacion. |
+| `workspaces[].organization_name` | Nombre de la empresa u organizacion. |
+| `workspaces[].organization_slug` | Identificador legible de la organizacion. |
+| `workspaces[].organization_status` | Estado de la organizacion. |
+| `workspaces[].organization_plan` | Plan empresarial contratado. |
+| `workspaces[].role` | Rol del usuario dentro de la organizacion. |
+| `workspaces[].permission_scope` | Alcance de permisos. |
+| `workspaces[].module_access` | Modulos habilitados para el usuario. |
+
+Lectura funcional:
+
+- Permite adaptar la experiencia si el usuario viene de una empresa.
+- Tambien sirve para controlar permisos y modulos visibles.
+
+## Bloque recomendado para APP GOTO GYM cards: `wellbeing_experience_value_v1`
+
+Este es el bloque mas importante si el objetivo es mostrar datos de bienestar en una interfaz simple.
+
+Tiene una estructura parecida a esta:
 
 ```json
 {
@@ -184,19 +189,29 @@ Este es el contrato de bienestar pensado para compartir datos variables del usua
 
 ### `contract`
 
-Valor fijo: `wellbeing_experience_value_v1`.
+Indica la version del formato de datos. Actualmente es:
 
-Sirve para versionar el contrato. Si en el futuro cambia la estructura, se deberia crear otra version.
+```json
+"wellbeing_experience_value_v1"
+```
+
+Lectura funcional:
+
+- Sirve para saber que version del contrato se esta usando.
+- Si en el futuro cambia el formato, esta version deberia cambiar.
 
 ### `generated_at`
 
-Sale de `timezone.now().isoformat()` cuando se construye el payload.
+Fecha y hora en que AppGotoGym genero la respuesta del endpoint.
 
-Significa: momento en que el endpoint genero la respuesta, no necesariamente la fecha en que el usuario respondio el formulario.
+Importante:
+
+- No siempre es la fecha en que el usuario respondio.
+- Es la fecha en que se consulto o construyo el payload.
 
 ### `global_wellbeing`
 
-Se construye con `_build_wellbeing_global_payload(user, latest_record)`.
+Resume el bienestar global del usuario.
 
 Ejemplo:
 
@@ -210,27 +225,22 @@ Ejemplo:
 }
 ```
 
-| Campo | Origen backend | Interpretacion |
-| --- | --- | --- |
-| `happiness_index` | `user.happiness_index`; fallback a `latest_record.value`; fallback al registro mas reciente de 14 dias | Indice global actual de bienestar/felicidad normalizado. Usualmente se expresa en escala `0.0` a `1.0`. |
-| `avg_7d` | Promedio de `HappinessRecord.value` normalizados de los ultimos 7 dias | Promedio reciente de bienestar. |
-| `avg_prev_7d` | Promedio de registros entre hace 8 y 14 dias | Promedio de la semana anterior. Puede ser `null` si no hay datos suficientes. |
-| `delta_7d` | `avg_7d - avg_prev_7d` | Cambio entre la semana actual y la anterior. Positivo mejora, negativo empeora. `null` si falta una de las dos semanas. |
-| `records_14d` | Conteo de `HappinessRecord` de los ultimos 14 dias | Cuantos registros historicos alimentan el calculo. |
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `happiness_index` | Bienestar actual del usuario. Si viene `0.66`, puede leerse como 66%. |
+| `avg_7d` | Promedio de bienestar de los ultimos 7 dias. |
+| `avg_prev_7d` | Promedio de la semana anterior. Puede venir vacio si no hay datos suficientes. |
+| `delta_7d` | Diferencia entre esta semana y la anterior. Positivo indica mejora; negativo indica caida. |
+| `records_14d` | Cantidad de registros usados en los ultimos 14 dias. |
 
-Traduccion del ejemplo:
+Lectura funcional:
 
-- `happiness_index: 0.66`: bienestar actual medio, cerca de 66%.
-- `avg_7d: 0.555`: promedio de los ultimos 7 dias cerca de 55.5%.
-- `avg_prev_7d: null`: no hay suficientes registros de la semana anterior.
-- `delta_7d: null`: no se puede calcular cambio porque falta `avg_prev_7d`.
-- `records_14d: 4`: se encontraron 4 registros en los ultimos 14 dias.
+- Sirve para mostrar una tarjeta de estado general.
+- Si faltan promedios, no significa error; puede significar que el usuario aun no tiene historial suficiente.
 
 ### `if_variable_payload`
 
-Se construye con `_build_if_variable_sharing_payload(user.scores)`.
-
-Este bloque toma el diccionario `user.scores` y lo convierte en una lista ordenada de preguntas IF, mas resumen de mejores y peores scores.
+Este bloque convierte las respuestas IF en datos faciles de consumir por cards.
 
 Ejemplo:
 
@@ -252,68 +262,71 @@ Ejemplo:
 }
 ```
 
-| Campo | Origen backend | Interpretacion |
-| --- | --- | --- |
-| `answered_questions` | Cantidad de items con `score` numerico | Numero de preguntas IF que tienen respuesta valida. |
-| `responses` | Lista construida desde el catalogo `IF_QUESTIONS` + `user.scores` | Cada pregunta IF con su score actual. |
-| `responses[].question_id` | ID del catalogo IF | Llave tecnica de la variable. |
-| `responses[].score` | `user.scores[question_id]` convertido a entero | Score de 1 a 10 si fue respondido; puede ser `null`. |
-| `summary.top_scores` | Top 3 de `responses` ordenado por score descendente | Las tres variables mas fuertes. |
-| `summary.low_scores` | Top 3 de `responses` ordenado por score ascendente | Las tres variables con menor valor, es decir prioridades de mejora. |
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `answered_questions` | Cuantas variables IF tienen respuesta valida. |
+| `responses[]` | Lista de variables con su puntaje. |
+| `responses[].question_id` | Identificador de la variable. |
+| `responses[].score` | Puntaje del usuario, normalmente de 1 a 10. |
+| `summary.top_scores` | Variables mejor calificadas del usuario. Son fortalezas. |
+| `summary.low_scores` | Variables con menor puntaje. Son prioridades de mejora. |
 
-Ejemplo consultado:
+Como mostrar una card:
 
 ```json
-"low_scores": [
-  { "question_id": "s_focus", "score": 5 }
-]
+{
+  "question_id": "s_focus",
+  "score": 5
+}
 ```
 
-Significa: `s_focus` pertenece a "Capacidad de enfoque". Si aparece en `low_scores`, el sistema detecto que esta entre las variables mas bajas del usuario. Un `score: 5` no necesariamente es critico; solo puede ser bajo relativo frente a las demas respuestas.
+Se puede mostrar como:
 
-## Diccionario de `question_id`
+- Variable: Capacidad de enfoque
+- Puntaje: 5/10
+- Lectura: nivel medio, con margen de mejora.
 
-Estos IDs vienen de `backend/api/if_questions.py`.
+### Diccionario de variables IF
 
-| `question_id` | Label en espanol | Que representa |
+| `question_id` | Nombre funcional | Que representa |
 | --- | --- | --- |
-| `s_steps` | Nivel de actividad fisica (Pasos) | Movimiento diario / pasos. |
-| `s_sleep` | Horas de sueno promedio | Duracion del sueno. |
-| `s_stress_inv` | Manejo del estres (10 = Excelente, 1 = Pesimo) | Regulacion del estres. Es inversa: mayor score significa mejor manejo. |
-| `s_intensity` | Intensidad de entrenamientos | Carga o estimulo de entrenamiento percibido. |
-| `s_emotional` | Estabilidad emocional | Estabilidad emocional percibida. |
-| `s_social` | Vida social y conexiones | Calidad/cantidad de conexiones sociales. |
-| `s_hrv` | Variabilidad cardiaca (Sensacion de recuperacion) | Recuperacion fisiologica percibida. |
-| `s_bio_age` | Edad Biologica (Percepcion de vitalidad) | Vitalidad o energia percibida. |
-| `s_sleep_quality` | Calidad del sueno | Calidad subjetiva del descanso. |
-| `s_circadian` | Sincronizacion ritmo circadiano (Rutina) | Regularidad de horarios de dormir/despertar. |
-| `s_focus` | Capacidad de enfoque | Capacidad para concentrarse y sostener atencion. |
-| `s_mood_sust` | Estado de animo sostenido | Estabilidad del animo a lo largo del tiempo. |
-| `s_flow` | Frecuencia de estado de Flow | Frecuencia de momentos de concentracion profunda/flujo. |
-| `s_purpose` | Sentido de proposito | Claridad de proposito o sentido personal. |
-| `s_hobbies` | Tiempo dedicado a hobbies | Tiempo de ocio restaurativo. |
-| `s_prosocial` | Actitudes prosociales (Ayudar a otros) | Conductas de apoyo a otras personas. |
+| `s_steps` | Actividad fisica / pasos | Movimiento diario. |
+| `s_sleep` | Horas de sueno | Duracion del descanso. |
+| `s_stress_inv` | Manejo del estres | Capacidad de regular el estres. Mientras mas alto, mejor manejo. |
+| `s_intensity` | Intensidad de entrenamiento | Nivel de exigencia fisica percibida. |
+| `s_emotional` | Estabilidad emocional | Balance emocional percibido. |
+| `s_social` | Vida social y conexiones | Calidad de las conexiones sociales. |
+| `s_hrv` | Recuperacion / variabilidad cardiaca | Sensacion de recuperacion fisica. |
+| `s_bio_age` | Vitalidad percibida | Energia o edad biologica percibida. |
+| `s_sleep_quality` | Calidad del sueno | Que tan reparador fue el descanso. |
+| `s_circadian` | Rutina circadiana | Regularidad de horarios y ritmo diario. |
+| `s_focus` | Capacidad de enfoque | Concentracion y atencion sostenida. |
+| `s_mood_sust` | Estado de animo sostenido | Estabilidad del animo en el tiempo. |
+| `s_flow` | Estado de flow | Frecuencia de momentos de concentracion profunda. |
+| `s_purpose` | Sentido de proposito | Claridad de sentido, motivacion o direccion personal. |
+| `s_hobbies` | Tiempo para hobbies | Tiempo dedicado a ocio saludable o restaurativo. |
+| `s_prosocial` | Ayuda a otros | Conductas prosociales o de apoyo. |
 
-## Bandas internas para interpretar scores IF
+### Interpretacion simple de puntajes IF
 
-La funcion `_if_band_for_score` clasifica asi:
+| Puntaje | Lectura funcional |
+| --- | --- |
+| Sin dato | No hay informacion suficiente. |
+| 1 a 3 | Bajo. Prioridad alta de mejora. |
+| 4 a 6 | Medio. Hay margen claro de mejora. |
+| 7 a 10 | Favorable. Conviene mantener consistencia. |
 
-| Score | Banda | Lectura |
-| --- | --- | --- |
-| Sin numero | `unknown` | No hay dato suficiente. |
-| `1` a `3` | `low` | Bajo / prioridad alta de mejora. |
-| `4` a `6` | `medium` | Medio / hay margen de mejora. |
-| `7` a `10` | `high` | Favorable / mantener consistencia. |
+Importante:
 
-Aunque `if_variable_payload` solo comparte `question_id` y `score`, el backend tambien tiene una funcion cualitativa interna (`_build_if_qualitative_interpretation`) que genera `band`, `insight`, `priority` y `recommended_action` para cada variable.
+- `low_scores` no significa necesariamente que el usuario este mal.
+- Significa que esas variables son las mas bajas frente a sus demas respuestas.
+- Un score `5` puede aparecer en `low_scores` si las otras variables estan mas altas.
 
-## `experience_value_pack`
+### `experience_value_pack`
 
-Se construye con `_build_wellbeing_experience_value_pack(user)`.
+Este bloque resume resultados ya calculados por experiencias del coach.
 
-Este bloque no viene directamente del formulario IF. Sale de resultados ya guardados en `user.coach_state` y `user.coach_weekly_state`.
-
-Cada item tiene esta forma:
+Cada item puede verse asi:
 
 ```json
 {
@@ -327,109 +340,149 @@ Cada item tiene esta forma:
 }
 ```
 
-| Campo | Origen backend | Interpretacion |
-| --- | --- | --- |
-| `experience_id` | ID fijo definido por el builder | Experiencia/analisis que produjo el resultado. |
-| `label` | Label fijo definido por el builder | Nombre legible de la experiencia. |
-| `decision` | `result_payload.decision` | Decision del motor de experiencia, por ejemplo `accepted`. |
-| `decision_reason` | `result_payload.decision_reason` | Razon de la decision si existe. |
-| `confidence` | `result_payload.confidence` | Confianza del resultado, normalizada/redondeada. |
-| `value_metrics` | Metricas extraidas por experiencia | Campos resumidos que cambian segun la experiencia. |
-| `updated_at` | `state_value.updated_at`, `as_of` o `date` | Fecha de actualizacion del resultado. |
-
-Experiencias que puede incluir:
-
-| `experience_id` | Fuente | Que resume |
-| --- | --- | --- |
-| `exp-002_goal_coherence` | `user.coach_state.meal_coherence_last` | Coherencia de comida con objetivo. |
-| `exp-003_metabolic_profile` | `user.coach_weekly_state.metabolic_last` | Perfil metabolico semanal. |
-| `exp-007_lifestyle_intelligence` | `user.coach_state.lifestyle_last` | Inteligencia de estilo de vida. |
-| `exp-008_motivation` | `user.coach_state.motivation_last` | Dinamica motivacional. |
-| `exp-009_progression` | `user.coach_state.progression_last` | Progresion de entrenamiento/habitos. |
-| `exp-005_body_trend` | `user.coach_weekly_state.body_trend_last` | Proyeccion de tendencia corporal. |
-
-### `value_metrics` por experiencia
-
-| Experiencia | Campos posibles |
+| Dato enviado | Que significa funcionalmente |
 | --- | --- |
-| `exp-002_goal_coherence` | `coherence_score`, `classification` |
-| `exp-003_metabolic_profile` | `kcal_day`, `weekly_adjustment_kcal_day` |
-| `exp-007_lifestyle_intelligence` | `dhss_score`, `dhss_band`, `first_microhabit_id` |
-| `exp-008_motivation` | `dominant_driver`, `mood`, `intervention_level` |
-| `exp-009_progression` | `readiness_score`, `action`, `action_label` |
-| `exp-005_body_trend` | `projected_weight_kg`, `horizon_weeks` |
+| `experience_id` | Identificador de la experiencia o analisis. |
+| `label` | Nombre legible de la experiencia. |
+| `decision` | Resultado del motor, por ejemplo `accepted`. |
+| `decision_reason` | Motivo del resultado. |
+| `confidence` | Nivel de confianza del resultado. |
+| `value_metrics` | Metricas resumidas de esa experiencia. |
+| `updated_at` | Fecha de actualizacion del resultado. |
 
-## `portfolio_summary`
+Experiencias que puede enviar:
 
-Se calcula sobre `experience_value_pack`.
-
-| Campo | Origen backend | Interpretacion |
-| --- | --- | --- |
-| `experiences_tracked` | `len(experience_pack)` | Cantidad de experiencias con datos disponibles. |
-| `accepted_experiences` | Conteo de items con `decision == "accepted"` | Experiencias listas/aceptadas por el motor. |
-| `average_confidence` | Promedio de `confidence` de las experiencias | Confianza promedio de las experiencias disponibles. |
-| `analysis_summary` | `_build_wellbeing_analysis_summary(...)` | Texto resumido generado desde `global_wellbeing`, `low_scores` y experiencias aceptadas. |
-
-## `guardrails`
-
-Reglas declaradas por el backend sobre que se comparte en el contrato.
-
-| Campo | Significado |
+| Experiencia | Que resume |
 | --- | --- |
-| `share_only_variable_data` | El contrato intenta compartir solo datos variables del usuario. |
-| `static_catalog_excluded` | El catalogo estatico completo no se incluye dentro del contrato variable. |
-| `contains_personal_identifiers` | Indica si el contrato incluye identificadores personales. En este contrato viene `false`. |
-| `excluded_categories` | Categorias excluidas: `email`, `full_name`, `phone`, `documents_text`, `raw_conversation_text`. |
+| `exp-002_goal_coherence` | Coherencia de comida con el objetivo del usuario. |
+| `exp-003_metabolic_profile` | Perfil metabolico semanal. |
+| `exp-007_lifestyle_intelligence` | Inteligencia de estilo de vida. |
+| `exp-008_motivation` | Dinamica motivacional. |
+| `exp-009_progression` | Progresion de entrenamiento o habitos. |
+| `exp-005_body_trend` | Proyeccion de tendencia corporal. |
 
-Importante: aunque `guardrails.contains_personal_identifiers` es `false` para `wellbeing_experience_value_v1`, el payload completo de `/api/coach_context/` si incluye datos personales en `profile`, como `email` y `full_name`.
+### `portfolio_summary`
 
-## Relacion entre campos parecidos
+Resume cuantas experiencias tienen datos y que tan confiables son.
 
-| Campo | Diferencia practica |
+| Dato enviado | Que significa funcionalmente |
 | --- | --- |
-| `profile.scores` | Diccionario crudo actual guardado en `User.scores`. |
-| `if_snapshot.scores` | El mismo diccionario crudo actual, expuesto dentro de la foto IF. |
-| `if_snapshot.answers` | Respuestas semanales detalladas desde `IFAnswer`; incluye fecha, slot y source. |
-| `if_snapshot.latest_record.scores` | Scores guardados dentro del ultimo `HappinessRecord`; puede representar una foto historica anterior. |
-| `wellbeing_experience_value_v1.if_variable_payload.responses` | Lista normalizada para compartir: `question_id` + `score`. Esta es la fuente recomendada para cards IF. |
-| `wellbeing_experience_value_v1.if_variable_payload.summary.low_scores` | Top 3 scores mas bajos de `responses`; util para priorizar oportunidades de mejora. |
-| `wellbeing_experience_value_v1.global_wellbeing` | Indicadores agregados del historial de bienestar, no una pregunta individual. |
+| `experiences_tracked` | Cantidad de experiencias con informacion disponible. |
+| `accepted_experiences` | Cantidad de experiencias aceptadas/listas por el motor. |
+| `average_confidence` | Confianza promedio de las experiencias disponibles. |
+| `analysis_summary` | Texto resumido del estado de bienestar y experiencias. |
 
-## Fuente recomendada para APP GOTO GYM cards
+Lectura funcional:
 
-Para pintar cards por pregunta IF:
+- Sirve para mostrar un resumen general de todo el paquete de experiencias.
+- Si no hay suficientes datos, puede venir vacio o con un mensaje resiliente.
 
-1. Usar primero `wellbeing_experience_value_v1.if_variable_payload.responses`.
-2. Mapear cada `question_id` contra el diccionario de preguntas de este documento.
-3. Mostrar `score` como escala `x/10`.
-4. Usar `wellbeing_experience_value_v1.generated_at` como fecha de generacion del endpoint.
-5. Si se necesita fecha real de respuesta por pregunta, usar `if_snapshot.answers[].answered_at` cuando exista la pregunta correspondiente.
+### `guardrails`
 
-Ejemplo:
+Declara reglas sobre privacidad y alcance de datos dentro del bloque `wellbeing_experience_value_v1`.
 
-```json
-{
-  "question_id": "s_focus",
-  "score": 5
-}
+| Dato enviado | Que significa funcionalmente |
+| --- | --- |
+| `share_only_variable_data` | Indica que este contrato busca compartir datos variables del usuario, no catalogos completos. |
+| `static_catalog_excluded` | Indica que no se incluye todo el catalogo estatico de preguntas. |
+| `contains_personal_identifiers` | Indica si este bloque contiene identificadores personales. En este contrato deberia venir `false`. |
+| `excluded_categories` | Categorias que no deberian incluirse dentro de este contrato, como email, nombre, telefono, texto de documentos o conversaciones crudas. |
+
+Importante:
+
+- `wellbeing_experience_value_v1` esta pensado para ser mas seguro y funcional.
+- El payload completo de `/api/coach_context/` si puede incluir datos personales en `profile`.
+
+## Que debe usar APP GOTO GYM para pintar cards
+
+Fuente recomendada:
+
+```text
+wellbeing_experience_value_v1.if_variable_payload.responses
 ```
 
-Se debe mostrar como:
+Pasos funcionales:
 
-- Variable: Capacidad de enfoque
-- Score: `5/10`
-- Lectura: nivel medio; hay margen claro de mejora.
+1. Leer la lista `responses`.
+2. Tomar cada `question_id`.
+3. Buscar su nombre en el diccionario de variables IF.
+4. Mostrar el `score` como `x/10`.
+5. Usar `summary.top_scores` para destacar fortalezas.
+6. Usar `summary.low_scores` para destacar prioridades de mejora.
+7. Usar `generated_at` como fecha de generacion del endpoint.
+8. Si se necesita la fecha exacta de respuesta, buscarla en `if_snapshot.answers[]`.
 
-## Modo fallback/resiliente
+Ejemplo de transformacion:
 
-Si ocurre un error interno, el endpoint responde `200 OK` con un payload reducido.
+```json
+{ "question_id": "s_sleep_quality", "score": 8 }
+```
 
-En ese caso:
+Puede convertirse en:
 
-- `documents.summary` viene vacio.
-- `devices.connected_providers` viene vacio.
-- `if_snapshot.answers` viene vacio.
-- `wellbeing_experience_value_v1` sigue existiendo.
-- `portfolio_summary.analysis_summary` puede decir `Contexto de bienestar disponible en modo resiliente.`
+```text
+Calidad del sueno
+8/10
+Lectura: favorable; mantener consistencia.
+```
 
-Para frontend, esto significa que no se debe asumir que todos los arrays traen datos. Cada seccion debe tolerar `null`, `{}` o `[]`.
+## Datos que requieren cuidado
+
+| Tipo de dato | Donde aparece | Cuidado recomendado |
+| --- | --- | --- |
+| Nombre y correo | `profile.full_name`, `profile.email` | No mostrar ni compartir si solo se necesitan indicadores de bienestar. |
+| Datos corporales | `profile.age`, `profile.weight`, `profile.height` | Tratar como datos sensibles. Preferir rangos si aplica. |
+| Documentos | `documents.summary` | Evitar exponer texto extraido salvo necesidad clara. |
+| Dispositivos fitness | `devices`, `fitness` | Pueden revelar habitos, actividad, descanso o recuperacion. |
+| Respuestas IF | `if_snapshot`, `if_variable_payload` | Son datos de bienestar; mostrar con contexto y sin juicios absolutos. |
+| Empresa/organizacion | `business` | Usar solo para permisos, segmentacion o experiencia B2B. |
+
+## Casos donde pueden faltar datos
+
+El endpoint puede responder con bloques vacios cuando:
+
+- El usuario es nuevo.
+- El usuario no ha respondido preguntas IF.
+- No hay documentos cargados.
+- No hay smartwatch o proveedor conectado.
+- No hay historial suficiente para calcular promedios.
+- Ocurrio un error interno y AppGotoGym respondio en modo resiliente.
+
+La interfaz debe tolerar:
+
+```text
+null
+{}
+[]
+```
+
+## Modo resiliente
+
+Si algo falla internamente, AppGotoGym intenta responder de todas formas con un payload reducido.
+
+En ese caso puede pasar que:
+
+- `documents.summary` venga vacio.
+- `devices.connected_providers` venga vacio.
+- `if_snapshot.answers` venga vacio.
+- `wellbeing_experience_value_v1` siga existiendo.
+- `portfolio_summary.analysis_summary` indique que el contexto esta disponible en modo resiliente.
+
+Lectura funcional:
+
+- No se debe tratar como error visual inmediato.
+- Se puede mostrar un estado como "Datos parcialmente disponibles".
+
+## Glosario rapido
+
+| Termino | Significado |
+| --- | --- |
+| Endpoint | Direccion que entrega datos desde AppGotoGym. |
+| Payload | Paquete de datos que responde el endpoint. |
+| IF | Conjunto de variables de bienestar usadas por AppGotoGym. |
+| Score | Puntaje de una variable, normalmente de 1 a 10. |
+| Snapshot | Foto del estado en un momento especifico. |
+| Provider | Fuente externa de datos, como Google Fit, Fitbit, Garmin o Whoop. |
+| Workspace | Espacio empresarial al que pertenece el usuario. |
+| Guardrails | Reglas de proteccion sobre que datos se comparten. |
+

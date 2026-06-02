@@ -102,3 +102,77 @@ describe('Smartwatch API', () => {
     expect(res.status).toBe(404);
   });
 });
+
+describe('Corporate Wellbeing API', () => {
+  const originalFetch = global.fetch;
+
+  afterEach(() => {
+    global.fetch = originalFetch;
+    jest.restoreAllMocks();
+  });
+
+  it('GET /api/v1/business/wellbeing/corporate debe requerir Authorization Bearer token', async () => {
+    const res = await request(app).get('/api/v1/business/wellbeing/corporate');
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty('success', false);
+    expect(res.body.error).toHaveProperty('code', 'UNAUTHORIZED');
+  });
+
+  it('OPTIONS /api/v1/business/wellbeing/corporate debe responder 200', async () => {
+    const res = await request(app).options('/api/v1/business/wellbeing/corporate');
+
+    expect(res.status).toBe(200);
+  });
+
+  it('GET /api/v1/business/wellbeing/corporate debe consumir el endpoint corporativo con JWT y query params', async () => {
+    const upstreamPayload = {
+      success: true,
+      contract: 'wellbeing_corporativo_business_v1',
+      requested_window_days: 45,
+      workspace: { organization_id: 123 },
+      sharing_policy: { aggregate_only: true },
+    };
+
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => upstreamPayload,
+    } as Response);
+    global.fetch = fetchMock;
+
+    const res = await request(app)
+      .get('/api/v1/business/wellbeing/corporate?org=123&days=45')
+      .set('Authorization', 'Bearer product-jwt-token');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.data).toHaveProperty('contract', 'wellbeing_corporativo_business_v1');
+    expect(res.body.data).toHaveProperty('requested_window_days', 45);
+
+    const [url, options] = fetchMock.mock.calls[0];
+    expect(String(url)).toContain('/api/business/wellbeing/corporate/');
+    expect(String(url)).toContain('org=123');
+    expect(String(url)).toContain('days=45');
+    expect(options.headers.Authorization).toBe('Bearer product-jwt-token');
+  });
+
+  it('GET /api/v1/business/wellbeing/corporate debe limitar days entre 7 y 180', async () => {
+    const fetchMock = jest.fn().mockResolvedValue({
+      ok: true,
+      status: 200,
+      json: async () => ({
+        success: true,
+        contract: 'wellbeing_corporativo_business_v1',
+      }),
+    } as Response);
+    global.fetch = fetchMock;
+
+    await request(app)
+      .get('/api/v1/business/wellbeing/corporate?days=999')
+      .set('Authorization', 'Bearer product-jwt-token');
+
+    const [url] = fetchMock.mock.calls[0];
+    expect(String(url)).toContain('days=180');
+  });
+});

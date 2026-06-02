@@ -7,7 +7,6 @@ import type { Section } from './layout/AppSidebar';
 import type { UserRole } from '../auth/rbac';
 import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
-import { WellbeingContextSection } from './sections/WellbeingContextSection';
 import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
@@ -145,12 +144,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         if (isUser) {
           return (
             <>
-              <WellbeingContextSection
-                data={coachContext}
-                loading={coachLoading}
-                error={coachError}
-                forbidden={coachForbidden}
-              />
               <DashboardWelcomeSection />
               <SmartwatchSummary
                 heartRateTrend={smartwatchHeartRateTrendMock}
