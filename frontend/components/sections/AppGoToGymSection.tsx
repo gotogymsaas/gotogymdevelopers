@@ -8,180 +8,260 @@ interface AppGoToGymSectionProps {
   forbidden: boolean;
 }
 
-interface BmiCategory {
+interface DynamicItem {
+  key: string;
   label: string;
-  range: string;
-  min: number;
-  max: number;
-  color: string;
+  value: unknown;
+  type: 'metric' | 'text' | 'list' | 'object';
 }
 
-const bmiCategories: BmiCategory[] = [
-  { label: 'Delgadez severa', range: '< 16.0', min: 0, max: 15.99, color: '#1495f7' },
-  { label: 'Delgadez moderada', range: '16.0 - 16.9', min: 16, max: 16.99, color: '#46c6f0' },
-  { label: 'Bajo peso', range: '17.0 - 18.4', min: 17, max: 18.49, color: '#9371dd' },
-  { label: 'Normal', range: '18.5 - 24.9', min: 18.5, max: 24.99, color: '#24d98c' },
-  { label: 'Sobrepeso', range: '25.0 - 29.9', min: 25, max: 29.99, color: '#ffc51d' },
-  { label: 'Obesidad clase I', range: '30.0 - 34.9', min: 30, max: 34.99, color: '#ff5a40' },
-  { label: 'Obesidad clase II', range: '35.0 - 39.9', min: 35, max: 39.99, color: '#f12c5f' },
-  { label: 'Obesidad clase III', range: '40.0 <', min: 40, max: Number.POSITIVE_INFINITY, color: '#dd0038' },
+interface DynamicSegment {
+  id: string;
+  title: string;
+  description: string;
+  items: DynamicItem[];
+}
+
+const labelMap: Record<string, string> = {
+  username: 'Usuario',
+  email: 'Email',
+  plan: 'Plan',
+  account_type: 'Tipo de cuenta',
+  full_name: 'Nombre',
+  timezone: 'Zona horaria',
+  sex: 'Sexo',
+  age: 'Edad',
+  weight: 'Peso',
+  height: 'Altura',
+  profession: 'Profesion',
+  favorite_exercise_time: 'Horario favorito',
+  favorite_sport: 'Deporte favorito',
+  goal_type: 'Objetivo',
+  activity_level: 'Nivel de actividad',
+  happiness_index: 'Indice de felicidad',
+  current_streak: 'Racha actual',
+  week_id: 'Semana',
+  generated_at: 'Generado en',
+  contract: 'Contrato',
+  connected_providers: 'Proveedores conectados',
+  count: 'Cantidad',
+  types: 'Tipos',
+  has_business_workspace: 'Workspace empresarial',
+  active_workspace: 'Workspace activo',
+  global_wellbeing: 'Bienestar global',
+  if_variable_payload: 'Variables IF',
+  experience_value_pack: 'Valor de experiencia',
+  portfolio_summary: 'Resumen de portafolio',
+  guardrails: 'Guardrails',
+  scores: 'Scores',
+  qualitative_interpretation: 'Interpretacion cualitativa',
+  latest_record: 'Ultimo registro',
+  answers: 'Respuestas',
+  devices: 'Dispositivos',
+  fitness: 'Datos fitness',
+  summary: 'Resumen',
+  active_breaks_memory: 'Memoria de pausas activas',
+};
+
+const segmentOrder: Array<{
+  id: string;
+  title: string;
+  description: string;
+  read: (data: CoachContextResponse) => unknown;
+}> = [
+  {
+    id: 'profile',
+    title: 'Perfil del usuario',
+    description: 'Datos base del usuario autenticado recibidos desde el servicio de bienestar.',
+    read: data => data.profile,
+  },
+  {
+    id: 'wellbeing',
+    title: 'Bienestar global',
+    description: 'Indicadores calculados por el contrato wellbeing_experience_value_v1.',
+    read: data => data.wellbeing_experience_value_v1,
+  },
+  {
+    id: 'if-snapshot',
+    title: 'Indice de felicidad y variables IF',
+    description: 'Scores, respuestas y lectura cualitativa mas reciente.',
+    read: data => data.if_snapshot,
+  },
+  {
+    id: 'devices',
+    title: 'Dispositivos y datos conectados',
+    description: 'Estado de dispositivos y ultimos datos de fitness asociados al usuario.',
+    read: data => data.devices,
+  },
+  {
+    id: 'documents',
+    title: 'Documentos del usuario',
+    description: 'Documentos disponibles para contexto de bienestar.',
+    read: data => data.documents,
+  },
+  {
+    id: 'business',
+    title: 'Contexto empresarial',
+    description: 'Workspaces y permisos empresariales asociados, si existen.',
+    read: data => data.business,
+  },
 ];
 
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value);
 
-const readNumber = (value: unknown): number | null => {
-  if (typeof value === 'number' && Number.isFinite(value)) {
+const isEmptyValue = (value: unknown): boolean => {
+  if (value === null || value === undefined) {
+    return true;
+  }
+
+  if (typeof value === 'string') {
+    return value.trim().length === 0;
+  }
+
+  if (typeof value === 'number') {
+    return !Number.isFinite(value);
+  }
+
+  if (Array.isArray(value)) {
+    return value.length === 0 || value.every(isEmptyValue);
+  }
+
+  if (isRecord(value)) {
+    return Object.values(value).every(isEmptyValue);
+  }
+
+  return false;
+};
+
+const titleize = (key: string): string =>
+  labelMap[key] ?? key
+    .replace(/_/g, ' ')
+    .replace(/\b\w/g, char => char.toUpperCase());
+
+const getItemType = (value: unknown): DynamicItem['type'] => {
+  if (Array.isArray(value)) {
+    return 'list';
+  }
+
+  if (isRecord(value)) {
+    return 'object';
+  }
+
+  if (typeof value === 'number' || typeof value === 'boolean') {
+    return 'metric';
+  }
+
+  return 'text';
+};
+
+const getPrimaryItems = (source: unknown): DynamicItem[] => {
+  if (!isRecord(source)) {
+    return [];
+  }
+
+  return Object.entries(source)
+    .filter(([, value]) => !isEmptyValue(value))
+    .map(([key, value]) => ({
+      key,
+      label: titleize(key),
+      value,
+      type: getItemType(value),
+    }));
+};
+
+const buildSegments = (data: CoachContextResponse | null): DynamicSegment[] => {
+  if (!data) {
+    return [];
+  }
+
+  return segmentOrder
+    .map(segment => ({
+      id: segment.id,
+      title: segment.title,
+      description: segment.description,
+      items: getPrimaryItems(segment.read(data)),
+    }))
+    .filter(segment => segment.items.length > 0);
+};
+
+const formatPrimitive = (value: unknown): string => {
+  if (typeof value === 'boolean') {
+    return value ? 'Si' : 'No';
+  }
+
+  if (typeof value === 'number') {
+    return new Intl.NumberFormat('es-CO', {
+      maximumFractionDigits: 2,
+    }).format(value);
+  }
+
+  if (typeof value === 'string') {
+    const date = new Date(value);
+    if (!Number.isNaN(date.getTime()) && /\d{4}-\d{2}-\d{2}/.test(value)) {
+      return new Intl.DateTimeFormat('es-CO', {
+        dateStyle: 'medium',
+        timeStyle: value.includes('T') ? 'short' : undefined,
+      }).format(date);
+    }
+
     return value;
   }
 
-  if (typeof value === 'string') {
-    const parsed = Number(value.replace(',', '.').replace(/[^\d.-]/g, ''));
-    return Number.isFinite(parsed) ? parsed : null;
-  }
-
-  return null;
+  return String(value);
 };
 
-const formatDecimal = (value: number, digits = 1): string =>
-  new Intl.NumberFormat('es-CO', {
-    minimumFractionDigits: digits,
-    maximumFractionDigits: digits,
-  }).format(value);
-
-const normalizeHeightMeters = (height: number | null): number | null => {
-  if (!height || height <= 0) {
-    return null;
+const summarizeObject = (value: Record<string, unknown>): string => {
+  const entries = Object.entries(value).filter(([, entryValue]) => !isEmptyValue(entryValue));
+  if (entries.length === 0) {
+    return '';
   }
 
-  return height > 3 ? height / 100 : height;
+  return entries
+    .slice(0, 4)
+    .map(([key, entryValue]) => {
+      if (Array.isArray(entryValue)) {
+        return `${titleize(key)}: ${entryValue.length}`;
+      }
+
+      if (isRecord(entryValue)) {
+        return `${titleize(key)}: ${Object.keys(entryValue).length} datos`;
+      }
+
+      return `${titleize(key)}: ${formatPrimitive(entryValue)}`;
+    })
+    .join(' · ');
 };
 
-const getBmiCategory = (bmi: number | null): BmiCategory | null => {
-  if (bmi === null) {
-    return null;
+const renderValue = (item: DynamicItem) => {
+  if (item.type === 'list' && Array.isArray(item.value)) {
+    const visibleItems = item.value.filter(value => !isEmptyValue(value)).slice(0, 5);
+    return (
+      <ul className="gtg-dynamic-list">
+        {visibleItems.map((value, index) => (
+          <li key={`${item.key}-${index}`}>
+            {isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
+          </li>
+        ))}
+      </ul>
+    );
   }
 
-  return bmiCategories.find(category => bmi >= category.min && bmi <= category.max) ?? null;
-};
-
-const getBmiNeedleRotation = (bmi: number | null): number => {
-  if (bmi === null) {
-    return -120;
+  if (item.type === 'object' && isRecord(item.value)) {
+    const entries = Object.entries(item.value).filter(([, value]) => !isEmptyValue(value));
+    return (
+      <div className="gtg-dynamic-object">
+        {entries.slice(0, 8).map(([key, value]) => (
+          <span key={`${item.key}-${key}`}>
+            <strong>{titleize(key)}</strong>
+            {Array.isArray(value) ? `${value.length} items` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
+          </span>
+        ))}
+      </div>
+    );
   }
 
-  const min = 12;
-  const max = 42;
-  const clamped = Math.min(max, Math.max(min, bmi));
-  return -120 + ((clamped - min) / (max - min)) * 240;
-};
-
-const getHappinessValue = (data: CoachContextResponse | null): number | null => {
-  const profile = data?.profile;
-  const wellbeing = data?.wellbeing_experience_value_v1?.global_wellbeing;
-
-  const profileValue = isRecord(profile) ? readNumber(profile.happiness_index) : null;
-  const wellbeingValue = isRecord(wellbeing) ? readNumber(wellbeing.happiness_index) : null;
-  const value = profileValue ?? wellbeingValue;
-
-  if (value === null) {
-    return null;
-  }
-
-  if (value <= 1) {
-    return value * 100;
-  }
-
-  if (value <= 10) {
-    return value * 10;
-  }
-
-  return Math.min(100, value);
-};
-
-const getHappinessMessage = (value: number | null): string => {
-  if (value === null) {
-    return 'Esperando tu indice de bienestar';
-  }
-
-  if (value >= 80) {
-    return 'Estas radiante hoy';
-  }
-
-  if (value >= 60) {
-    return 'Vas con buena energia';
-  }
-
-  if (value >= 40) {
-    return 'Hay espacio para recargar';
-  }
-
-  return 'Tu bienestar necesita atencion';
-};
-
-const formatBadges = (value: unknown): string[] => {
-  if (Array.isArray(value)) {
-    return value
-      .map(item => {
-        if (typeof item === 'string') {
-          return item;
-        }
-
-        if (isRecord(item)) {
-          const label = item.label ?? item.name ?? item.title ?? item.id;
-          return typeof label === 'string' ? label : null;
-        }
-
-        return null;
-      })
-      .filter((item): item is string => Boolean(item?.trim()))
-      .slice(0, 4);
-  }
-
-  if (typeof value === 'string' && value.trim()) {
-    return [value.trim()];
-  }
-
-  if (isRecord(value)) {
-    return Object.entries(value)
-      .filter(([, enabled]) => Boolean(enabled))
-      .map(([key]) => key)
-      .slice(0, 4);
-  }
-
-  return [];
-};
-
-const describeActiveBreaks = (value: unknown): string => {
-  if (!value) {
-    return 'Sin memoria de pausas activas registrada.';
-  }
-
-  if (typeof value === 'string') {
-    return value.trim() || 'Sin memoria de pausas activas registrada.';
-  }
-
-  if (isRecord(value)) {
-    const candidates = [
-      value.summary,
-      value.last_recommendation,
-      value.last_action,
-      value.status,
-      value.preference,
-    ];
-    const found = candidates.find(candidate => typeof candidate === 'string' && candidate.trim());
-
-    if (typeof found === 'string') {
-      return found;
-    }
-
-    const keys = Object.keys(value);
-    return keys.length
-      ? `Memoria activa con ${keys.length} datos guardados.`
-      : 'Sin memoria de pausas activas registrada.';
-  }
-
-  return 'Memoria de pausas activas disponible.';
+  return <strong className="gtg-dynamic-value">{formatPrimitive(item.value)}</strong>;
 };
 
 export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
@@ -190,41 +270,25 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
   error,
   forbidden,
 }) => {
-  const profile = isRecord(data?.profile) ? data?.profile : {};
-
-  const wellness = useMemo(() => {
-    const weight = readNumber(profile.weight);
-    const heightMeters = normalizeHeightMeters(readNumber(profile.height));
-    const bmi = weight !== null && heightMeters !== null
-      ? weight / (heightMeters * heightMeters)
-      : null;
-    const category = getBmiCategory(bmi);
-    const happiness = getHappinessValue(data);
-    const streak = readNumber(profile.current_streak);
-    const badges = formatBadges(profile.badges);
-    const activeBreaks = describeActiveBreaks(profile.active_breaks_memory);
-
-    return {
-      weight,
-      heightMeters,
-      bmi,
-      category,
-      happiness,
-      happinessMessage: getHappinessMessage(happiness),
-      streak,
-      badges,
-      activeBreaks,
-    };
-  }, [data, profile]);
+  const segments = useMemo(() => buildSegments(data), [data]);
+  const generatedAt = data?.wellbeing_experience_value_v1?.generated_at;
 
   return (
-    <section className="gtg-wellness-widgets-section">
+    <section className="gtg-app-gym-section gtg-app-gym-dynamic">
       <div className="gtg-section-header">
         <h2 className="gtg-section-title">APP GOTO GYM</h2>
+        <p className="gtg-section-desc">
+          Modulo informativo construido en tiempo real desde el endpoint de bienestar.
+        </p>
+        {generatedAt ? (
+          <span className="gtg-dynamic-live-pill">
+            Actualizado {formatPrimitive(generatedAt)}
+          </span>
+        ) : null}
       </div>
 
       {loading && (
-        <div className="gtg-app-gym-status">Cargando informacion de bienestar...</div>
+        <div className="gtg-app-gym-status">Cargando informacion de APP GOTO GYM...</div>
       )}
 
       {!loading && forbidden && (
@@ -235,93 +299,35 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
         <div className="gtg-app-gym-status is-error">{error}</div>
       )}
 
-      {!loading && !forbidden && !error && (
-        <div className="gtg-wellness-widgets-grid">
-          <article className="gtg-bmi-widget">
-            <h3>Calculadora de IMC</h3>
+      {!loading && !forbidden && !error && segments.length === 0 && (
+        <div className="gtg-app-gym-status">El endpoint de bienestar no trae informacion disponible para mostrar.</div>
+      )}
 
-            <div className="gtg-bmi-input-row">
-              <div className="gtg-bmi-input-card">
-                <strong>{wellness.weight !== null ? `${formatDecimal(wellness.weight, 1)} kg` : 'Sin dato'}</strong>
-                <span>Peso</span>
-              </div>
-              <div className="gtg-bmi-input-card">
-                <strong>{wellness.heightMeters !== null ? `${Math.round(wellness.heightMeters * 100)} cm` : 'Sin dato'}</strong>
-                <span>Estatura</span>
-              </div>
-            </div>
-
-            <div className="gtg-bmi-gauge" style={{ '--bmi-needle-rotation': `${getBmiNeedleRotation(wellness.bmi)}deg` } as React.CSSProperties}>
-              <div className="gtg-bmi-arc" aria-hidden="true" />
-              <div className="gtg-bmi-person" aria-hidden="true" />
-              <div className="gtg-bmi-needle" aria-hidden="true" />
-              <div className="gtg-bmi-value">
-                <strong>{wellness.bmi !== null ? formatDecimal(wellness.bmi, 1) : '--'}</strong>
-                <span>IMC</span>
-              </div>
-            </div>
-
-            <ul className="gtg-bmi-scale" aria-label="Clasificacion IMC">
-              {bmiCategories.map(category => (
-                <li
-                  className={wellness.category?.label === category.label ? 'is-active' : ''}
-                  key={category.label}
-                >
-                  <span className="gtg-bmi-dot" style={{ backgroundColor: category.color }} />
-                  <span className="gtg-bmi-label">{category.label}</span>
-                  <strong>{category.range}</strong>
-                </li>
-              ))}
-            </ul>
-          </article>
-
-          <article className="gtg-happiness-widget">
-            <div>
-              <h3>Indice de felicidad</h3>
-              <p>{wellness.happinessMessage}</p>
-            </div>
-            <div
-              className="gtg-happiness-ring"
-              style={{ '--happiness-value': `${wellness.happiness ?? 0}%` } as React.CSSProperties}
-              aria-label={`Indice de felicidad ${wellness.happiness !== null ? Math.round(wellness.happiness) : 0}%`}
-            >
-              <div className="gtg-happiness-heart" aria-hidden="true" />
-              <strong>{wellness.happiness !== null ? `${Math.round(wellness.happiness)}%` : '--'}</strong>
-            </div>
-            <span className="gtg-happiness-source">happiness_index</span>
-          </article>
-
-          <article className="gtg-progress-widget">
-            <div className="gtg-progress-header">
-              <span>Progreso personal</span>
-              <strong>{wellness.streak !== null ? `${Math.round(wellness.streak)} dias` : 'Sin racha'}</strong>
-            </div>
-
-            <div className="gtg-progress-main">
-              <div className="gtg-progress-stat">
-                <span>Racha actual</span>
-                <strong>{wellness.streak !== null ? Math.round(wellness.streak) : '--'}</strong>
-                <small>dias consecutivos</small>
-              </div>
-              <div className="gtg-progress-breaks">
-                <span>Pausas activas</span>
-                <p>{wellness.activeBreaks}</p>
-              </div>
-            </div>
-
-            <div className="gtg-progress-badges">
-              <span>Insignias y logros</span>
-              {wellness.badges.length > 0 ? (
-                <div className="gtg-progress-badge-list">
-                  {wellness.badges.map(badge => (
-                    <strong key={badge}>{badge}</strong>
-                  ))}
+      {!loading && !forbidden && !error && segments.length > 0 && (
+        <div className="gtg-dynamic-segments">
+          {segments.map(segment => (
+            <article className="gtg-dynamic-segment" key={segment.id}>
+              <div className="gtg-dynamic-segment-head">
+                <div>
+                  <h3>{segment.title}</h3>
+                  <p>{segment.description}</p>
                 </div>
-              ) : (
-                <p>Aun no hay insignias registradas.</p>
-              )}
-            </div>
-          </article>
+                <span>{segment.items.length} datos</span>
+              </div>
+
+              <div className="gtg-dynamic-grid">
+                {segment.items.map(item => (
+                  <div
+                    className={`gtg-dynamic-card is-${item.type}`}
+                    key={`${segment.id}-${item.key}`}
+                  >
+                    <span className="gtg-dynamic-label">{item.label}</span>
+                    {renderValue(item)}
+                  </div>
+                ))}
+              </div>
+            </article>
+          ))}
         </div>
       )}
     </section>

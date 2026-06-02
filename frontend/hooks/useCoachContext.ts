@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { getCoachContext, type CoachContextResponse } from '../src/services/wellbeingService';
 
 interface UseCoachContextResult {
@@ -9,18 +9,24 @@ interface UseCoachContextResult {
   reload: () => Promise<void>;
 }
 
-export function useCoachContext(username?: string, enabled = true): UseCoachContextResult {
+export function useCoachContext(
+  username?: string,
+  enabled = true,
+  refreshIntervalMs = 0,
+): UseCoachContextResult {
   const [data, setData] = useState<CoachContextResponse | null>(null);
   const [loading, setLoading] = useState<boolean>(enabled);
   const [error, setError] = useState<string | null>(null);
   const [forbidden, setForbidden] = useState<boolean>(false);
 
-  const load = async () => {
+  const load = useCallback(async (silent = false) => {
     if (!enabled) {
       return;
     }
 
-    setLoading(true);
+    if (!silent) {
+      setLoading(true);
+    }
     setError(null);
     setForbidden(false);
 
@@ -37,9 +43,11 @@ export function useCoachContext(username?: string, enabled = true): UseCoachCont
         setError('No se pudo cargar el contexto de bienestar desde el backend.');
       }
     } finally {
-      setLoading(false);
+      if (!silent) {
+        setLoading(false);
+      }
     }
-  };
+  }, [username, enabled]);
 
   useEffect(() => {
     if (!enabled) {
@@ -47,14 +55,26 @@ export function useCoachContext(username?: string, enabled = true): UseCoachCont
       return;
     }
 
-    void load();
-  }, [username, enabled]);
+    void load(false);
+  }, [load, enabled]);
+
+  useEffect(() => {
+    if (!enabled || refreshIntervalMs <= 0) {
+      return undefined;
+    }
+
+    const intervalId = window.setInterval(() => {
+      void load(true);
+    }, refreshIntervalMs);
+
+    return () => window.clearInterval(intervalId);
+  }, [enabled, refreshIntervalMs, load]);
 
   return {
     data,
     loading,
     error,
     forbidden,
-    reload: load,
+    reload: () => load(false),
   };
 }

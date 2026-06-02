@@ -13,7 +13,7 @@ const Dashboard: React.FC<DashboardProps> = ({ onLogout }) => {
 
   const handleLogout = () => {
     onLogout();
-    navigate('/login', { replace: true });
+    navigate('/', { replace: true });
   };
 
   return <GoToGymDeveloperConsole onLogout={handleLogout} role={role} />;

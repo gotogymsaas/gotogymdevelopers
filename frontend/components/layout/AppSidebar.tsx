@@ -3,7 +3,15 @@ import { ADMIN_MODULE_LABELS } from '../../auth/rbac';
 import type { AdminModule } from '../../auth/rbac';
 import type { UserRole } from '../../auth/rbac';
 
-export type Section = 'dashboard' | 'cards' | 'integrations' | 'actions' | 'results' | 'notifications';
+export type Section =
+  | 'dashboard'
+  | 'smartwatch'
+  | 'app-gotogym'
+  | 'cards'
+  | 'integrations'
+  | 'actions'
+  | 'results'
+  | 'notifications';
 
 interface AppSidebarProps {
   active: Section;
@@ -25,6 +33,13 @@ const IcoGrid = () => (
 const IcoCard = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <rect x="2" y="5" width="20" height="14" rx="2" /><line x1="2" y1="10" x2="22" y2="10" />
+  </svg>
+);
+const IcoWatch = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <rect x="7" y="6" width="10" height="12" rx="3" />
+    <path d="M9 6V3h6v3" /><path d="M9 18v3h6v-3" />
+    <path d="M10.5 12h3" /><path d="M13.5 12l-1.5 2" />
   </svg>
 );
 const IcoLink = () => (
@@ -105,6 +120,8 @@ interface NavItem { id: Section | string; label: string; icon: React.ReactNode; 
 
 const mainNav: NavItem[] = [
   { id: 'dashboard',      label: 'Dashboard',       icon: <IcoGrid />,    section: 'dashboard' },
+  { id: 'smartwatch',     label: 'Smartwatch',      icon: <IcoWatch />,   section: 'smartwatch' },
+  { id: 'app-gotogym',    label: 'APP GOTO GYM',    icon: <IcoGym />,     section: 'app-gotogym' },
   { id: 'cards',          label: 'Cards',            icon: <IcoCard />,    section: 'cards' },
   { id: 'integrations',   label: 'Integraciones',    icon: <IcoLink />,    section: 'integrations' },
   { id: 'actions',        label: 'Acciones',         icon: <IcoZap />,     section: 'actions' },
@@ -139,7 +156,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const isAdmin = role === 'admin';
 
   const visibleMainNav = isUser
-    ? mainNav.filter(item => item.section === 'dashboard' || item.section === 'cards')
+    ? mainNav.filter(item =>
+      item.section === 'dashboard'
+      || item.section === 'smartwatch'
+      || item.section === 'app-gotogym')
     : isGym
       ? mainNav.filter(item => item.section === 'dashboard')
       : mainNav;

@@ -4,7 +4,7 @@ import { GoToGymDeveloperConsole } from '../components/GoToGymDeveloperConsole';
 import { getUserRole } from '../auth/rbac';
 import type { SmartwatchMetricId } from '../types/types';
 
-interface CardsPageProps {
+interface SmartwatchPageProps {
   onLogout: () => void;
 }
 
@@ -24,15 +24,15 @@ const isSmartwatchMetricId = (value: unknown): value is SmartwatchMetricId => {
   return typeof value === 'string' && smartwatchMetricIds.includes(value as SmartwatchMetricId);
 };
 
-interface CardsLocationState {
+interface SmartwatchLocationState {
   activeCard?: unknown;
 }
 
-const CardsPage: React.FC<CardsPageProps> = ({ onLogout }) => {
+const SmartwatchPage: React.FC<SmartwatchPageProps> = ({ onLogout }) => {
   const navigate = useNavigate();
   const location = useLocation();
   const role = getUserRole() ?? 'user';
-  const navigationState = location.state as CardsLocationState | null;
+  const navigationState = location.state as SmartwatchLocationState | null;
   const initialUserMetricId = isSmartwatchMetricId(navigationState?.activeCard)
     ? navigationState.activeCard
     : null;
@@ -50,9 +50,10 @@ const CardsPage: React.FC<CardsPageProps> = ({ onLogout }) => {
     <GoToGymDeveloperConsole
       onLogout={handleLogout}
       role={role}
+      initialSection="smartwatch"
       initialUserMetricId={initialUserMetricId}
     />
   );
 };
 
-export default CardsPage;
+export default SmartwatchPage;

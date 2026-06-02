@@ -4,6 +4,8 @@ import Home from '../pages/Home';
 import Login from '../pages/Login';
 import Dashboard from '../pages/Dashboard';
 import CardsPage from '../pages/CardsPage';
+import SmartwatchPage from '../pages/SmartwatchPage';
+import AppGoToGymPage from '../pages/AppGoToGymPage';
 import ProtectedRoute from './ProtectedRoute';
 
 interface AppRouterProps {
@@ -25,6 +27,22 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
         element={(
           <ProtectedRoute>
             <Dashboard onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/smartwatch"
+        element={(
+          <ProtectedRoute>
+            <SmartwatchPage onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/app-gotogym"
+        element={(
+          <ProtectedRoute>
+            <AppGoToGymPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
       />

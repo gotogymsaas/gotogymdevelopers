@@ -16,7 +16,6 @@ import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
 import { SmartwatchSection } from './sections/SmartwatchSection';
 import { SmartwatchSummary } from './sections/SmartwatchSummary';
-import { AppGoToGymCardsSection } from './sections/AppGoToGymCardsSection';
 import { useSmartwatchMetrics } from '../hooks/useSmartwatchMetrics';
 import { useCoachContext } from '../hooks/useCoachContext';
 import {
@@ -30,17 +29,19 @@ import '../styles/GoToGymDeveloperConsole.css';
 interface GoToGymDeveloperConsoleProps {
   onLogout: () => void;
   role: UserRole;
+  initialSection?: Section;
   initialUserMetricId?: SmartwatchMetricId | null;
 }
 
 export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = ({
   onLogout,
   role,
+  initialSection = 'dashboard',
   initialUserMetricId = null,
 }) => {
   const location = useLocation();
   const navigate = useNavigate();
-  const [activeSection, setActiveSection] = useState<Section>('dashboard');
+  const [activeSection, setActiveSection] = useState<Section>(initialSection);
   const [highlightedIntegrationId, setHighlightedIntegrationId] = useState<string | null>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const isUser = role === 'user';
@@ -49,7 +50,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
   const currentSection: Section = isUser
-    ? (location.pathname === '/cards' ? 'cards' : 'dashboard')
+    ? location.pathname === '/smartwatch' || location.pathname === '/cards'
+      ? 'smartwatch'
+      : location.pathname === '/app-gotogym'
+        ? 'app-gotogym'
+        : 'dashboard'
     : isGym
       ? 'dashboard'
       : activeSection;
@@ -59,7 +64,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     loading: coachLoading,
     error: coachError,
     forbidden: coachForbidden,
-  } = useCoachContext(undefined, isUser);
+  } = useCoachContext(undefined, isUser, 30000);
 
   const {
     metrics: smartwatchMetrics,
@@ -75,32 +80,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
       setSidebarCollapsed(false);
     }
   }, [isGym]);
-
-  const handleSidebarNavigate = (section: Section) => {
-    if (isUser) {
-      navigate(section === 'cards' ? '/cards' : '/dashboard');
-      return;
-    }
-
-    if (isGym) {
-      navigate('/dashboard');
-      return;
-    }
-
-    setActiveSection(section);
-  };
-
-  const handleNavigateToIntegration = (integrationId: string) => {
-    if (!isAdmin) {
-      return;
-    }
-
-    setActiveSection('integrations');
-    if (integrationId) {
-      setHighlightedIntegrationId(integrationId);
-      setTimeout(() => setHighlightedIntegrationId(null), 3000);
-    }
-  };
 
   const {
     integrations,
@@ -124,6 +103,42 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
       .reverse()[0] ?? 'N/A';
   const processedEvents = 1287;
 
+  const handleSidebarNavigate = (section: Section) => {
+    if (isUser) {
+      if (section === 'smartwatch') {
+        navigate('/smartwatch');
+        return;
+      }
+
+      if (section === 'app-gotogym') {
+        navigate('/app-gotogym');
+        return;
+      }
+
+      navigate('/dashboard');
+      return;
+    }
+
+    if (isGym) {
+      navigate('/dashboard');
+      return;
+    }
+
+    setActiveSection(section);
+  };
+
+  const handleNavigateToIntegration = (integrationId: string) => {
+    if (!isAdmin) {
+      return;
+    }
+
+    setActiveSection('integrations');
+    if (integrationId) {
+      setHighlightedIntegrationId(integrationId);
+      setTimeout(() => setHighlightedIntegrationId(null), 3000);
+    }
+  };
+
   const renderSection = () => {
     switch (currentSection) {
       case 'dashboard':
@@ -137,41 +152,60 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
                 forbidden={coachForbidden}
               />
               <DashboardWelcomeSection />
-              <SmartwatchSummary
-                heartRateTrend={smartwatchHeartRateTrendMock}
-                sleepPhases={smartwatchSleepPhasesMock}
-                activitySummary={smartwatchActivitySummaryMock}
-              />
-              <AppGoToGymSection
-                data={coachContext}
-                loading={coachLoading}
-                error={coachError}
-                forbidden={coachForbidden}
-              />
             </>
           );
         }
 
         return <DashboardWelcomeSection />;
+
+      case 'smartwatch':
+        if (!isUser) {
+          return null;
+        }
+
+        return (
+          <>
+            <SmartwatchSummary
+              heartRateTrend={smartwatchHeartRateTrendMock}
+              sleepPhases={smartwatchSleepPhasesMock}
+              activitySummary={smartwatchActivitySummaryMock}
+            />
+            <SmartwatchSection
+              metrics={smartwatchMetrics}
+              loading={smartwatchLoading}
+              error={smartwatchError}
+              dataSource={smartwatchDataSource}
+              onRetry={reloadMetrics}
+              preferredMetricId={initialUserMetricId}
+            />
+          </>
+        );
+
+      case 'app-gotogym':
+        if (!isUser) {
+          return null;
+        }
+
+        return (
+          <AppGoToGymSection
+            data={coachContext}
+            loading={coachLoading}
+            error={coachError}
+            forbidden={coachForbidden}
+          />
+        );
+
       case 'cards':
         if (isUser) {
           return (
-            <>
-              <SmartwatchSection
-                metrics={smartwatchMetrics}
-                loading={smartwatchLoading}
-                error={smartwatchError}
-                dataSource={smartwatchDataSource}
-                onRetry={reloadMetrics}
-                preferredMetricId={initialUserMetricId}
-              />
-              <AppGoToGymCardsSection
-                data={coachContext}
-                loading={coachLoading}
-                error={coachError}
-                forbidden={coachForbidden}
-              />
-            </>
+            <SmartwatchSection
+              metrics={smartwatchMetrics}
+              loading={smartwatchLoading}
+              error={smartwatchError}
+              dataSource={smartwatchDataSource}
+              onRetry={reloadMetrics}
+              preferredMetricId={initialUserMetricId}
+            />
           );
         }
 
@@ -183,6 +217,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
             processedEvents={processedEvents}
           />
         );
+
       case 'integrations':
         return (
           <IntegrationsTable
@@ -196,6 +231,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
             highlightedId={highlightedIntegrationId}
           />
         );
+
       case 'actions':
         return (
           <ActionsSection
@@ -206,6 +242,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
             onSync={handleSync}
           />
         );
+
       case 'results':
         return (
           <ResultsPanel
@@ -214,6 +251,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
             error={error}
           />
         );
+
       case 'notifications':
         return (
           <NotificationsSection
