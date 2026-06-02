@@ -8,7 +8,7 @@ import type { UserRole } from '../auth/rbac';
 import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
 import { WellbeingContextSection } from './sections/WellbeingContextSection';
-import { AppGoToGymSection } from './sections/AppGoToGymSection';
+import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
 import { ActionsSection } from './sections/ActionsSection';
@@ -157,7 +157,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
                 sleepPhases={smartwatchSleepPhasesMock}
                 activitySummary={smartwatchActivitySummaryMock}
               />
-              <AppGoToGymSection
+              <AppGoToGymWidgetsSection
                 data={coachContext}
                 loading={coachLoading}
                 error={coachError}
@@ -175,21 +175,14 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         }
 
         return (
-          <>
-            <SmartwatchSummary
-              heartRateTrend={smartwatchHeartRateTrendMock}
-              sleepPhases={smartwatchSleepPhasesMock}
-              activitySummary={smartwatchActivitySummaryMock}
-            />
-            <SmartwatchSection
-              metrics={smartwatchMetrics}
-              loading={smartwatchLoading}
-              error={smartwatchError}
-              dataSource={smartwatchDataSource}
-              onRetry={reloadMetrics}
-              preferredMetricId={initialUserMetricId}
-            />
-          </>
+          <SmartwatchSection
+            metrics={smartwatchMetrics}
+            loading={smartwatchLoading}
+            error={smartwatchError}
+            dataSource={smartwatchDataSource}
+            onRetry={reloadMetrics}
+            preferredMetricId={initialUserMetricId}
+          />
         );
 
       case 'app-gotogym':
