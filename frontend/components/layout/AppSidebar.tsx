@@ -5,6 +5,7 @@ import type { UserRole } from '../../auth/rbac';
 
 export type Section =
   | 'dashboard'
+  | 'business-wellbeing'
   | 'smartwatch'
   | 'app-gotogym'
   | 'cards'
@@ -109,6 +110,11 @@ const IcoReport = () => (
     <line x1="6" y1="20" x2="6" y2="16" />
   </svg>
 );
+const IcoPulse = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M3 12h4l3-8 4 16 3-8h4" />
+  </svg>
+);
 const IcoSettings = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3" />
@@ -120,6 +126,7 @@ interface NavItem { id: Section | string; label: string; icon: React.ReactNode; 
 
 const mainNav: NavItem[] = [
   { id: 'dashboard',      label: 'Dashboard',       icon: <IcoGrid />,    section: 'dashboard' },
+  { id: 'business-wellbeing', label: 'Empresa',      icon: <IcoPulse />,   section: 'business-wellbeing' },
   { id: 'smartwatch',     label: 'Smartwatch',      icon: <IcoWatch />,   section: 'smartwatch' },
   { id: 'app-gotogym',    label: 'APP GOTO GYM',    icon: <IcoGym />,     section: 'app-gotogym' },
   { id: 'cards',          label: 'Cards',            icon: <IcoCard />,    section: 'cards' },
@@ -161,7 +168,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       || item.section === 'smartwatch'
       || item.section === 'app-gotogym')
     : isGym
-      ? mainNav.filter(item => item.section === 'dashboard')
+      ? mainNav.filter(item => item.section === 'dashboard' || item.section === 'business-wellbeing')
       : mainNav;
 
   return (

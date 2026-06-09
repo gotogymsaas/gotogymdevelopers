@@ -1,5 +1,5 @@
 import axios from 'axios';
-import { getAuthToken } from '../../auth/rbac';
+import { clearStoredSession, getAuthToken } from '../../auth/rbac';
 
 const getApiBaseUrl = (): string => {
   if (typeof window !== 'undefined' && window.__APP_ENV__?.VITE_API_URL) {
@@ -41,6 +41,21 @@ api.interceptors.request.use(
     return config;
   },
   error => Promise.reject(error),
+);
+
+api.interceptors.response.use(
+  response => response,
+  error => {
+    const status = error?.response?.status;
+    if (status === 401 || status === 403) {
+      clearStoredSession();
+      if (typeof window !== 'undefined' && window.location.pathname !== '/login') {
+        window.location.assign('/login');
+      }
+    }
+
+    return Promise.reject(error);
+  },
 );
 
 export { api, getApiBaseUrl };

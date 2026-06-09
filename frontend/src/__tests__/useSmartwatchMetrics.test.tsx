@@ -7,6 +7,7 @@ describe('useSmartwatchMetrics', () => {
 
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   afterEach(() => {
@@ -29,7 +30,7 @@ describe('useSmartwatchMetrics', () => {
       json: async () => ({ success: true, data: apiData }),
     } as Response);
 
-    window.localStorage.setItem('gotogym_session', JSON.stringify({
+    window.sessionStorage.setItem('gotogym_session', JSON.stringify({
       token: 'valid-jwt',
       role: 'user',
     }));

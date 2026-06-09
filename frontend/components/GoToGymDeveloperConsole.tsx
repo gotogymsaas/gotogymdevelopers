@@ -7,6 +7,7 @@ import type { Section } from './layout/AppSidebar';
 import type { UserRole } from '../auth/rbac';
 import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
+import { BusinessWellbeingSection } from './sections/BusinessWellbeingSection';
 import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
@@ -48,6 +49,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const roleAccess = getRoleAccess(role);
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
+  const brandedSections: Section[] = ['dashboard', 'smartwatch', 'app-gotogym', 'business-wellbeing'];
   const currentSection: Section = isUser
     ? location.pathname === '/smartwatch' || location.pathname === '/cards'
       ? 'smartwatch'
@@ -55,8 +57,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         ? 'app-gotogym'
         : 'dashboard'
     : isGym
-      ? 'dashboard'
+      ? location.pathname === '/business-wellbeing'
+        ? 'business-wellbeing'
+        : 'dashboard'
       : activeSection;
+  const isBrandedSection = brandedSections.includes(currentSection);
 
   const {
     data: coachContext,
@@ -119,6 +124,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     }
 
     if (isGym) {
+      if (section === 'business-wellbeing') {
+        navigate('/business-wellbeing');
+        return;
+      }
+
       navigate('/dashboard');
       return;
     }
@@ -161,6 +171,13 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         }
 
         return <DashboardWelcomeSection />;
+
+      case 'business-wellbeing':
+        if (!isGym && !isAdmin) {
+          return null;
+        }
+
+        return <BusinessWellbeingSection />;
 
       case 'smartwatch':
         if (!isUser) {
@@ -274,7 +291,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           role={role}
         />
       )}
-      <div className={`gtg-main-area${currentSection === 'dashboard' ? ' gtg-main-area-dashboard-home' : ''}`}>
+      <div className={`gtg-main-area${isBrandedSection ? ' gtg-main-area-dashboard-home' : ''}`}>
         <AppHeader
           section={currentSection}
           integrations={integrations}
@@ -284,7 +301,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           showSidebarToggle={showSidebar}
           onLogout={onLogout}
         />
-        <main className={`gtg-content${currentSection === 'dashboard' ? ' gtg-dashboard-home-content' : ''}`}>
+        <main className={`gtg-content${isBrandedSection ? ' gtg-dashboard-home-content' : ''}`}>
           {renderSection()}
         </main>
       </div>

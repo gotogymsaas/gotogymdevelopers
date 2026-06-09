@@ -6,6 +6,7 @@ import Dashboard from '../pages/Dashboard';
 import CardsPage from '../pages/CardsPage';
 import SmartwatchPage from '../pages/SmartwatchPage';
 import AppGoToGymPage from '../pages/AppGoToGymPage';
+import BusinessWellbeingPage from '../pages/BusinessWellbeingPage';
 import ProtectedRoute from './ProtectedRoute';
 
 interface AppRouterProps {
@@ -33,7 +34,7 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
       <Route
         path="/smartwatch"
         element={(
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['user']}>
             <SmartwatchPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
@@ -41,15 +42,23 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
       <Route
         path="/app-gotogym"
         element={(
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['user']}>
             <AppGoToGymPage onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/business-wellbeing"
+        element={(
+          <ProtectedRoute allowedRoles={['gym', 'admin']}>
+            <BusinessWellbeingPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
       />
       <Route
         path="/cards"
         element={(
-          <ProtectedRoute>
+          <ProtectedRoute allowedRoles={['user']}>
             <CardsPage onLogout={onLogout} />
           </ProtectedRoute>
         )}

@@ -121,8 +121,19 @@ const ROLE_ACCESS: Record<UserRole, RoleAccess> = {
   },
 };
 
-const hasStorage = (): boolean =>
+const hasSessionStorage = (): boolean =>
+  typeof window !== 'undefined' && typeof window.sessionStorage !== 'undefined';
+
+const hasLocalStorage = (): boolean =>
   typeof window !== 'undefined' && typeof window.localStorage !== 'undefined';
+
+const clearLegacyPersistentSession = (): void => {
+  if (!hasLocalStorage()) {
+    return;
+  }
+
+  window.localStorage.removeItem(SESSION_STORAGE_KEY);
+};
 
 const isUserRole = (value: unknown): value is UserRole =>
   typeof value === 'string' && USER_ROLES.includes(value as UserRole);
@@ -155,27 +166,37 @@ const parseSession = (value: string | null): AuthSession | null => {
 };
 
 export const getStoredSession = (): AuthSession | null => {
-  if (!hasStorage()) {
+  clearLegacyPersistentSession();
+
+  if (!hasSessionStorage()) {
     return null;
   }
 
-  return parseSession(window.localStorage.getItem(SESSION_STORAGE_KEY));
+  const session = parseSession(window.sessionStorage.getItem(SESSION_STORAGE_KEY));
+  if (session && session.token !== FAKE_TOKEN && isJwtExpired(session.token)) {
+    clearStoredSession();
+    return null;
+  }
+
+  return session;
 };
 
 export const setStoredSession = (session: AuthSession): void => {
-  if (!hasStorage()) {
+  clearLegacyPersistentSession();
+
+  if (!hasSessionStorage()) {
     return;
   }
 
-  window.localStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
+  window.sessionStorage.setItem(SESSION_STORAGE_KEY, JSON.stringify(session));
 };
 
 export const clearStoredSession = (): void => {
-  if (!hasStorage()) {
-    return;
+  if (hasSessionStorage()) {
+    window.sessionStorage.removeItem(SESSION_STORAGE_KEY);
   }
 
-  window.localStorage.removeItem(SESSION_STORAGE_KEY);
+  clearLegacyPersistentSession();
 };
 
 export const getAuthToken = (): string | null => {
@@ -211,6 +232,35 @@ export const hasAdminModuleAccess = (role: UserRole | null, module: AdminModule)
   getAdminModules(role).includes(module);
 
 export const isAuthenticated = (): boolean => Boolean(getAuthToken());
+
+const decodeJwtPayload = (token: string): Record<string, unknown> | null => {
+  const [, payload] = token.split('.');
+  if (!payload) {
+    return null;
+  }
+
+  try {
+    const normalized = payload.replace(/-/g, '+').replace(/_/g, '/');
+    const padded = normalized.padEnd(Math.ceil(normalized.length / 4) * 4, '=');
+    return JSON.parse(window.atob(padded)) as Record<string, unknown>;
+  } catch {
+    return null;
+  }
+};
+
+const isJwtExpired = (token: string): boolean => {
+  if (typeof window === 'undefined') {
+    return false;
+  }
+
+  const payload = decodeJwtPayload(token);
+  const exp = typeof payload?.exp === 'number' ? payload.exp : null;
+  if (!exp) {
+    return false;
+  }
+
+  return exp * 1000 <= Date.now();
+};
 
 export const canAccessAdminMenu = (role: UserRole | null): boolean =>
   getRoleAccess(role).canViewSidebar;

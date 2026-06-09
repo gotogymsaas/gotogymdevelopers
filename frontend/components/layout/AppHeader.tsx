@@ -16,6 +16,7 @@ interface AppHeaderProps {
 
 const sectionMeta: Record<Section, { title: string; desc: string }> = {
   dashboard: { title: 'Dashboard', desc: 'Vista general del sistema y metricas en tiempo real' },
+  'business-wellbeing': { title: 'Bienestar Corporativo', desc: 'Panel ejecutivo agregado para empresarios y RRHH' },
   smartwatch: { title: 'Smartwatch', desc: 'Tarjetas de datos de wearables y salud conectada' },
   'app-gotogym': { title: 'APP GOTO GYM', desc: 'Informacion dinamica del servicio de bienestar del usuario' },
   cards: { title: 'Cards', desc: 'Resumen de estadisticas clave de la plataforma' },
