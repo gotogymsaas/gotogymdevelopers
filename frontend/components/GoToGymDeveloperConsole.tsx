@@ -274,7 +274,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           role={role}
         />
       )}
-      <div className="gtg-main-area">
+      <div className={`gtg-main-area${currentSection === 'dashboard' ? ' gtg-main-area-dashboard-home' : ''}`}>
         <AppHeader
           section={currentSection}
           integrations={integrations}
@@ -284,7 +284,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           showSidebarToggle={showSidebar}
           onLogout={onLogout}
         />
-        <main className="gtg-content">
+        <main className={`gtg-content${currentSection === 'dashboard' ? ' gtg-dashboard-home-content' : ''}`}>
           {renderSection()}
         </main>
       </div>

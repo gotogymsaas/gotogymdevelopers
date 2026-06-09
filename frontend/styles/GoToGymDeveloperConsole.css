@@ -290,6 +290,217 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 /* ===== CONTENT AREA ===== */
 .gtg-content { flex: 1; padding: 30px 32px; overflow-y: auto; }
 
+.gtg-main-area-dashboard-home {
+  background:
+    linear-gradient(180deg, rgba(0, 214, 203, .13) 0%, transparent 320px),
+    radial-gradient(circle at 70% 0%, rgba(227, 194, 105, .14), transparent 330px),
+    #030505;
+}
+
+.gtg-main-area-dashboard-home .gtg-header {
+  background: rgba(3, 5, 5, .82);
+  border-bottom-color: rgba(0, 214, 203, .22);
+  box-shadow: none;
+}
+
+.gtg-main-area-dashboard-home .gtg-header-brand,
+.gtg-main-area-dashboard-home .gtg-header-desc,
+.gtg-main-area-dashboard-home .gtg-header-sep {
+  color: #9fb1ae;
+}
+
+.gtg-main-area-dashboard-home .gtg-header-page {
+  color: #f8fafc;
+}
+
+.gtg-main-area-dashboard-home .gtg-header-toggle,
+.gtg-main-area-dashboard-home .gtg-header-btn {
+  background: rgba(255, 255, 255, .04);
+  border-color: rgba(255, 255, 255, .12);
+  color: #d9e7e5;
+}
+
+.gtg-main-area-dashboard-home .gtg-header-toggle:hover,
+.gtg-main-area-dashboard-home .gtg-header-btn:hover {
+  background: rgba(0, 214, 203, .1);
+  border-color: rgba(0, 214, 203, .45);
+  color: #00d6cb;
+  box-shadow: 0 0 0 3px rgba(0, 214, 203, .14);
+}
+
+.gtg-main-area-dashboard-home .gtg-header-version {
+  background: rgba(0, 214, 203, .12);
+  border-color: rgba(0, 214, 203, .34);
+  color: #00d6cb;
+}
+
+.gtg-dashboard-home-content {
+  color: #f8fafc;
+}
+
+.gtg-dashboard-home-content > * + * {
+  margin-top: 22px;
+}
+
+.gtg-dashboard-home {
+  margin: -30px -32px 0;
+  padding: clamp(34px, 5vw, 64px) clamp(18px, 5vw, 52px) 28px;
+  border-bottom: 1px solid rgba(0, 214, 203, .16);
+}
+
+.gtg-dashboard-home-hero {
+  display: grid;
+  grid-template-columns: minmax(0, 1.1fr) minmax(280px, .65fr);
+  gap: clamp(28px, 5vw, 64px);
+  align-items: center;
+}
+
+.gtg-dashboard-home-copy {
+  max-width: 780px;
+}
+
+.gtg-dashboard-home-kicker,
+.gtg-dashboard-home-label {
+  display: inline-flex;
+  align-items: center;
+  color: #00d6cb;
+  font-size: .72rem;
+  font-weight: 800;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.gtg-dashboard-home h1 {
+  margin-top: 18px;
+  max-width: 780px;
+  color: #ffffff;
+  font-size: clamp(2.15rem, 5.7vw, 4.85rem);
+  line-height: .98;
+  letter-spacing: 0;
+}
+
+.gtg-dashboard-home-copy p {
+  margin-top: 22px;
+  max-width: 660px;
+  color: #c9d6d4;
+  font-size: clamp(.98rem, 1.7vw, 1.16rem);
+  line-height: 1.65;
+}
+
+.gtg-dashboard-home-signal {
+  position: relative;
+  min-height: 380px;
+  display: grid;
+  place-items: center;
+  border-left: 1px solid rgba(0, 214, 203, .22);
+}
+
+.gtg-dashboard-home-signal img {
+  width: min(245px, 62vw);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  border: 2px solid rgba(0, 214, 203, .82);
+  box-shadow: 0 0 0 16px rgba(0, 214, 203, .07), 0 0 38px rgba(0, 214, 203, .42);
+  object-fit: cover;
+}
+
+.gtg-dashboard-home-signal-line {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 2px;
+  background: linear-gradient(90deg, transparent, rgba(0, 214, 203, .88), transparent);
+}
+
+.gtg-dashboard-home-signal img,
+.gtg-dashboard-home-signal-copy {
+  position: relative;
+  z-index: 1;
+}
+
+.gtg-dashboard-home-signal-copy {
+  align-self: end;
+  width: min(100%, 360px);
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 8px;
+  padding: 18px;
+  background: rgba(5, 12, 12, .78);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .28);
+}
+
+.gtg-dashboard-home-signal-copy strong {
+  display: block;
+  color: #ffffff;
+  font-size: .98rem;
+}
+
+.gtg-dashboard-home-signal-copy span {
+  display: block;
+  margin-top: 6px;
+  color: #a9b9b6;
+  font-size: .86rem;
+  line-height: 1.5;
+}
+
+.gtg-dashboard-home-grid {
+  margin-top: 24px;
+  display: grid;
+  grid-template-columns: minmax(0, 1.35fr) minmax(260px, .65fr);
+  gap: 18px;
+}
+
+.gtg-dashboard-home-panel {
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .04);
+  padding: clamp(22px, 4vw, 32px);
+}
+
+.gtg-dashboard-home-panel h2 {
+  margin-top: 13px;
+  color: #ffffff;
+  font-size: clamp(1.35rem, 3vw, 2.35rem);
+  line-height: 1.08;
+  letter-spacing: 0;
+}
+
+.gtg-dashboard-home-panel p {
+  margin-top: 15px;
+  color: #c4d2cf;
+  font-size: .96rem;
+  line-height: 1.65;
+}
+
+.gtg-dashboard-home-mission {
+  background: linear-gradient(180deg, rgba(227, 194, 105, .13), rgba(255, 255, 255, .04));
+}
+
+.gtg-dashboard-home-content .gtg-smartwatch-summary,
+.gtg-dashboard-home-content .gtg-app-gym-dynamic,
+.gtg-dashboard-home-content .gtg-panel-card,
+.gtg-dashboard-home-content .gtg-chart-card,
+.gtg-dashboard-home-content .gtg-smartwatch-card,
+.gtg-dashboard-home-content .gtg-metric-card {
+  border-color: rgba(255, 255, 255, .11);
+  background: rgba(255, 255, 255, .96);
+}
+
+.gtg-dashboard-home-content .gtg-smartwatch-summary {
+  margin-top: 26px;
+  padding: 0;
+}
+
+.gtg-dashboard-home-content .gtg-smartwatch-summary-header h2,
+.gtg-dashboard-home-content .gtg-section-title {
+  color: #ffffff;
+}
+
+.gtg-dashboard-home-content .gtg-smartwatch-summary-header p,
+.gtg-dashboard-home-content .gtg-section-desc {
+  color: #a9b9b6;
+}
+
 /* ===== SECTION HEADER ===== */
 .gtg-section-header { margin-bottom: 26px; }
 .gtg-section-title {
@@ -1787,6 +1998,20 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   :root { --sidebar-width: 0px; }
   .gtg-sidebar { transform: translateX(-100%); }
   .gtg-app.sidebar-collapsed .gtg-main-area { margin-left: 0; }
+  .gtg-dashboard-home {
+    margin: -16px -16px 0;
+    padding: 34px 18px 24px;
+  }
+  .gtg-dashboard-home-hero,
+  .gtg-dashboard-home-grid {
+    grid-template-columns: 1fr;
+  }
+  .gtg-dashboard-home-signal {
+    min-height: 330px;
+    border-left: none;
+    border-top: 1px solid rgba(0, 214, 203, .18);
+    padding-top: 28px;
+  }
   .gtg-metrics-grid, .gtg-cards-grid { grid-template-columns: 1fr 1fr; }
   .gtg-smartwatch-summary-grid { grid-template-columns: 1fr; }
   .gtg-wellness-widgets-grid { grid-template-columns: 1fr; }
@@ -1801,6 +2026,12 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-header { padding: 0 16px; }
 }
 @media (max-width: 480px) {
+  .gtg-dashboard-home-signal img {
+    width: min(220px, 70vw);
+  }
+  .gtg-dashboard-home-signal {
+    min-height: 310px;
+  }
   .gtg-metrics-grid, .gtg-cards-grid, .gtg-action-buttons { grid-template-columns: 1fr; }
   .gtg-notif-page-grid { grid-template-columns: 1fr; }
   .gtg-smartwatch-grid { grid-template-columns: 1fr; }
