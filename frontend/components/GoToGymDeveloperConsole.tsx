@@ -51,12 +51,36 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
   const brandedSections: Section[] = ['dashboard', 'smartwatch', 'app-gotogym', 'business-wellbeing', 'business-members'];
+
+  const {
+    data: coachContext,
+    loading: coachLoading,
+    error: coachError,
+    forbidden: coachForbidden,
+  } = useCoachContext(undefined, isUser, 30000);
+  const businessContext = coachContext?.business;
+  const hasBusinessWorkspace = Boolean(
+    isGym
+    || isAdmin
+    || (
+      businessContext
+      && typeof businessContext === 'object'
+      && !Array.isArray(businessContext)
+      && (
+        businessContext.has_business_workspace === true
+        || (Array.isArray(businessContext.workspaces) && businessContext.workspaces.length > 0)
+        || Boolean(businessContext.active_workspace)
+      )
+    ),
+  );
   const currentSection: Section = isUser
     ? location.pathname === '/smartwatch' || location.pathname === '/cards'
       ? 'smartwatch'
       : location.pathname === '/app-gotogym'
         ? 'app-gotogym'
-        : 'dashboard'
+        : location.pathname === '/business-members' && hasBusinessWorkspace
+          ? 'business-members'
+          : 'dashboard'
     : isGym
       ? location.pathname === '/business-wellbeing'
         ? 'business-wellbeing'
@@ -65,13 +89,6 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           : 'dashboard'
       : activeSection;
   const isBrandedSection = brandedSections.includes(currentSection);
-
-  const {
-    data: coachContext,
-    loading: coachLoading,
-    error: coachError,
-    forbidden: coachForbidden,
-  } = useCoachContext(undefined, isUser, 30000);
 
   const {
     metrics: smartwatchMetrics,
@@ -119,6 +136,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
 
       if (section === 'app-gotogym') {
         navigate('/app-gotogym');
+        return;
+      }
+
+      if (section === 'business-members' && hasBusinessWorkspace) {
+        navigate('/business-members');
         return;
       }
 
@@ -188,7 +210,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         return <BusinessWellbeingSection />;
 
       case 'business-members':
-        if (!isGym && !isAdmin) {
+        if (!hasBusinessWorkspace) {
           return null;
         }
 
@@ -304,6 +326,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
           adminModules={roleAccess.adminModules}
           roleLabel={getRoleDisplayName(role)}
           role={role}
+          hasBusinessAccess={hasBusinessWorkspace}
         />
       )}
       <div className={`gtg-main-area${isBrandedSection ? ' gtg-main-area-dashboard-home' : ''}`}>

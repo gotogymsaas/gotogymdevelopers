@@ -1,5 +1,5 @@
 import React from 'react';
-import { Navigate, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { GoToGymDeveloperConsole } from '../components/GoToGymDeveloperConsole';
 import { getUserRole } from '../auth/rbac';
 
@@ -15,10 +15,6 @@ const BusinessMembersPage: React.FC<BusinessMembersPageProps> = ({ onLogout }) =
     onLogout();
     navigate('/', { replace: true });
   };
-
-  if (role !== 'gym' && role !== 'admin') {
-    return <Navigate to="/dashboard" replace />;
-  }
 
   return (
     <GoToGymDeveloperConsole

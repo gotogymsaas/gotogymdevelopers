@@ -23,6 +23,7 @@ interface AppSidebarProps {
   adminModules: AdminModule[];
   roleLabel: string;
   role: UserRole;
+  hasBusinessAccess?: boolean;
 }
 
 /* ── Inline SVG icons ─────────────────────────────────────────── */
@@ -167,6 +168,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   adminModules,
   roleLabel,
   role,
+  hasBusinessAccess = false,
 }) => {
   const isUser = role === 'user';
   const isGym = role === 'gym';
@@ -176,7 +178,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     ? mainNav.filter(item =>
       item.section === 'dashboard'
       || item.section === 'smartwatch'
-      || item.section === 'app-gotogym')
+      || item.section === 'app-gotogym'
+      || (hasBusinessAccess && item.section === 'business-members'))
     : isGym
       ? mainNav.filter(item =>
         item.section === 'dashboard'

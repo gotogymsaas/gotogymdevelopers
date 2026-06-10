@@ -96,8 +96,16 @@ const inferRoleFromBackendUser = (user: AppDesplegadaLoginResponse['user']): Use
   const backendRole = String(user.role || '').toLowerCase();
   if (
     accountType.includes('business')
+    || accountType.includes('empresa')
+    || accountType.includes('corporate')
+    || accountType.includes('company')
+    || accountType.includes('organization')
     || accountType.includes('gym')
     || backendRole.includes('business')
+    || backendRole.includes('empresa')
+    || backendRole.includes('corporate')
+    || backendRole.includes('company')
+    || backendRole.includes('organization')
     || backendRole.includes('gym')
   ) {
     return 'gym';

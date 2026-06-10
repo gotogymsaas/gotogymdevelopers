@@ -59,7 +59,7 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
       <Route
         path="/business-members"
         element={(
-          <ProtectedRoute allowedRoles={['gym', 'admin']}>
+          <ProtectedRoute allowedRoles={['user', 'gym', 'admin']}>
             <BusinessMembersPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
