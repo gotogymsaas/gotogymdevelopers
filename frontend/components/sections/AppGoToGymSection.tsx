@@ -556,7 +556,6 @@ const summarizeObject = (value: Record<string, unknown>): string => {
   }
 
   return entries
-    .slice(0, 4)
     .map(([key, entryValue]) => {
       if (key === 'question_id' && typeof entryValue === 'string') {
         return `${titleize(key)}: ${titleize(entryValue)}`;
@@ -623,7 +622,7 @@ const renderIfVariableCard = (value: Record<string, unknown>, index: number) => 
 
 const renderValue = (item: DynamicItem) => {
   if (item.type === 'list' && Array.isArray(item.value)) {
-    const visibleItems = item.value.filter(value => !isEmptyValue(value)).slice(0, 5);
+    const visibleItems = item.value.filter(value => !isEmptyValue(value));
     const isIfList = visibleItems.some(value => isRecord(value) && typeof value.question_id === 'string');
 
     return (
@@ -645,13 +644,29 @@ const renderValue = (item: DynamicItem) => {
     const entries = Object.entries(item.value).filter(([, value]) => !isEmptyValue(value));
     return (
       <div className="gtg-dynamic-object">
-        {entries.slice(0, 8).map(([key, value]) => (
+        {entries.map(([key, value]) => (
           <span key={`${item.key}-${key}`}>
             <strong>{titleize(key)}</strong>
             {getMeaning(key) ? <em>{getMeaning(key)}</em> : null}
             {Array.isArray(value) ? `${value.length} elementos` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
           </span>
         ))}
+      </div>
+    );
+  }
+
+  if (item.type === 'metric') {
+    const metricValue = readNumber(item.value);
+    const metricWidth = metricValue === null
+      ? 0
+      : Math.min(100, Math.max(0, metricValue <= 1 ? metricValue * 100 : metricValue <= 10 ? metricValue * 10 : metricValue));
+
+    return (
+      <div className="gtg-dynamic-metric-value">
+        <strong className="gtg-dynamic-value">{formatPrimitive(item.value)}</strong>
+        <div className="gtg-dynamic-metric-track" aria-hidden="true">
+          <span style={{ width: `${metricWidth}%` }} />
+        </div>
       </div>
     );
   }
@@ -949,9 +964,10 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
 
           <div className="gtg-dynamic-segments">
             {segments.map(segment => (
-              <article className="gtg-dynamic-segment" key={segment.id}>
+              <article className={`gtg-dynamic-segment is-${segment.id}`} key={segment.id}>
                 <div className="gtg-dynamic-segment-head">
                   <div>
+                    <small>Bloque dinamico</small>
                     <h3>{segment.title}</h3>
                     <p>{segment.description}</p>
                   </div>
