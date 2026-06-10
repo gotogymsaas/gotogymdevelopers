@@ -2229,6 +2229,38 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
   margin-bottom: 5px;
 }
 
+.gtg-dynamic-object.is-score-bars {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.gtg-dynamic-object.is-score-bars .gtg-dynamic-score-row {
+  display: grid;
+  gap: 6px;
+  padding: 12px;
+}
+
+.gtg-dynamic-score-row b {
+  color: #ffffff;
+  font-size: 1rem;
+  line-height: 1;
+}
+
+.gtg-dynamic-score-track {
+  height: 8px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, .1);
+}
+
+.gtg-dynamic-score-track i {
+  display: block;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #00d6cb 0%, #63d7b5 58%, #e3c269 100%);
+  box-shadow: 0 0 16px rgba(0, 214, 203, .35);
+}
+
 .gtg-chart-card {
   background: var(--card-bg);
   border: 1px solid var(--border);

@@ -604,6 +604,22 @@ const scoreReading = (score: unknown): string => {
   return 'Lectura disponible.';
 };
 
+const renderScoreBar = (key: string, value: unknown) => {
+  const score = normalizeScore(value);
+  const width = score === null ? 0 : Math.min(100, Math.max(0, score * 10));
+
+  return (
+    <span className="gtg-dynamic-score-row" key={key}>
+      <strong>{titleize(key)}</strong>
+      {getMeaning(key) ? <em>{getMeaning(key)}</em> : null}
+      <b>{score === null ? '--' : formatPrimitive(score)}</b>
+      <div className="gtg-dynamic-score-track" aria-hidden="true">
+        <i style={{ width: `${width}%` }} />
+      </div>
+    </span>
+  );
+};
+
 const renderIfVariableCard = (value: Record<string, unknown>, index: number) => {
   const questionId = typeof value.question_id === 'string' ? value.question_id : '';
   const variable = ifVariableMap[questionId];
@@ -642,14 +658,20 @@ const renderValue = (item: DynamicItem) => {
 
   if (item.type === 'object' && isRecord(item.value)) {
     const entries = Object.entries(item.value).filter(([, value]) => !isEmptyValue(value));
+    const isScoreObject = item.key === 'scores';
+
     return (
-      <div className="gtg-dynamic-object">
+      <div className={`gtg-dynamic-object${isScoreObject ? ' is-score-bars' : ''}`}>
         {entries.map(([key, value]) => (
-          <span key={`${item.key}-${key}`}>
-            <strong>{titleize(key)}</strong>
-            {getMeaning(key) ? <em>{getMeaning(key)}</em> : null}
-            {Array.isArray(value) ? `${value.length} elementos` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
-          </span>
+          isScoreObject
+            ? renderScoreBar(key, value)
+            : (
+              <span key={`${item.key}-${key}`}>
+                <strong>{titleize(key)}</strong>
+                {getMeaning(key) ? <em>{getMeaning(key)}</em> : null}
+                {Array.isArray(value) ? `${value.length} elementos` : isRecord(value) ? summarizeObject(value) : formatPrimitive(value)}
+              </span>
+            )
         ))}
       </div>
     );
