@@ -1768,6 +1768,206 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); -web
 }
 
 /* ===== APP GOTO GYM DYNAMIC WELLBEING ===== */
+.gtg-user-wellbeing-hero {
+  margin: -30px -32px 0;
+  padding: clamp(38px, 6vw, 76px) clamp(18px, 5vw, 54px) 34px;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, .42fr);
+  gap: clamp(22px, 5vw, 54px);
+  align-items: end;
+  border-bottom: 1px solid rgba(0, 214, 203, .16);
+  background:
+    linear-gradient(135deg, rgba(0, 214, 203, .13), transparent 42%),
+    radial-gradient(circle at 78% 12%, rgba(139, 92, 246, .18), transparent 34%),
+    linear-gradient(180deg, rgba(227, 194, 105, .08), transparent);
+}
+
+.gtg-user-wellbeing-kicker {
+  display: inline-flex;
+  color: #00d6cb;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .14em;
+  text-transform: uppercase;
+}
+
+.gtg-user-wellbeing-hero h1 {
+  margin-top: 16px;
+  color: #ffffff;
+  font-size: clamp(2.1rem, 5.4vw, 4.7rem);
+  line-height: .98;
+  letter-spacing: 0;
+  max-width: 900px;
+}
+
+.gtg-user-wellbeing-hero p {
+  margin-top: 20px;
+  max-width: 760px;
+  color: #c9d6d4;
+  line-height: 1.65;
+  font-size: 1rem;
+}
+
+.gtg-user-wellbeing-controls {
+  margin-top: 28px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  align-items: center;
+}
+
+.gtg-user-wellbeing-controls span,
+.gtg-user-wellbeing-controls strong {
+  min-height: 42px;
+  display: inline-flex;
+  align-items: center;
+  border-radius: 8px;
+  padding: 10px 13px;
+  font-weight: 900;
+}
+
+.gtg-user-wellbeing-controls span {
+  border: 1px solid rgba(0, 214, 203, .38);
+  color: #d9fffb;
+  background: rgba(0, 214, 203, .08);
+}
+
+.gtg-user-wellbeing-controls strong {
+  border: 1px solid rgba(227, 194, 105, .4);
+  color: #071010;
+  background: #efe1a5;
+}
+
+.gtg-user-command-card,
+.gtg-user-insight-panel,
+.gtg-user-command-metric {
+  border: 1px solid rgba(255, 255, 255, .11);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .045);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .2);
+}
+
+.gtg-user-command-card {
+  padding: 22px;
+  background: rgba(5, 12, 12, .78);
+  box-shadow: 0 18px 42px rgba(0, 0, 0, .28);
+}
+
+.gtg-user-command-card span,
+.gtg-user-command-card small {
+  display: block;
+  color: #00d6cb;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+}
+
+.gtg-user-command-card strong {
+  display: block;
+  margin-top: 8px;
+  color: #ffffff;
+  font-size: 1.05rem;
+  line-height: 1.35;
+  word-break: break-word;
+}
+
+.gtg-user-command-card p {
+  margin: 14px 0 18px;
+  color: #a9b9b6;
+  font-size: .88rem;
+}
+
+.gtg-user-command-card b {
+  display: block;
+  margin-top: 5px;
+  color: #e3c269;
+  font-size: .92rem;
+}
+
+.gtg-user-command-metrics {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gtg-user-command-metric {
+  position: relative;
+  overflow: hidden;
+  min-height: 150px;
+  padding: 20px;
+}
+
+.gtg-user-command-metric::before {
+  content: '';
+  position: absolute;
+  inset: 0 0 auto;
+  height: 3px;
+  background: #00d6cb;
+}
+
+.gtg-user-command-metric.is-mid::before { background: #e3c269; }
+.gtg-user-command-metric.is-low::before { background: #ef4444; }
+
+.gtg-user-command-metric span,
+.gtg-user-insight-panel .gtg-business-panel-head span {
+  color: #9fb1ae;
+  font-size: .72rem;
+  font-weight: 900;
+  letter-spacing: .08em;
+  text-transform: uppercase;
+}
+
+.gtg-user-command-metric strong {
+  display: block;
+  margin-top: 22px;
+  color: #ffffff;
+  font-size: clamp(2rem, 4vw, 3.3rem);
+  line-height: 1;
+}
+
+.gtg-user-command-metric small {
+  display: block;
+  margin-top: 10px;
+  color: #c4d2cf;
+  font-weight: 700;
+}
+
+.gtg-user-insight-layout {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+}
+
+.gtg-user-insight-panel {
+  padding: 20px;
+}
+
+.gtg-user-insight-panel p {
+  color: #c4d2cf;
+  line-height: 1.65;
+}
+
+.gtg-user-signal-list {
+  display: grid;
+  gap: 10px;
+  list-style: none;
+}
+
+.gtg-user-signal-list li {
+  border: 1px solid rgba(255, 255, 255, .09);
+  border-left: 3px solid #00d6cb;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, .16);
+  padding: 12px;
+  color: #c4d2cf;
+  line-height: 1.45;
+}
+
+.gtg-user-signal-list.is-priority li {
+  border-left-color: #e3c269;
+}
+
 .gtg-app-gym-dynamic .gtg-section-header {
   display: flex;
   flex-direction: column;
@@ -2368,6 +2568,10 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-app-gym-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gtg-dynamic-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .gtg-wellness-widgets-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gtg-user-command-metrics,
+  .gtg-user-insight-layout {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
   .gtg-bmi-widget { grid-column: 1 / -1; }
   .gtg-sleep-legend { min-width: 108px; }
 }
@@ -2378,7 +2582,8 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
   .gtg-business-layout,
-  .gtg-business-hero {
+  .gtg-business-hero,
+  .gtg-user-wellbeing-hero {
     grid-template-columns: 1fr;
   }
 }
@@ -2404,10 +2609,16 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
     margin: -16px -16px 0;
     padding: 34px 18px 24px;
   }
+  .gtg-user-wellbeing-hero {
+    margin: -16px -16px 0;
+    padding: 34px 18px 24px;
+  }
   .gtg-business-metrics-grid,
   .gtg-business-three-col,
   .gtg-business-impact-grid,
-  .gtg-business-dimension-grid {
+  .gtg-business-dimension-grid,
+  .gtg-user-command-metrics,
+  .gtg-user-insight-layout {
     grid-template-columns: 1fr;
   }
   .gtg-metrics-grid, .gtg-cards-grid { grid-template-columns: 1fr 1fr; }
@@ -2434,6 +2645,12 @@ table.gtg-table { width: 100%; border-collapse: collapse; }
   .gtg-notif-page-grid { grid-template-columns: 1fr; }
   .gtg-smartwatch-grid { grid-template-columns: 1fr; }
   .gtg-app-gym-grid { grid-template-columns: 1fr; }
+  .gtg-user-wellbeing-controls span,
+  .gtg-user-wellbeing-controls strong {
+    width: 100%;
+    justify-content: center;
+    text-align: center;
+  }
   .gtg-bmi-widget { padding: 18px; min-height: 520px; }
   .gtg-bmi-input-row { grid-template-columns: 1fr; }
   .gtg-bmi-value strong { font-size: 2.7rem; }

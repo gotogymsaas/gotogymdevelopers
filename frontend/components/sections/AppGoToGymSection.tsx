@@ -495,6 +495,60 @@ const formatPrimitive = (value: unknown): string => {
   return String(value);
 };
 
+const formatPercentLike = (value: unknown): string => {
+  const numeric = readNumber(value);
+  if (numeric === null) {
+    return '--';
+  }
+
+  const percent = numeric <= 1 ? numeric * 100 : numeric <= 10 ? numeric * 10 : numeric;
+  return `${Math.round(Math.min(100, Math.max(0, percent)))}%`;
+};
+
+const getRecordValue = (source: unknown, keys: string[]): unknown => {
+  if (!isRecord(source)) {
+    return undefined;
+  }
+
+  return keys.map(key => source[key]).find(value => !isEmptyValue(value));
+};
+
+const getArrayValue = (source: unknown, keys: string[]): unknown[] => {
+  const value = getRecordValue(source, keys);
+  return Array.isArray(value) ? value : [];
+};
+
+const getCountFromValue = (source: unknown, keys: string[]): number | null => {
+  const value = getRecordValue(source, keys);
+  if (Array.isArray(value)) {
+    return value.length;
+  }
+
+  if (isRecord(value)) {
+    return Object.keys(value).length;
+  }
+
+  return readNumber(value);
+};
+
+const getScoreTone = (value: unknown): 'is-high' | 'is-mid' | 'is-low' => {
+  const score = readNumber(value);
+  if (score === null) {
+    return 'is-mid';
+  }
+
+  const normalized = score <= 1 ? score * 100 : score <= 10 ? score * 10 : score;
+  if (normalized >= 72) {
+    return 'is-high';
+  }
+
+  if (normalized >= 45) {
+    return 'is-mid';
+  }
+
+  return 'is-low';
+};
+
 const summarizeObject = (value: Record<string, unknown>): string => {
   const entries = Object.entries(value).filter(([, entryValue]) => !isEmptyValue(entryValue));
   if (entries.length === 0) {
@@ -757,19 +811,74 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
 }) => {
   const segments = useMemo(() => buildSegments(data), [data]);
   const generatedAt = data?.wellbeing_experience_value_v1?.generated_at;
+  const profile = data?.profile;
+  const wellbeing = data?.wellbeing_experience_value_v1;
+  const globalWellbeing = wellbeing?.global_wellbeing;
+  const ifPayload = wellbeing?.if_variable_payload;
+  const experiencePack = wellbeing?.experience_value_pack;
+  const portfolioSummary = wellbeing?.portfolio_summary;
+  const devices = data?.devices;
+  const happiness = getRecordValue(globalWellbeing, ['happiness_index', 'wellbeing_index', 'score']);
+  const avg7d = getRecordValue(globalWellbeing, ['avg_7d', 'weekly_avg', 'average_7d']);
+  const delta7d = getRecordValue(globalWellbeing, ['delta_7d', 'weekly_delta', 'change_7d']);
+  const answeredQuestions = getCountFromValue(ifPayload, ['answered_questions', 'responses', 'answers', 'questions']);
+  const trackedExperiences = getCountFromValue(portfolioSummary, ['experiences_tracked', 'accepted_experiences', 'experiences']);
+  const connectedProviders = getCountFromValue(devices, ['connected_providers', 'providers', 'fitness']);
+  const topScores = getArrayValue(ifPayload, ['top_scores', 'strengths', 'best_scores']);
+  const lowScores = getArrayValue(ifPayload, ['low_scores', 'priorities', 'lowest_scores']);
+  const experienceSummary = getRecordValue(experiencePack, ['analysis_summary', 'summary', 'recommendation']);
+  const userName = getRecordValue(profile, ['full_name', 'username', 'email']);
+  const contract = wellbeing?.contract ?? 'wellbeing_experience_value_v1';
+  const commandMetrics = [
+    {
+      label: 'Bienestar actual',
+      value: formatPercentLike(happiness),
+      detail: avg7d ? `Promedio 7 dias: ${formatPercentLike(avg7d)}` : 'Indice personal',
+      tone: getScoreTone(happiness),
+    },
+    {
+      label: 'Cambio semanal',
+      value: delta7d !== undefined ? formatPrimitive(delta7d) : '--',
+      detail: 'Comparativo reciente',
+      tone: getScoreTone(avg7d ?? happiness),
+    },
+    {
+      label: 'Variables IF',
+      value: answeredQuestions !== null ? String(Math.round(answeredQuestions)) : '--',
+      detail: 'Respuestas disponibles',
+      tone: 'is-high',
+    },
+    {
+      label: 'Experiencias',
+      value: trackedExperiences !== null ? String(Math.round(trackedExperiences)) : '--',
+      detail: `${connectedProviders !== null ? Math.round(connectedProviders) : '--'} fuentes conectadas`,
+      tone: 'is-mid',
+    },
+  ];
 
   return (
     <section className="gtg-app-gym-section gtg-app-gym-dynamic">
-      <div className="gtg-section-header">
-        <h2 className="gtg-section-title">APP GOTO GYM</h2>
-        <p className="gtg-section-desc">
-          Modulo informativo construido en tiempo real desde el endpoint de bienestar.
-        </p>
-        {generatedAt ? (
-          <span className="gtg-dynamic-live-pill">
-            Actualizado {formatPrimitive(generatedAt)}
-          </span>
-        ) : null}
+      <div className="gtg-user-wellbeing-hero">
+        <div>
+          <span className="gtg-user-wellbeing-kicker">Bienestar usuario</span>
+          <h1>Panel personal GoToGym</h1>
+          <p>
+            Lectura dinamica del bienestar, variables IF, dispositivos y experiencias
+            activas para que el usuario entienda su estado sin exponer datos innecesarios.
+          </p>
+          <div className="gtg-user-wellbeing-controls">
+            <span>{generatedAt ? `Actualizado ${formatPrimitive(generatedAt)}` : 'Actualizacion en tiempo real'}</span>
+            <strong>{typeof userName === 'string' ? userName : 'Usuario GoToGym'}</strong>
+          </div>
+        </div>
+
+        <aside className="gtg-user-command-card">
+          <span>Contrato</span>
+          <strong>{contract}</strong>
+          <p>Vista orientada a accion personal, progreso saludable y claridad de datos.</p>
+          <small>Politica</small>
+          <b>Datos personales protegidos</b>
+        </aside>
       </div>
 
       {loading && (
@@ -789,32 +898,82 @@ export const AppGoToGymSection: React.FC<AppGoToGymSectionProps> = ({
       )}
 
       {!loading && !forbidden && !error && segments.length > 0 && (
-        <div className="gtg-dynamic-segments">
-          {segments.map(segment => (
-            <article className="gtg-dynamic-segment" key={segment.id}>
-              <div className="gtg-dynamic-segment-head">
-                <div>
-                  <h3>{segment.title}</h3>
-                  <p>{segment.description}</p>
-                </div>
-                <span>{segment.items.length} datos</span>
-              </div>
+        <>
+          <div className="gtg-user-command-metrics">
+            {commandMetrics.map(metric => (
+              <article className={`gtg-user-command-metric ${metric.tone}`} key={metric.label}>
+                <span>{metric.label}</span>
+                <strong>{metric.value}</strong>
+                <small>{metric.detail}</small>
+              </article>
+            ))}
+          </div>
 
-              <div className="gtg-dynamic-grid">
-                {segment.items.map(item => (
-                  <div
-                    className={`gtg-dynamic-card is-${item.type}`}
-                    key={`${segment.id}-${item.key}`}
-                  >
-                    <span className="gtg-dynamic-label">{item.label}</span>
-                    {item.description ? <p className="gtg-dynamic-help">{item.description}</p> : null}
-                    {renderValue(item)}
-                  </div>
-                ))}
+          <div className="gtg-user-insight-layout">
+            <article className="gtg-user-insight-panel">
+              <div className="gtg-business-panel-head">
+                <span>Fortalezas detectadas</span>
+                <strong>{topScores.length || '--'}</strong>
               </div>
+              <ul className="gtg-user-signal-list">
+                {(topScores.length ? topScores : ['Sin fortalezas suficientes aun.']).slice(0, 4).map((item, index) => (
+                  <li key={`top-${index}`}>
+                    {isRecord(item) ? summarizeObject(item) : formatPrimitive(item)}
+                  </li>
+                ))}
+              </ul>
             </article>
-          ))}
-        </div>
+
+            <article className="gtg-user-insight-panel">
+              <div className="gtg-business-panel-head">
+                <span>Prioridades de mejora</span>
+                <strong>{lowScores.length || '--'}</strong>
+              </div>
+              <ul className="gtg-user-signal-list is-priority">
+                {(lowScores.length ? lowScores : ['Sin prioridades criticas registradas.']).slice(0, 4).map((item, index) => (
+                  <li key={`low-${index}`}>
+                    {isRecord(item) ? summarizeObject(item) : formatPrimitive(item)}
+                  </li>
+                ))}
+              </ul>
+            </article>
+
+            <article className="gtg-user-insight-panel">
+              <div className="gtg-business-panel-head">
+                <span>Inteligencia de experiencia</span>
+                <strong>AI</strong>
+              </div>
+              <p>{typeof experienceSummary === 'string' ? experienceSummary : 'El endpoint esta listo para proyectar recomendaciones personalizadas cuando exista historial suficiente.'}</p>
+            </article>
+          </div>
+
+          <div className="gtg-dynamic-segments">
+            {segments.map(segment => (
+              <article className="gtg-dynamic-segment" key={segment.id}>
+                <div className="gtg-dynamic-segment-head">
+                  <div>
+                    <h3>{segment.title}</h3>
+                    <p>{segment.description}</p>
+                  </div>
+                  <span>{segment.items.length} datos</span>
+                </div>
+
+                <div className="gtg-dynamic-grid">
+                  {segment.items.map(item => (
+                    <div
+                      className={`gtg-dynamic-card is-${item.type}`}
+                      key={`${segment.id}-${item.key}`}
+                    >
+                      <span className="gtg-dynamic-label">{item.label}</span>
+                      {item.description ? <p className="gtg-dynamic-help">{item.description}</p> : null}
+                      {renderValue(item)}
+                    </div>
+                  ))}
+                </div>
+              </article>
+            ))}
+          </div>
+        </>
       )}
     </section>
   );
