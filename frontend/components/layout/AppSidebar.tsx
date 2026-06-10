@@ -6,6 +6,7 @@ import type { UserRole } from '../../auth/rbac';
 export type Section =
   | 'dashboard'
   | 'business-wellbeing'
+  | 'business-members'
   | 'smartwatch'
   | 'app-gotogym'
   | 'cards'
@@ -115,6 +116,14 @@ const IcoPulse = () => (
     <path d="M3 12h4l3-8 4 16 3-8h4" />
   </svg>
 );
+const IcoTeam = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+    <circle cx="9" cy="7" r="4" />
+    <path d="M22 21v-2a4 4 0 0 0-3-3.8" />
+    <path d="M16 3.2a4 4 0 0 1 0 7.6" />
+  </svg>
+);
 const IcoSettings = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <circle cx="12" cy="12" r="3" />
@@ -127,6 +136,7 @@ interface NavItem { id: Section | string; label: string; icon: React.ReactNode; 
 const mainNav: NavItem[] = [
   { id: 'dashboard',      label: 'Dashboard',       icon: <IcoGrid />,    section: 'dashboard' },
   { id: 'business-wellbeing', label: 'Empresa',      icon: <IcoPulse />,   section: 'business-wellbeing' },
+  { id: 'business-members', label: 'Equipo Empresa', icon: <IcoTeam />,    section: 'business-members' },
   { id: 'smartwatch',     label: 'Smartwatch',      icon: <IcoWatch />,   section: 'smartwatch' },
   { id: 'app-gotogym',    label: 'APP GOTO GYM',    icon: <IcoGym />,     section: 'app-gotogym' },
   { id: 'cards',          label: 'Cards',            icon: <IcoCard />,    section: 'cards' },
@@ -168,7 +178,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       || item.section === 'smartwatch'
       || item.section === 'app-gotogym')
     : isGym
-      ? mainNav.filter(item => item.section === 'dashboard' || item.section === 'business-wellbeing')
+      ? mainNav.filter(item =>
+        item.section === 'dashboard'
+        || item.section === 'business-wellbeing'
+        || item.section === 'business-members')
       : mainNav;
 
   return (

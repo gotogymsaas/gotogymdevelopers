@@ -8,6 +8,7 @@ import type { UserRole } from '../auth/rbac';
 import { getRoleAccess, getRoleDisplayName } from '../auth/rbac';
 import { DashboardWelcomeSection } from './sections/DashboardWelcomeSection';
 import { BusinessWellbeingSection } from './sections/BusinessWellbeingSection';
+import { BusinessMembersSection } from './sections/BusinessMembersSection';
 import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsTable } from './sections/IntegrationsTable';
@@ -49,7 +50,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
   const roleAccess = getRoleAccess(role);
   const isAdmin = roleAccess.canViewSidebar;
   const showSidebar = isAdmin || isUser || isGym;
-  const brandedSections: Section[] = ['dashboard', 'smartwatch', 'app-gotogym', 'business-wellbeing'];
+  const brandedSections: Section[] = ['dashboard', 'smartwatch', 'app-gotogym', 'business-wellbeing', 'business-members'];
   const currentSection: Section = isUser
     ? location.pathname === '/smartwatch' || location.pathname === '/cards'
       ? 'smartwatch'
@@ -59,7 +60,9 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     : isGym
       ? location.pathname === '/business-wellbeing'
         ? 'business-wellbeing'
-        : 'dashboard'
+        : location.pathname === '/business-members'
+          ? 'business-members'
+          : 'dashboard'
       : activeSection;
   const isBrandedSection = brandedSections.includes(currentSection);
 
@@ -129,6 +132,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         return;
       }
 
+      if (section === 'business-members') {
+        navigate('/business-members');
+        return;
+      }
+
       navigate('/dashboard');
       return;
     }
@@ -178,6 +186,13 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         }
 
         return <BusinessWellbeingSection />;
+
+      case 'business-members':
+        if (!isGym && !isAdmin) {
+          return null;
+        }
+
+        return <BusinessMembersSection />;
 
       case 'smartwatch':
         if (!isUser) {
