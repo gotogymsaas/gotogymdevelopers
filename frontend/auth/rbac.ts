@@ -2,12 +2,29 @@ export type UserRole = 'user' | 'gym' | 'admin';
 
 export type AdminModule = 'users' | 'gyms' | 'trainers' | 'reports' | 'settings';
 
+export type AppPermission =
+  | 'integrations:read'
+  | 'integrations:sync'
+  | 'bodygraph:read'
+  | 'smartwatch:read'
+  | 'business:wellbeing:read'
+  | 'admin:modules:read';
+
+export interface TenantContext {
+  tenantId: string;
+  organizationId?: string;
+  workspaceId?: string;
+  membershipId?: string;
+}
+
 export interface AuthSession {
   token: string;
   refreshToken?: string;
   role: UserRole;
   email: string;
   username?: string;
+  permissions: AppPermission[];
+  tenant?: TenantContext;
 }
 
 interface RoleAccess {
@@ -24,6 +41,24 @@ interface MockUser {
 interface ApiResponse<T> {
   success: boolean;
   data?: T;
+}
+
+interface DevelopersAuthUser {
+  id: string;
+  email: string;
+  role: UserRole;
+  permissions?: AppPermission[];
+  tenant?: TenantContext;
+}
+
+interface DevelopersLoginResponse {
+  success: boolean;
+  data?: {
+    token: string;
+    role: UserRole;
+    user?: DevelopersAuthUser;
+    expiresIn?: string | number;
+  };
 }
 
 interface AppDesplegadaLoginResponse {
@@ -70,6 +105,14 @@ export const ALL_ADMIN_MODULES: AdminModule[] = [
 
 const SESSION_STORAGE_KEY = 'gotogym_session';
 const USER_ROLES: UserRole[] = ['user', 'gym', 'admin'];
+const APP_PERMISSIONS: AppPermission[] = [
+  'integrations:read',
+  'integrations:sync',
+  'bodygraph:read',
+  'smartwatch:read',
+  'business:wellbeing:read',
+  'admin:modules:read',
+];
 const FAKE_TOKEN = 'fake-token';
 
 const getApiBaseUrl = (): string => {
@@ -146,6 +189,48 @@ const clearLegacyPersistentSession = (): void => {
 const isUserRole = (value: unknown): value is UserRole =>
   typeof value === 'string' && USER_ROLES.includes(value as UserRole);
 
+const isAppPermission = (value: unknown): value is AppPermission =>
+  typeof value === 'string' && APP_PERMISSIONS.includes(value as AppPermission);
+
+const defaultPermissionsByRole = (role: UserRole): AppPermission[] => {
+  if (role === 'admin') {
+    return [...APP_PERMISSIONS];
+  }
+
+  if (role === 'gym') {
+    return ['business:wellbeing:read', 'integrations:read', 'bodygraph:read'];
+  }
+
+  return ['smartwatch:read', 'bodygraph:read'];
+};
+
+const parsePermissions = (value: unknown, role: UserRole): AppPermission[] => {
+  if (!Array.isArray(value)) {
+    return defaultPermissionsByRole(role);
+  }
+
+  const permissions = value.filter(isAppPermission);
+  return permissions.length > 0 ? permissions : defaultPermissionsByRole(role);
+};
+
+const parseTenant = (value: unknown): TenantContext | undefined => {
+  if (!value || typeof value !== 'object') {
+    return undefined;
+  }
+
+  const tenant = value as Partial<TenantContext>;
+  if (typeof tenant.tenantId !== 'string' || tenant.tenantId.length === 0) {
+    return undefined;
+  }
+
+  return {
+    tenantId: tenant.tenantId,
+    organizationId: typeof tenant.organizationId === 'string' ? tenant.organizationId : undefined,
+    workspaceId: typeof tenant.workspaceId === 'string' ? tenant.workspaceId : undefined,
+    membershipId: typeof tenant.membershipId === 'string' ? tenant.membershipId : undefined,
+  };
+};
+
 const parseSession = (value: string | null): AuthSession | null => {
   if (!value) {
     return null;
@@ -164,6 +249,8 @@ const parseSession = (value: string | null): AuthSession | null => {
         role: parsed.role,
         email: typeof parsed.email === 'string' ? parsed.email : '',
         username: typeof parsed.username === 'string' ? parsed.username : undefined,
+        permissions: parsePermissions(parsed.permissions, parsed.role),
+        tenant: parseTenant(parsed.tenant),
       };
     }
   } catch {
@@ -215,6 +302,13 @@ export const getAuthToken = (): string | null => {
 export const getUserEmail = (): string | null => getStoredSession()?.email ?? null;
 
 export const getUserRole = (): UserRole | null => getStoredSession()?.role ?? null;
+
+export const getUserPermissions = (): AppPermission[] => getStoredSession()?.permissions ?? [];
+
+export const hasPermission = (permission: AppPermission): boolean =>
+  getUserPermissions().includes(permission);
+
+export const getTenantContext = (): TenantContext | null => getStoredSession()?.tenant ?? null;
 
 export const getRoleDisplayName = (role: UserRole): string => ROLE_LABELS[role];
 
@@ -289,6 +383,7 @@ export const authenticateWithMockUsers = (email: string, password: string): Auth
     token: FAKE_TOKEN,
     role: user.role,
     email: user.email,
+    permissions: defaultPermissionsByRole(user.role),
   };
 };
 
@@ -305,30 +400,39 @@ export const loginWithMockUsers = (email: string, password: string): AuthSession
 export const loginWithApi = async (email: string, password: string): Promise<AuthSession | null> => {
   try {
     const baseUrl = getApiBaseUrl().replace(/\/$/, '');
-    const response = await fetch(`${baseUrl}/api/login/`, {
+    const loginBody = JSON.stringify({
+      username: email.trim(),
+      email: email.trim(),
+      password,
+    });
+    const requestInit: RequestInit = {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({
-        username: email.trim(),
-        email: email.trim(),
-        password,
-      }),
-    });
+      body: loginBody,
+    };
+
+    let response = await fetch(`${baseUrl}/api/v1/auth/login`, requestInit);
+    if (response.status === 404) {
+      response = await fetch(`${baseUrl}/api/login/`, requestInit);
+    }
 
     if (!response.ok) {
       return null;
     }
 
-    const payload = await response.json() as AppDesplegadaLoginResponse | ApiResponse<Partial<AuthSession>>;
+    const payload = await response.json() as AppDesplegadaLoginResponse | DevelopersLoginResponse | ApiResponse<Partial<AuthSession>>;
     const legacyData = 'data' in payload ? payload.data : undefined;
+    const developersUser = legacyData && 'user' in legacyData ? legacyData.user as DevelopersAuthUser | undefined : undefined;
     const token = 'access' in payload ? payload.access : legacyData?.token;
     const refreshToken = 'refresh' in payload ? payload.refresh : legacyData?.refreshToken;
     const backendUser = 'user' in payload ? payload.user : undefined;
     const role = legacyData?.role && isUserRole(legacyData.role)
       ? legacyData.role
-      : inferRoleFromBackendUser(backendUser);
+      : developersUser?.role && isUserRole(developersUser.role)
+        ? developersUser.role
+        : inferRoleFromBackendUser(backendUser);
 
     if (typeof token !== 'string' || token.length === 0) {
       return null;
@@ -338,7 +442,9 @@ export const loginWithApi = async (email: string, password: string): Promise<Aut
       token,
       refreshToken,
       role,
-      email: typeof backendUser?.email === 'string' && backendUser.email.length > 0
+      email: typeof developersUser?.email === 'string' && developersUser.email.length > 0
+        ? developersUser.email.toLowerCase()
+        : typeof backendUser?.email === 'string' && backendUser.email.length > 0
         ? backendUser.email.toLowerCase()
         : typeof legacyData?.email === 'string' && legacyData.email.length > 0
           ? legacyData.email.toLowerCase()
@@ -346,6 +452,8 @@ export const loginWithApi = async (email: string, password: string): Promise<Aut
       username: typeof backendUser?.username === 'string' && backendUser.username.length > 0
         ? backendUser.username
         : email.trim().toLowerCase(),
+      permissions: parsePermissions(developersUser?.permissions ?? legacyData?.permissions, role),
+      tenant: parseTenant(developersUser?.tenant ?? legacyData?.tenant),
     };
     setStoredSession(session);
     return session;

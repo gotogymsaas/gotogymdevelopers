@@ -1,6 +1,14 @@
 import request from 'supertest';
 import app from '../src/app';
 
+const loginAs = async (email: string): Promise<string> => {
+  const loginRes = await request(app)
+    .post('/api/v1/auth/login')
+    .send({ email, password: '123456' });
+
+  return loginRes.body?.data?.token as string;
+};
+
 describe('Auth API', () => {
   it('POST /api/v1/auth/login debe devolver un JWT para credenciales validas', async () => {
     const res = await request(app)
@@ -12,6 +20,15 @@ describe('Auth API', () => {
     expect(res.body.data).toHaveProperty('token');
     expect(typeof res.body.data.token).toBe('string');
     expect(res.body.data).toHaveProperty('role', 'user');
+    expect(res.body.data.user).toMatchObject({
+      id: 'user-001',
+      email: 'user@test.com',
+      role: 'user',
+      tenant: {
+        tenantId: 'tenant-user-001',
+      },
+    });
+    expect(res.body.data.user.permissions).toContain('smartwatch:read');
   });
 
   it('POST /api/v1/auth/login debe devolver 401 con credenciales invalidas', async () => {
@@ -23,11 +40,34 @@ describe('Auth API', () => {
     expect(res.body).toHaveProperty('success', false);
     expect(res.body.error).toHaveProperty('code', 'UNAUTHORIZED');
   });
+
+  it('GET /api/v1/auth/me debe devolver el usuario autenticado', async () => {
+    const token = await loginAs('admin@test.com');
+
+    const res = await request(app)
+      .get('/api/v1/auth/me')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(res.body.data).toMatchObject({
+      id: 'admin-001',
+      role: 'admin',
+      tenant: {
+        tenantId: 'tenant-platform',
+      },
+    });
+    expect(res.body.data.permissions).toContain('admin:modules:read');
+  });
 });
 
 describe('Integrations API', () => {
-  it('GET /api/integrations debe devolver la lista de integraciones con response estándar', async () => {
-    const res = await request(app).get('/api/integrations');
+  it('GET /api/integrations debe devolver la lista de integraciones con response estandar', async () => {
+    const token = await loginAs('admin@test.com');
+    const res = await request(app)
+      .get('/api/integrations')
+      .set('Authorization', `Bearer ${token}`);
+
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('success', true);
     expect(Array.isArray(res.body.data)).toBe(true);
@@ -36,8 +76,12 @@ describe('Integrations API', () => {
     expect(res.body.data[0]).toHaveProperty('name');
   });
 
-  it('POST /api/integrations/1/sync debe simular una sincronización y devolver response estándar', async () => {
-    const res = await request(app).post('/api/integrations/1/sync');
+  it('POST /api/integrations/1/sync debe simular una sincronizacion y devolver response estandar', async () => {
+    const token = await loginAs('admin@test.com');
+    const res = await request(app)
+      .post('/api/integrations/1/sync')
+      .set('Authorization', `Bearer ${token}`);
+
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('success', true);
     expect(res.body.data).toHaveProperty('integrationId', '1');
@@ -45,16 +89,34 @@ describe('Integrations API', () => {
   });
 
   it('POST /api/integrations/999/sync debe devolver error NOT_FOUND', async () => {
-    const res = await request(app).post('/api/integrations/999/sync');
+    const token = await loginAs('admin@test.com');
+    const res = await request(app)
+      .post('/api/integrations/999/sync')
+      .set('Authorization', `Bearer ${token}`);
+
     expect(res.status).toBe(404);
     expect(res.body).toHaveProperty('success', false);
     expect(res.body.error).toHaveProperty('code', 'NOT_FOUND');
   });
+
+  it('POST /api/integrations/1/sync debe rechazar usuarios sin permiso de sincronizacion', async () => {
+    const token = await loginAs('gym@test.com');
+    const res = await request(app)
+      .post('/api/integrations/1/sync')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toHaveProperty('code', 'FORBIDDEN');
+  });
 });
 
 describe('BodyGraph API', () => {
-  it('GET /api/bodygraph/1 debe devolver un payload BodyGraph con response estándar', async () => {
-    const res = await request(app).get('/api/bodygraph/1');
+  it('GET /api/bodygraph/1 debe devolver un payload BodyGraph con response estandar', async () => {
+    const token = await loginAs('user@test.com');
+    const res = await request(app)
+      .get('/api/bodygraph/1')
+      .set('Authorization', `Bearer ${token}`);
+
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('success', true);
     expect(res.body.data).toHaveProperty('heart_rate');
@@ -68,11 +130,7 @@ describe('BodyGraph API', () => {
 
 describe('Smartwatch API', () => {
   it('GET /api/v1/smartwatch/metrics debe devolver metricas del usuario autenticado', async () => {
-    const loginRes = await request(app)
-      .post('/api/v1/auth/login')
-      .send({ email: 'user@test.com', password: '123456' });
-
-    const token = loginRes.body?.data?.token;
+    const token = await loginAs('user@test.com');
 
     const res = await request(app)
       .get('/api/v1/smartwatch/metrics')
@@ -94,6 +152,17 @@ describe('Smartwatch API', () => {
     expect(res.status).toBe(401);
     expect(res.body).toHaveProperty('success', false);
     expect(res.body.error).toHaveProperty('code', 'UNAUTHORIZED');
+  });
+
+  it('GET /api/v1/smartwatch/metrics debe rechazar roles sin permiso smartwatch', async () => {
+    const token = await loginAs('gym@test.com');
+
+    const res = await request(app)
+      .get('/api/v1/smartwatch/metrics')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toHaveProperty('code', 'FORBIDDEN');
   });
 
   it('GET /api/smartwatch/metrics no versionado debe devolver 404', async () => {
@@ -126,6 +195,7 @@ describe('Corporate Wellbeing API', () => {
   });
 
   it('GET /api/v1/business/wellbeing/corporate debe consumir el endpoint corporativo con JWT y query params', async () => {
+    const token = await loginAs('gym@test.com');
     const upstreamPayload = {
       success: true,
       contract: 'wellbeing_corporativo_business_v1',
@@ -143,7 +213,7 @@ describe('Corporate Wellbeing API', () => {
 
     const res = await request(app)
       .get('/api/v1/business/wellbeing/corporate?org=123&days=45')
-      .set('Authorization', 'Bearer product-jwt-token');
+      .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
     expect(res.body).toHaveProperty('success', true);
@@ -154,10 +224,11 @@ describe('Corporate Wellbeing API', () => {
     expect(String(url)).toContain('/api/business/wellbeing/corporate/');
     expect(String(url)).toContain('org=123');
     expect(String(url)).toContain('days=45');
-    expect(options.headers.Authorization).toBe('Bearer product-jwt-token');
+    expect(options.headers.Authorization).toBe(`Bearer ${token}`);
   });
 
   it('GET /api/v1/business/wellbeing/corporate debe limitar days entre 7 y 180', async () => {
+    const token = await loginAs('gym@test.com');
     const fetchMock = jest.fn().mockResolvedValue({
       ok: true,
       status: 200,
@@ -170,9 +241,20 @@ describe('Corporate Wellbeing API', () => {
 
     await request(app)
       .get('/api/v1/business/wellbeing/corporate?days=999')
-      .set('Authorization', 'Bearer product-jwt-token');
+      .set('Authorization', `Bearer ${token}`);
 
     const [url] = fetchMock.mock.calls[0];
     expect(String(url)).toContain('days=180');
+  });
+
+  it('GET /api/v1/business/wellbeing/corporate debe rechazar usuarios finales', async () => {
+    const token = await loginAs('user@test.com');
+
+    const res = await request(app)
+      .get('/api/v1/business/wellbeing/corporate')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(403);
+    expect(res.body.error).toHaveProperty('code', 'FORBIDDEN');
   });
 });

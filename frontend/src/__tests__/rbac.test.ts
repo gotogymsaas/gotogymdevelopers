@@ -5,14 +5,18 @@ import {
   getAdminModules,
   getRoleAccess,
   getRoleDisplayName,
+  getTenantContext,
+  getUserPermissions,
   getUserRole,
   hasAdminModuleAccess,
+  hasPermission,
   setStoredSession,
 } from '../../auth/rbac';
 
 describe('RBAC helpers', () => {
   beforeEach(() => {
     window.localStorage.clear();
+    window.sessionStorage.clear();
   });
 
   test('valida credenciales mock y retorna token con rol', () => {
@@ -22,6 +26,14 @@ describe('RBAC helpers', () => {
       token: 'fake-token',
       role: 'admin',
       email: 'admin@test.com',
+      permissions: [
+        'integrations:read',
+        'integrations:sync',
+        'bodygraph:read',
+        'smartwatch:read',
+        'business:wellbeing:read',
+        'admin:modules:read',
+      ],
     });
   });
 
@@ -51,8 +63,25 @@ describe('RBAC helpers', () => {
   });
 
   test('persiste y limpia sesion con role helper', () => {
-    setStoredSession({ token: 'fake-token', role: 'gym', email: 'gym@test.com' });
+    setStoredSession({
+      token: 'fake-token',
+      role: 'gym',
+      email: 'gym@test.com',
+      permissions: ['business:wellbeing:read'],
+      tenant: {
+        tenantId: 'tenant-gym-001',
+        organizationId: 'org-gym-001',
+      },
+    });
     expect(getUserRole()).toBe('gym');
+    expect(getUserPermissions()).toEqual(['business:wellbeing:read']);
+    expect(hasPermission('business:wellbeing:read')).toBe(true);
+    expect(getTenantContext()).toEqual({
+      tenantId: 'tenant-gym-001',
+      organizationId: 'org-gym-001',
+      workspaceId: undefined,
+      membershipId: undefined,
+    });
 
     clearStoredSession();
     expect(getUserRole()).toBeNull();

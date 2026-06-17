@@ -41,3 +41,27 @@ export async function login(req: Request, res: Response, next: NextFunction) {
     next(err);
   }
 }
+
+export async function me(req: Request, res: Response, next: NextFunction) {
+  try {
+    if (!req.authUser) {
+      const response: ApiResponse<null> = {
+        success: false,
+        error: {
+          code: 'UNAUTHORIZED',
+          message: 'Authentication is required',
+        },
+      };
+      res.status(401).json(response);
+      return;
+    }
+
+    const response: ApiResponse<typeof req.authUser> = {
+      success: true,
+      data: req.authUser,
+    };
+    res.json(response);
+  } catch (err) {
+    next(err);
+  }
+}
