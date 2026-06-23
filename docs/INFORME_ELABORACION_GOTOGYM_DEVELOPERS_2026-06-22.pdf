@@ -1,0 +1,720 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Length 3520 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(Informe de elaboracion del aplicativo GoToGym Developers) Tj T*
+() Tj T*
+(Proyecto: GoToGym Developers) Tj T*
+(Fecha de elaboracion del informe: 22 de junio de 2026) Tj T*
+(Periodo evidenciado de desarrollo: 25 de marzo de 2026 al 16 de junio de 2026) Tj T*
+(Repositorio analizado: gotogymdevelopers) Tj T*
+(Proposito del documento: presentar ante la universidad un informe tecnico y funcional) Tj T*
+(detallado sobre la elaboracion de la pagina/aplicativo GoToGym Developers.) Tj T*
+() Tj T*
+(1. Resumen ejecutivo) Tj T*
+() Tj T*
+(GoToGym Developers es un aplicativo web orientado a la visualizacion, integracion y) Tj T*
+(administracion de informacion relacionada con bienestar, salud digital, actividad fisica,) Tj T*
+(dispositivos smartwatch, integraciones externas, datos de usuario y analitica corporativa.) Tj T*
+(El proyecto evoluciono desde una estructura inicial de backend y validacion de usuario hasta) Tj T*
+(convertirse en una consola web con login, control de roles, dashboard, cards dinamicas,) Tj T*
+(modulos de usuario final, modulos para empresa/gimnasio, consumo de APIs protegidas con JWT) Tj T*
+(y pruebas automatizadas.) Tj T*
+() Tj T*
+(El sistema fue construido principalmente con React + TypeScript + Vite en el frontend y) Tj T*
+(Node.js + Express + TypeScript en el backend. La arquitectura se organiza por capas: rutas,) Tj T*
+(controladores, servicios, repositorios, modelos, datos mock, hooks, componentes visuales,) Tj T*
+(paginas y pruebas. Esta separacion permite mantener el codigo escalable, probar endpoints de) Tj T*
+(forma independiente y conectar progresivamente con APIs reales de GoToGym.) Tj T*
+() Tj T*
+(Durante el desarrollo se identifican 80 commits en Git, distribuidos entre el 25 de marzo y) Tj T*
+(el 16 de junio de 2026. La actividad se concentra en once dias de desarrollo registrados,) Tj T*
+(con hitos claros: estructura base, API inicial, frontend SaaS, autenticacion, rutas) Tj T*
+(protegidas, integracion con Azure Static Web Apps, smartwatch, cards, APP GOTO GYM,) Tj T*
+(bienestar corporativo, miembros empresariales y RBAC.) Tj T*
+() Tj T*
+(2. Objetivo general) Tj T*
+() Tj T*
+(Desarrollar una plataforma web para GoToGym Developers que permita consultar, visualizar y) Tj T*
+(administrar informacion de bienestar digital mediante una consola moderna, segura, modular y) Tj T*
+(conectada a servicios backend, diferenciando la experiencia segun el tipo de usuario:) Tj T*
+(usuario final, gimnasio/empresa y administrador.) Tj T*
+() Tj T*
+(3. Objetivos especificos) Tj T*
+() Tj T*
+(- Crear una interfaz web responsiva con home, login, dashboard, cards, smartwatch, APP GOTO) Tj T*
+(GYM, bienestar corporativo y equipo empresa.) Tj T*
+(- Implementar autenticacion con JWT y control de acceso por roles/permisos.) Tj T*
+(- Consumir APIs internas y externas para informacion de usuario, bienestar, empresa,) Tj T*
+(integraciones, bodygraph y smartwatch.) Tj T*
+(- Organizar el backend en rutas, controladores, servicios, repositorios y middlewares.) Tj T*
+(- Implementar estados de carga, error, fallback y datos mock para soportar pruebas y) Tj T*
+(desarrollo incremental.) Tj T*
+(- Validar comportamiento critico mediante pruebas automatizadas de backend y frontend.) Tj T*
+(- Preparar el proyecto para despliegue web con configuracion compatible con Azure Static Web) Tj T*
+(Apps y backend Node/Express.) Tj T*
+() Tj T*
+(4. Fechas de elaboracion y bitacora de desarrollo) Tj T*
+() Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 1 de 10) Tj
+ET
+endstream
+endobj
+3 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 2 0 R >>
+endobj
+4 0 obj
+<< /Length 3515 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(La evidencia de Git muestra el siguiente avance del proyecto:) Tj T*
+() Tj T*
+(| Fecha | Commits | Actividad principal evidenciada |) Tj T*
+() Tj T*
+(| 2026-03-25 | 7 | Estructura inicial, endpoint REST de validacion de usuario, DTOs, pruebas) Tj T*
+(unitarias, OpenAPI y configuracion base. |) Tj T*
+(| 2026-03-27 | 11 | Reinicio/orden del repositorio, base React + TypeScript, componente) Tj T*
+(principal, README por carpetas, backend inicial y pruebas. |) Tj T*
+(| 2026-04-08 | 11 | Creacion del frontend, dashboard SaaS, header, sidebar, integraciones,) Tj T*
+(acciones, resultados, notificaciones, backend Express y despliegue inicial. |) Tj T*
+(| 2026-04-21 | 9 | Rutas protegidas, home/login/dashboard, logout, JWT, smartwatch, cards) Tj T*
+(interactivas, sidebar por rol y workflow de Azure Static Web Apps. |) Tj T*
+(| 2026-04-23 | 12 | Ajustes de cards, navegacion, leyenda de sueno, zona horaria Colombia,) Tj T*
+(correcciones de despliegue y sincronizacion de historial. |) Tj T*
+(| 2026-05-12 | 3 | Seccion APP GOTO GYM con cards dinamicas, autenticacion JWT y despliegue) Tj T*
+(a produccion. |) Tj T*
+(| 2026-05-27 | 9 | Developer console actualizada, bienestar con JWT real, mapeo de) Tj T*
+(endpoints, cards de scores, despliegues y documentacion. |) Tj T*
+(| 2026-05-28 | 2 | Widgets de bienestar en dashboard y normalizacion del indice de) Tj T*
+(felicidad. |) Tj T*
+(| 2026-06-02 | 6 | Home interactivo, modulos de bienestar de usuario, dashboard, smartwatch,) Tj T*
+(login redisenado y proxy backend corporativo. |) Tj T*
+(| 2026-06-09 | 8 | Seguridad de sesiones, dashboard corporativo, diseno de bienestar,) Tj T*
+(endpoint corporativo, miembros empresariales y progress bars. |) Tj T*
+(| 2026-06-16 | 2 | RBAC, contexto tenant-aware y despliegue publico del frontend desde) Tj T*
+(preproduccion. |) Tj T*
+() Tj T*
+(5. Estimacion de horas trabajadas) Tj T*
+() Tj T*
+(La estimacion se realiza a partir de la cantidad de commits, el periodo de desarrollo, la) Tj T*
+(complejidad funcional y los modulos implementados. No equivale a un registro exacto de) Tj T*
+(reloj, sino a una aproximacion razonable para informe academico.) Tj T*
+() Tj T*
+(| Area de trabajo | Horas estimadas |) Tj T*
+() Tj T*
+(| Planeacion, organizacion inicial, estructura de carpetas y documentacion base | 18 a 24 h) Tj T*
+(|) Tj T*
+(| Backend Express/TypeScript, rutas, controladores, servicios, repositorios y middlewares |) Tj T*
+(42 a 56 h |) Tj T*
+(| Autenticacion, JWT, sesiones, RBAC, scopes, permisos y tenant context | 28 a 38 h |) Tj T*
+(| Frontend React/TypeScript: home, login, router, layout, header, sidebar y dashboard | 48 a) Tj T*
+(64 h |) Tj T*
+(| Modulos smartwatch, bodygraph, integraciones, cards y notificaciones | 40 a 54 h |) Tj T*
+(| APP GOTO GYM, consumo de coach context, extraccion de scores y visualizacion dinamica | 24) Tj T*
+(a 34 h |) Tj T*
+(| Bienestar corporativo, empresa, miembros, politicas agregadas y proxy API | 34 a 48 h |) Tj T*
+(| Pruebas automatizadas, correcciones TypeScript, QA y ajustes de despliegue | 26 a 36 h |) Tj T*
+(| Integracion con Azure Static Web Apps, configuracion de entorno y revisiones de produccion) Tj T*
+(| 18 a 28 h |) Tj T*
+(| Ajustes visuales, responsividad, pulido de UI y estabilizacion | 28 a 40 h |) Tj T*
+() Tj T*
+(Estimacion total: entre 306 y 422 horas.) Tj T*
+(Estimacion media recomendada para presentacion: aproximadamente 360 horas de trabajo.) Tj T*
+() Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 2 de 10) Tj
+ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 3048 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(Esta cifra contempla investigacion, implementacion, correccion de errores, pruebas,) Tj T*
+(despliegues, documentacion y ajustes visuales. La existencia de commits de limpieza del) Tj T*
+(repositorio y despliegue se interpreta como trabajo de mantenimiento, no como incremento) Tj T*
+(directo de funcionalidad.) Tj T*
+() Tj T*
+(6. Arquitectura general) Tj T*
+() Tj T*
+(El aplicativo se divide en dos grandes capas:) Tj T*
+() Tj T*
+(Frontend: aplicacion web desarrollada con React, TypeScript y Vite. Contiene paginas,) Tj T*
+(componentes reutilizables, hooks, servicios HTTP, estilos, mocks y pruebas con Jest/Testing) Tj T*
+(Library.) Tj T*
+() Tj T*
+(Backend: API desarrollada con Node.js, Express y TypeScript. Contiene rutas REST,) Tj T*
+(controladores, servicios, middlewares de autenticacion/autorizacion, modelos, repositorios,) Tj T*
+(datos mock y pruebas con Jest/Supertest.) Tj T*
+() Tj T*
+(6.1 Estructura principal del proyecto) Tj T*
+() Tj T*
+(- frontend/: codigo de la interfaz web, paginas, router, componentes, hooks, estilos, mocks) Tj T*
+(y pruebas.) Tj T*
+(- backend/: API Express, rutas, controladores, servicios, repositorios, modelos, middlewares) Tj T*
+(y tests.) Tj T*
+(- docs/: documentacion tecnica y reportes.) Tj T*
+(- scripts/: automatizaciones de documentacion, historial y generacion de informes.) Tj T*
+(- .github/: configuraciones de flujos de despliegue e integracion.) Tj T*
+(- appdesplegada-inspect/: carpeta de inspeccion y referencias de aplicacion desplegada,) Tj T*
+(documentacion, assets y evidencia adicional.) Tj T*
+() Tj T*
+(7. Tecnologias utilizadas) Tj T*
+() Tj T*
+(| Capa | Tecnologia | Uso |) Tj T*
+() Tj T*
+(| Frontend | React 18 | Construccion de interfaces por componentes. |) Tj T*
+(| Frontend | TypeScript | Tipado estatico y contratos de datos. |) Tj T*
+(| Frontend | Vite | Servidor de desarrollo y build rapido. |) Tj T*
+(| Frontend | React Router DOM | Navegacion entre home, login y modulos protegidos. |) Tj T*
+(| Frontend | Axios / Fetch | Consumo de APIs y envio de token Bearer. |) Tj T*
+(| Frontend | Recharts | Visualizacion de graficas y metricas. |) Tj T*
+(| Backend | Node.js | Entorno de ejecucion JavaScript/TypeScript. |) Tj T*
+(| Backend | Express | Definicion de API REST. |) Tj T*
+(| Backend | jsonwebtoken | Emision y verificacion de tokens JWT. |) Tj T*
+(| Backend | cors | Control de origenes permitidos. |) Tj T*
+(| Pruebas | Jest | Pruebas unitarias y de integracion. |) Tj T*
+(| Pruebas | Supertest | Validacion HTTP del backend. |) Tj T*
+(| Despliegue | Azure Static Web Apps / App Service | Publicacion de frontend y backend/API.) Tj T*
+(|) Tj T*
+() Tj T*
+(8. Frontend del aplicativo) Tj T*
+() Tj T*
+(El frontend esta organizado para separar pantallas, componentes visuales, componentes de) Tj T*
+(layout, servicios HTTP y hooks. La aplicacion se inicia desde frontend/index.tsx y) Tj T*
+(frontend/App.tsx, y la navegacion principal se define en frontend/router/AppRouter.tsx.) Tj T*
+() Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 3 de 10) Tj
+ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 2476 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(8.1 Home) Tj T*
+() Tj T*
+(La pagina Home presenta la marca GoToGym Developers, historia, mision, enfoque de) Tj T*
+(investigacion, contacto y enlaces sociales. Su objetivo es dar contexto institucional antes) Tj T*
+(del ingreso a la consola. Incluye:) Tj T*
+() Tj T*
+(- Barra de navegacion superior.) Tj T*
+(- Logo de GoToGym.) Tj T*
+(- Hero con mensaje de bienestar inteligente.) Tj T*
+(- Tabs de contenido para historia, mision y Quantum Research.) Tj T*
+(- Seccion de soporte/contacto.) Tj T*
+(- Enlaces externos a redes sociales.) Tj T*
+() Tj T*
+(8.2 Login) Tj T*
+() Tj T*
+(La pantalla de login permite ingresar email y password. Consume loginWithApi, funcion que) Tj T*
+(intenta autenticar contra /api/v1/auth/login y, si no existe ese endpoint, contempla) Tj T*
+(fallback hacia /api/login/. El login:) Tj T*
+() Tj T*
+(- Valida que email y password no esten vacios.) Tj T*
+(- Muestra estado de envio.) Tj T*
+(- Presenta errores si credenciales o backend fallan.) Tj T*
+(- Guarda sesion con token, rol, permisos, tenant y refresh token si aplica.) Tj T*
+(- Redirige a /dashboard cuando la autenticacion es correcta.) Tj T*
+() Tj T*
+(8.3 Router y rutas protegidas) Tj T*
+() Tj T*
+(El router define rutas publicas y privadas:) Tj T*
+() Tj T*
+(- /: Home.) Tj T*
+(- /login: Login.) Tj T*
+(- /dashboard: dashboard protegido.) Tj T*
+(- /smartwatch: modulo de usuario final.) Tj T*
+(- /app-gotogym: modulo APP GOTO GYM.) Tj T*
+(- /business-wellbeing: modulo empresa/gimnasio/admin.) Tj T*
+(- /business-members: miembros empresariales.) Tj T*
+(- /cards: cards de usuario.) Tj T*
+() Tj T*
+(El componente ProtectedRoute valida autenticacion y roles permitidos. Si no hay sesion,) Tj T*
+(redirige a login; si el rol no esta autorizado, redirige al dashboard.) Tj T*
+() Tj T*
+(8.4 Dashboard) Tj T*
+() Tj T*
+(El dashboard resume el estado general del sistema. Presenta metricas de integraciones) Tj T*
+(activas, fuentes conectadas, ultima sincronizacion, eventos procesados, estado del sistema y) Tj T*
+(actividad reciente. Se apoya en useDeveloperDashboard, hook que consulta integraciones,) Tj T*
+(permite seleccionar fuentes y maneja estados de sincronizacion.) Tj T*
+() Tj T*
+(8.5 Header y sidebar) Tj T*
+() Tj T*
+(El layout de la consola incluye:) Tj T*
+() Tj T*
+(- Header con breadcrumb, descripcion de seccion, version, boton de cerrar sesion, campana de) Tj T*
+(notificaciones y configuracion.) Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 4 de 10) Tj
+ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Length 2413 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(- Sidebar con navegacion dinamica segun rol.) Tj T*
+(- Secciones visibles por rol:) Tj T*
+(- Usuario final: Dashboard, Smartwatch, APP GOTO GYM y, cuando aplica, Equipo Empresa.) Tj T*
+(- Gym/empresa: Dashboard, Bienestar Corporativo y Equipo Empresa.) Tj T*
+(- Admin: acceso completo a secciones principales y modulos administrativos.) Tj T*
+() Tj T*
+(8.6 Cards) Tj T*
+() Tj T*
+(Las cards se usan para mostrar informacion sintetica y accionable. Existen cards para) Tj T*
+(dashboard, smartwatch, APP GOTO GYM, bienestar empresarial, miembros y estado de) Tj T*
+(integraciones. En APP GOTO GYM, las cards muestran scores de variables como actividad) Tj T*
+(fisica, sueno, estres, intensidad, estabilidad emocional, vida social, HRV, edad biologica,) Tj T*
+(calidad del sueno y ritmo circadiano.) Tj T*
+() Tj T*
+(8.7 Smartwatch) Tj T*
+() Tj T*
+(El modulo smartwatch consulta /api/v1/smartwatch/metrics con token Bearer. Si la API no) Tj T*
+(responde, usa datos mock controlados para mantener la interfaz funcional. Esto permite) Tj T*
+(desarrollo y demostracion aun cuando el backend real no este disponible. El modulo) Tj T*
+(contempla:) Tj T*
+() Tj T*
+(- Metricas de salud y actividad.) Tj T*
+(- Estado de carga.) Tj T*
+(- Estado de error.) Tj T*
+(- Indicacion de fuente de datos: API o mock.) Tj T*
+() Tj T*
+(8.8 APP GOTO GYM) Tj T*
+() Tj T*
+(Este modulo consume informacion de /api/coach_context/ mediante wellbeingService. El) Tj T*
+(frontend extrae scores desde diferentes estructuras posibles: if_snapshot, latest_record y) Tj T*
+(wellbeing_experience_value_v1.if_variable_payload. Esta decision hace robusto el consumo de) Tj T*
+(APIs cuando el backend evoluciona.) Tj T*
+() Tj T*
+(Variables visualizadas:) Tj T*
+() Tj T*
+(- Nivel de actividad fisica.) Tj T*
+(- Horas de sueno promedio.) Tj T*
+(- Manejo del estres.) Tj T*
+(- Intensidad de entrenamientos.) Tj T*
+(- Estabilidad emocional.) Tj T*
+(- Vida social y conexiones.) Tj T*
+(- Variabilidad cardiaca.) Tj T*
+(- Edad biologica.) Tj T*
+(- Calidad del sueno.) Tj T*
+(- Sincronizacion del ritmo circadiano.) Tj T*
+() Tj T*
+(8.9 Bienestar corporativo) Tj T*
+() Tj T*
+(El modulo empresarial consulta bienestar agregado por ventana de dias. Permite analizar:) Tj T*
+() Tj T*
+(- Indice corporativo.) Tj T*
+(- Activacion.) Tj T*
+(- Recurrencia.) Tj T*
+(- Pausas completadas.) Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 5 de 10) Tj
+ET
+endstream
+endobj
+11 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 10 0 R >>
+endobj
+12 0 obj
+<< /Length 2347 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(- Estado del programa.) Tj T*
+(- Pausas activas SG-SST.) Tj T*
+(- Variables IF agregadas.) Tj T*
+(- Mapa de riesgos.) Tj T*
+(- Fortalezas.) Tj T*
+(- Prioridades.) Tj T*
+(- Experiencias.) Tj T*
+(- Acciones recomendadas.) Tj T*
+(- Insights.) Tj T*
+() Tj T*
+(La interfaz evita mostrar datos sensibles individuales y favorece una lectura agregada de) Tj T*
+(empresa.) Tj T*
+() Tj T*
+(8.10 Equipo empresa) Tj T*
+() Tj T*
+(El modulo Equipo Empresa presenta directorio, operacion y bienestar agregado por niveles.) Tj T*
+(Incluye busqueda, filtro por estado, indicadores de miembros activos, onboarding, planes) Tj T*
+(asignados y bienestar agregado. El diseno declara explicitamente que el detalle individual) Tj T*
+(de salud requiere consentimiento, scopes y auditoria.) Tj T*
+() Tj T*
+(9. Backend del aplicativo) Tj T*
+() Tj T*
+(El backend esta construido con Express y TypeScript. La aplicacion principal se configura en) Tj T*
+(backend/src/app.ts, donde se habilita CORS, JSON, rutas REST y middleware centralizado de) Tj T*
+(errores.) Tj T*
+() Tj T*
+(9.1 Rutas principales) Tj T*
+() Tj T*
+(| Ruta | Metodo | Proposito | Seguridad |) Tj T*
+() Tj T*
+(| /api/v1/auth/login | POST | Autenticacion de usuario y emision de JWT. | Publica con) Tj T*
+(credenciales. |) Tj T*
+(| /api/v1/auth/me | GET | Consultar usuario autenticado. | Bearer token. |) Tj T*
+(| /api/v1/smartwatch/metrics | GET | Obtener metricas smartwatch. | Bearer + scope) Tj T*
+(smartwatch:read:self. |) Tj T*
+(| /api/v1/business/wellbeing/corporate | GET | Proxy de bienestar corporativo. | Bearer +) Tj T*
+(rol empresa/admin + scope corporativo. |) Tj T*
+(| /api/integrations | GET | Listar integraciones. | Bearer + scope de lectura) Tj T*
+(organizacional. |) Tj T*
+(| /api/integrations/:id/sync | POST | Sincronizar integracion. | Bearer + scope de) Tj T*
+(sincronizacion. |) Tj T*
+(| /api/bodygraph/:integrationId | GET | Consultar datos BodyGraph por integracion. | Bearer) Tj T*
+(+ scope bodygraph:read:self. |) Tj T*
+() Tj T*
+(9.2 Autenticacion y autorizacion) Tj T*
+() Tj T*
+(El backend utiliza JWT con jsonwebtoken. Los tokens contienen:) Tj T*
+() Tj T*
+(- Identificador del usuario.) Tj T*
+(- Email.) Tj T*
+(- Rol.) Tj T*
+(- Scopes/permisos.) Tj T*
+(- Tenant.) Tj T*
+(- Organizacion activa.) Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 6 de 10) Tj
+ET
+endstream
+endobj
+13 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 12 0 R >>
+endobj
+14 0 obj
+<< /Length 2600 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(- Tipo de token.) Tj T*
+() Tj T*
+(Los middlewares implementados son:) Tj T*
+() Tj T*
+(- requireAuth: valida encabezado Authorization Bearer y verifica token.) Tj T*
+(- requireRole: restringe por rol.) Tj T*
+(- requireScope: restringe por permiso/scope.) Tj T*
+(- requirePermission: alias semantico de scope.) Tj T*
+(- requireOrganizationAccess: valida que el usuario consulte una organizacion perteneciente a) Tj T*
+(su tenant, salvo administradores.) Tj T*
+() Tj T*
+(9.3 Roles y permisos) Tj T*
+() Tj T*
+(El proyecto maneja una capa de RBAC en frontend y una capa de roles/scopes en backend. En) Tj T*
+(frontend se reconocen roles user, gym y admin; en backend existen roles mas orientados a) Tj T*
+(dominio como end_user, company_owner, company_manager, gotogym_admin e integrator.) Tj T*
+() Tj T*
+(Permisos destacados:) Tj T*
+() Tj T*
+(- smartwatch:read:self) Tj T*
+(- bodygraph:read:self) Tj T*
+(- coach_context:read:self) Tj T*
+(- corporate_wellbeing:read:organization) Tj T*
+(- integrations:read:organization) Tj T*
+(- integrations:sync:organization) Tj T*
+(- organization_members:read:organization) Tj T*
+(- applications:manage:organization) Tj T*
+(- billing:manage:organization) Tj T*
+() Tj T*
+(10. Consumo de APIs) Tj T*
+() Tj T*
+(El aplicativo consume APIs mediante Axios y Fetch. El servicio api.ts centraliza una) Tj T*
+(instancia Axios con base URL configurable y agrega automaticamente el header Authorization:) Tj T*
+(Bearer <token> cuando existe sesion.) Tj T*
+() Tj T*
+(10.1 API de usuario) Tj T*
+() Tj T*
+(La autenticacion se realiza por /api/v1/auth/login. El frontend guarda la sesion en) Tj T*
+(sessionStorage, no en almacenamiento persistente, lo que reduce exposicion si el navegador) Tj T*
+(se cierra. La funcion /api/v1/auth/me permite validar la sesion y obtener el usuario) Tj T*
+(autenticado.) Tj T*
+() Tj T*
+(10.2 API de empresa) Tj T*
+() Tj T*
+(El modulo corporativo consume /api/v1/business/wellbeing/corporate, endpoint backend que) Tj T*
+(funciona como proxy hacia https://api.gotogym.store/api/business/wellbeing/corporate/. El) Tj T*
+(backend conserva el token Bearer y agrega parametros como org y days. La ventana days se) Tj T*
+(normaliza entre 7 y 180 dias para evitar consultas fuera de rango.) Tj T*
+() Tj T*
+(10.3 API de coach context) Tj T*
+() Tj T*
+(El frontend consulta /api/coach_context/ con include_text=true y opcionalmente username. El) Tj T*
+(payload puede contener perfil, documentos, dispositivos, snapshot IF, negocio y valor de) Tj T*
+(experiencia de bienestar.) Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 7 de 10) Tj
+ET
+endstream
+endobj
+15 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 14 0 R >>
+endobj
+16 0 obj
+<< /Length 2191 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+() Tj T*
+(10.4 API de smartwatch) Tj T*
+() Tj T*
+(El frontend y backend usan /api/v1/smartwatch/metrics. El endpoint exige JWT y scope. El) Tj T*
+(frontend implementa fallback mock para que la UI se mantenga operativa en ambiente de) Tj T*
+(desarrollo.) Tj T*
+() Tj T*
+(10.5 API de integraciones y BodyGraph) Tj T*
+() Tj T*
+(Las integraciones se listan desde /api/integrations y pueden sincronizarse mediante POST) Tj T*
+(/api/integrations/:id/sync. BodyGraph se consulta por integracion en) Tj T*
+(/api/bodygraph/:integrationId, devolviendo informacion como ritmo cardiaco, pasos, sueno,) Tj T*
+(estres, fuente y timestamp.) Tj T*
+() Tj T*
+(11. Seguridad) Tj T*
+() Tj T*
+(Medidas implementadas:) Tj T*
+() Tj T*
+(- Tokens JWT firmados con secreto configurable.) Tj T*
+(- Requerimiento de JWT_SECRET en produccion.) Tj T*
+(- Validacion de issuer.) Tj T*
+(- Validacion de expiracion en frontend.) Tj T*
+(- Uso de Authorization Bearer.) Tj T*
+(- Limpieza de sesion ante 401/403.) Tj T*
+(- Sesion en sessionStorage.) Tj T*
+(- Restriccion CORS a https://developers.gotogym.store y http://localhost:5173.) Tj T*
+(- Control por roles y scopes.) Tj T*
+(- Validacion de tenant/organizacion.) Tj T*
+(- Manejo centralizado de errores.) Tj T*
+(- Fallbacks controlados para desarrollo sin exponer datos reales.) Tj T*
+() Tj T*
+(12. Calidad y pruebas) Tj T*
+() Tj T*
+(El proyecto incluye pruebas automatizadas relevantes:) Tj T*
+() Tj T*
+(12.1 Backend) Tj T*
+() Tj T*
+(Pruebas con Jest y Supertest para:) Tj T*
+() Tj T*
+(- Login exitoso con JWT.) Tj T*
+(- Login invalido con 401.) Tj T*
+(- Consulta de usuario autenticado.) Tj T*
+(- Listado de integraciones.) Tj T*
+(- Sincronizacion de integraciones.) Tj T*
+(- Error 404 en integracion inexistente.) Tj T*
+(- Rechazo por permisos insuficientes.) Tj T*
+(- Consulta de BodyGraph.) Tj T*
+(- Consulta de metricas smartwatch.) Tj T*
+(- Requerimiento de Authorization Bearer.) Tj T*
+(- Rechazo de roles sin permisos.) Tj T*
+(- Proxy de bienestar corporativo.) Tj T*
+(- Normalizacion de dias entre 7 y 180.) Tj T*
+(- Rechazo de usuarios finales en endpoint corporativo.) Tj T*
+() Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 8 de 10) Tj
+ET
+endstream
+endobj
+17 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 16 0 R >>
+endobj
+18 0 obj
+<< /Length 2989 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(12.2 Frontend) Tj T*
+() Tj T*
+(Pruebas para:) Tj T*
+() Tj T*
+(- RBAC y helpers de permisos.) Tj T*
+(- Persistencia y limpieza de sesion.) Tj T*
+(- Acceso de admin a modulos.) Tj T*
+(- Restriccion de usuarios y gym a modulos administrativos.) Tj T*
+(- Extraccion de scores de APP GOTO GYM.) Tj T*
+(- Hook de metricas smartwatch.) Tj T*
+(- Renderizado general de la aplicacion.) Tj T*
+() Tj T*
+(13. Despliegue y ambientes) Tj T*
+() Tj T*
+(El proyecto contiene configuraciones para despliegue de frontend con Azure Static Web Apps,) Tj T*
+(configuracion staticwebapp.config.json, workflows y scripts de apoyo. El backend esta) Tj T*
+(preparado para compilar TypeScript y ejecutarse desde dist/server.js.) Tj T*
+() Tj T*
+(Comandos principales:) Tj T*
+() Tj T*
+(- Frontend desarrollo: npm run dev dentro de frontend/.) Tj T*
+(- Frontend build: npm run build dentro de frontend/.) Tj T*
+(- Backend desarrollo: npm run dev dentro de backend/.) Tj T*
+(- Backend build: npm run build dentro de backend/.) Tj T*
+(- Backend tests: npm test dentro de backend/.) Tj T*
+(- Frontend tests: npm test dentro de frontend/.) Tj T*
+() Tj T*
+(14. Modulos funcionales entregados) Tj T*
+() Tj T*
+(| Modulo | Estado | Descripcion |) Tj T*
+() Tj T*
+(| Home | Implementado | Presentacion institucional, historia, mision, investigacion y) Tj T*
+(contacto. |) Tj T*
+(| Login | Implementado | Autenticacion con API, manejo de errores y redireccion. |) Tj T*
+(| Dashboard | Implementado | Vista general de integraciones, fuentes, eventos y actividad. |) Tj T*
+(| Permisos/RBAC | Implementado | Roles, permisos, sesiones, rutas protegidas y tenant) Tj T*
+(context. |) Tj T*
+(| Smartwatch | Implementado | Consumo de metricas con fallback mock. |) Tj T*
+(| APP GOTO GYM | Implementado | Cards dinamicas de bienestar personal desde coach context. |) Tj T*
+(| Cards | Implementado | Visualizacion de indicadores y scores clave. |) Tj T*
+(| Integraciones | Implementado | Listado, seleccion y sincronizacion de fuentes. |) Tj T*
+(| BodyGraph | Implementado | Datos corporales y de salud asociados a integraciones. |) Tj T*
+(| Bienestar corporativo | Implementado | Dashboard agregado para empresa/gimnasio/admin. |) Tj T*
+(| Equipo empresa | Implementado | Directorio, operacion y bienestar agregado. |) Tj T*
+(| Notificaciones | Implementado | Alertas asociadas a integraciones y eventos criticos. |) Tj T*
+(| Pruebas | Implementado | Jest, Supertest y Testing Library. |) Tj T*
+() Tj T*
+(15. Retos tecnicos abordados) Tj T*
+() Tj T*
+(- Mantener compatibilidad entre endpoints propios y endpoints heredados o externos.) Tj T*
+(- Manejar diferentes estructuras de payload para APP GOTO GYM sin romper la UI.) Tj T*
+(- Separar datos individuales sensibles de datos corporativos agregados.) Tj T*
+(- Implementar control de permisos en frontend y backend.) Tj T*
+(- Conservar una experiencia demostrable aunque una API real no este disponible.) Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 9 de 10) Tj
+ET
+endstream
+endobj
+19 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 18 0 R >>
+endobj
+20 0 obj
+<< /Length 1572 >>
+stream
+BT
+/F1 10 Tf
+14 TL
+50 800 Td
+(- Normalizar errores HTTP y limpiar sesion ante accesos no autorizados.) Tj T*
+(- Preparar el aplicativo para ambientes locales y productivos mediante variables de entorno.) Tj T*
+(- Mejorar progresivamente la interfaz manteniendo componentes reutilizables.) Tj T*
+() Tj T*
+(16. Conclusiones) Tj T*
+() Tj T*
+(GoToGym Developers alcanzo una version funcional de consola web con arquitectura moderna,) Tj T*
+(separacion frontend/backend, autenticacion, permisos, consumo de APIs y modulos) Tj T*
+(diferenciados para usuario y empresa. El aplicativo no se limita a una pagina estatica:) Tj T*
+(integra datos, valida sesiones, protege rutas, transforma respuestas de API y presenta) Tj T*
+(informacion de bienestar mediante componentes visuales.) Tj T*
+() Tj T*
+(El proyecto evidencia un proceso incremental de desarrollo entre marzo y junio de 2026, con) Tj T*
+(avances tecnicos, pruebas, despliegues, documentacion y refinamiento visual. La estimacion) Tj T*
+(media de trabajo es de aproximadamente 360 horas, sustentada en el volumen de commits, la) Tj T*
+(variedad de modulos, la cantidad de integraciones y la complejidad de) Tj T*
+(seguridad/autorizacion.) Tj T*
+() Tj T*
+(Como trabajo universitario, el aplicativo demuestra competencias en desarrollo full stack,) Tj T*
+(arquitectura por capas, consumo de servicios REST, manejo de autenticacion JWT, diseno de) Tj T*
+(interfaces, pruebas automatizadas, documentacion tecnica y preparacion para despliegue en la) Tj T*
+(nube.) Tj T*
+() Tj T*
+ET
+BT
+/F1 8 Tf
+50 28 Td (Pagina 10 de 10) Tj
+ET
+endstream
+endobj
+21 0 obj
+<< /Type /Page /Parent 22 0 R /MediaBox [0 0 595 842] /Resources << /Font << /F1 1 0 R >> >> /Contents 20 0 R >>
+endobj
+22 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R 11 0 R 13 0 R 15 0 R 17 0 R 19 0 R 21 0 R] /Count 10 >>
+endobj
+23 0 obj
+<< /Type /Catalog /Pages 22 0 R >>
+endobj
+xref
+0 24
+0000000000 65535 f 
+0000000009 00000 n 
+0000000079 00000 n 
+0000003651 00000 n 
+0000003778 00000 n 
+0000007345 00000 n 
+0000007472 00000 n 
+0000010572 00000 n 
+0000010699 00000 n 
+0000013227 00000 n 
+0000013354 00000 n 
+0000015820 00000 n 
+0000015949 00000 n 
+0000018349 00000 n 
+0000018478 00000 n 
+0000021131 00000 n 
+0000021260 00000 n 
+0000023504 00000 n 
+0000023633 00000 n 
+0000026675 00000 n 
+0000026804 00000 n 
+0000028429 00000 n 
+0000028558 00000 n 
+0000028677 00000 n 
+trailer
+<< /Size 24 /Root 23 0 R >>
+startxref
+28728
+%%EOF

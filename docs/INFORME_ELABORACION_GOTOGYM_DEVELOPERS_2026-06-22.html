@@ -1,0 +1,400 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="utf-8">
+  <title>Informe GoToGym Developers</title>
+  <style>
+    @page { size: A4; margin: 18mm 16mm; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      color: #17202a;
+      font-family: Arial, Helvetica, sans-serif;
+      font-size: 11.2pt;
+      line-height: 1.48;
+      background: #fff;
+    }
+    main { max-width: 920px; margin: 0 auto; }
+    h1 {
+      margin: 0 0 18px;
+      color: #053b3d;
+      font-size: 28pt;
+      line-height: 1.08;
+      border-bottom: 4px solid #00a99d;
+      padding-bottom: 12px;
+    }
+    h2 {
+      margin: 22px 0 8px;
+      color: #0b4f55;
+      font-size: 17pt;
+      break-after: avoid;
+    }
+    h3 {
+      margin: 16px 0 6px;
+      color: #18666c;
+      font-size: 13.5pt;
+      break-after: avoid;
+    }
+    p { margin: 0 0 9px; }
+    ul { margin: 6px 0 10px 18px; padding: 0; }
+    li { margin: 3px 0; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 10px 0 16px;
+      font-size: 9.6pt;
+      break-inside: avoid;
+    }
+    th {
+      background: #063f43;
+      color: #fff;
+      text-align: left;
+      padding: 7px;
+      border: 1px solid #063f43;
+    }
+    td {
+      vertical-align: top;
+      padding: 7px;
+      border: 1px solid #cbd9dc;
+    }
+    tr:nth-child(even) td { background: #f5fbfb; }
+    code {
+      font-family: Consolas, monospace;
+      background: #edf7f6;
+      color: #07565a;
+      padding: 1px 4px;
+      border-radius: 3px;
+    }
+    strong { color: #0f3e43; }
+  </style>
+</head>
+<body>
+  <main>
+    <h1>Informe de elaboracion del aplicativo GoToGym Developers</h1>
+<p><strong>Proyecto:</strong> GoToGym Developers</p>
+<p><strong>Fecha de elaboracion del informe:</strong> 22 de junio de 2026</p>
+<p><strong>Periodo evidenciado de desarrollo:</strong> 25 de marzo de 2026 al 16 de junio de 2026</p>
+<p><strong>Repositorio analizado:</strong> <code>gotogymdevelopers</code></p>
+<p><strong>Proposito del documento:</strong> presentar ante la universidad un informe tecnico y funcional detallado sobre la elaboracion de la pagina/aplicativo GoToGym Developers.</p>
+<h2>1. Resumen ejecutivo</h2>
+<p>GoToGym Developers es un aplicativo web orientado a la visualizacion, integracion y administracion de informacion relacionada con bienestar, salud digital, actividad fisica, dispositivos smartwatch, integraciones externas, datos de usuario y analitica corporativa. El proyecto evoluciono desde una estructura inicial de backend y validacion de usuario hasta convertirse en una consola web con login, control de roles, dashboard, cards dinamicas, modulos de usuario final, modulos para empresa/gimnasio, consumo de APIs protegidas con JWT y pruebas automatizadas.</p>
+<p>El sistema fue construido principalmente con <strong>React + TypeScript + Vite</strong> en el frontend y <strong>Node.js + Express + TypeScript</strong> en el backend. La arquitectura se organiza por capas: rutas, controladores, servicios, repositorios, modelos, datos mock, hooks, componentes visuales, paginas y pruebas. Esta separacion permite mantener el codigo escalable, probar endpoints de forma independiente y conectar progresivamente con APIs reales de GoToGym.</p>
+<p>Durante el desarrollo se identifican <strong>80 commits</strong> en Git, distribuidos entre el 25 de marzo y el 16 de junio de 2026. La actividad se concentra en once dias de desarrollo registrados, con hitos claros: estructura base, API inicial, frontend SaaS, autenticacion, rutas protegidas, integracion con Azure Static Web Apps, smartwatch, cards, APP GOTO GYM, bienestar corporativo, miembros empresariales y RBAC.</p>
+<h2>2. Objetivo general</h2>
+<p>Desarrollar una plataforma web para GoToGym Developers que permita consultar, visualizar y administrar informacion de bienestar digital mediante una consola moderna, segura, modular y conectada a servicios backend, diferenciando la experiencia segun el tipo de usuario: usuario final, gimnasio/empresa y administrador.</p>
+<h2>3. Objetivos especificos</h2>
+<ul>
+<li>Crear una interfaz web responsiva con home, login, dashboard, cards, smartwatch, APP GOTO GYM, bienestar corporativo y equipo empresa.</li>
+<li>Implementar autenticacion con JWT y control de acceso por roles/permisos.</li>
+<li>Consumir APIs internas y externas para informacion de usuario, bienestar, empresa, integraciones, bodygraph y smartwatch.</li>
+<li>Organizar el backend en rutas, controladores, servicios, repositorios y middlewares.</li>
+<li>Implementar estados de carga, error, fallback y datos mock para soportar pruebas y desarrollo incremental.</li>
+<li>Validar comportamiento critico mediante pruebas automatizadas de backend y frontend.</li>
+<li>Preparar el proyecto para despliegue web con configuracion compatible con Azure Static Web Apps y backend Node/Express.</li>
+</ul>
+<h2>4. Fechas de elaboracion y bitacora de desarrollo</h2>
+<p>La evidencia de Git muestra el siguiente avance del proyecto:</p>
+<table>
+<thead><tr><th>Fecha</th><th>Commits</th><th>Actividad principal evidenciada</th></tr></thead><tbody>
+<tr><td>2026-03-25</td><td>7</td><td>Estructura inicial, endpoint REST de validacion de usuario, DTOs, pruebas unitarias, OpenAPI y configuracion base.</td></tr>
+<tr><td>2026-03-27</td><td>11</td><td>Reinicio/orden del repositorio, base React + TypeScript, componente principal, README por carpetas, backend inicial y pruebas.</td></tr>
+<tr><td>2026-04-08</td><td>11</td><td>Creacion del frontend, dashboard SaaS, header, sidebar, integraciones, acciones, resultados, notificaciones, backend Express y despliegue inicial.</td></tr>
+<tr><td>2026-04-21</td><td>9</td><td>Rutas protegidas, home/login/dashboard, logout, JWT, smartwatch, cards interactivas, sidebar por rol y workflow de Azure Static Web Apps.</td></tr>
+<tr><td>2026-04-23</td><td>12</td><td>Ajustes de cards, navegacion, leyenda de sueno, zona horaria Colombia, correcciones de despliegue y sincronizacion de historial.</td></tr>
+<tr><td>2026-05-12</td><td>3</td><td>Seccion APP GOTO GYM con cards dinamicas, autenticacion JWT y despliegue a produccion.</td></tr>
+<tr><td>2026-05-27</td><td>9</td><td>Developer console actualizada, bienestar con JWT real, mapeo de endpoints, cards de scores, despliegues y documentacion.</td></tr>
+<tr><td>2026-05-28</td><td>2</td><td>Widgets de bienestar en dashboard y normalizacion del indice de felicidad.</td></tr>
+<tr><td>2026-06-02</td><td>6</td><td>Home interactivo, modulos de bienestar de usuario, dashboard, smartwatch, login redisenado y proxy backend corporativo.</td></tr>
+<tr><td>2026-06-09</td><td>8</td><td>Seguridad de sesiones, dashboard corporativo, diseno de bienestar, endpoint corporativo, miembros empresariales y progress bars.</td></tr>
+<tr><td>2026-06-16</td><td>2</td><td>RBAC, contexto tenant-aware y despliegue publico del frontend desde preproduccion.</td></tr>
+</tbody></table>
+<h2>5. Estimacion de horas trabajadas</h2>
+<p>La estimacion se realiza a partir de la cantidad de commits, el periodo de desarrollo, la complejidad funcional y los modulos implementados. No equivale a un registro exacto de reloj, sino a una aproximacion razonable para informe academico.</p>
+<table>
+<thead><tr><th>Area de trabajo</th><th>Horas estimadas</th></tr></thead><tbody>
+<tr><td>Planeacion, organizacion inicial, estructura de carpetas y documentacion base</td><td>18 a 24 h</td></tr>
+<tr><td>Backend Express/TypeScript, rutas, controladores, servicios, repositorios y middlewares</td><td>42 a 56 h</td></tr>
+<tr><td>Autenticacion, JWT, sesiones, RBAC, scopes, permisos y tenant context</td><td>28 a 38 h</td></tr>
+<tr><td>Frontend React/TypeScript: home, login, router, layout, header, sidebar y dashboard</td><td>48 a 64 h</td></tr>
+<tr><td>Modulos smartwatch, bodygraph, integraciones, cards y notificaciones</td><td>40 a 54 h</td></tr>
+<tr><td>APP GOTO GYM, consumo de coach context, extraccion de scores y visualizacion dinamica</td><td>24 a 34 h</td></tr>
+<tr><td>Bienestar corporativo, empresa, miembros, politicas agregadas y proxy API</td><td>34 a 48 h</td></tr>
+<tr><td>Pruebas automatizadas, correcciones TypeScript, QA y ajustes de despliegue</td><td>26 a 36 h</td></tr>
+<tr><td>Integracion con Azure Static Web Apps, configuracion de entorno y revisiones de produccion</td><td>18 a 28 h</td></tr>
+<tr><td>Ajustes visuales, responsividad, pulido de UI y estabilizacion</td><td>28 a 40 h</td></tr>
+</tbody></table>
+<p><strong>Estimacion total:</strong> entre <strong>306 y 422 horas</strong>.</p>
+<p><strong>Estimacion media recomendada para presentacion:</strong> aproximadamente <strong>360 horas de trabajo</strong>.</p>
+<p>Esta cifra contempla investigacion, implementacion, correccion de errores, pruebas, despliegues, documentacion y ajustes visuales. La existencia de commits de limpieza del repositorio y despliegue se interpreta como trabajo de mantenimiento, no como incremento directo de funcionalidad.</p>
+<h2>6. Arquitectura general</h2>
+<p>El aplicativo se divide en dos grandes capas:</p>
+<p><strong>Frontend:</strong> aplicacion web desarrollada con React, TypeScript y Vite. Contiene paginas, componentes reutilizables, hooks, servicios HTTP, estilos, mocks y pruebas con Jest/Testing Library.</p>
+<p><strong>Backend:</strong> API desarrollada con Node.js, Express y TypeScript. Contiene rutas REST, controladores, servicios, middlewares de autenticacion/autorizacion, modelos, repositorios, datos mock y pruebas con Jest/Supertest.</p>
+<h3>6.1 Estructura principal del proyecto</h3>
+<ul>
+<li><code>frontend/</code>: codigo de la interfaz web, paginas, router, componentes, hooks, estilos, mocks y pruebas.</li>
+<li><code>backend/</code>: API Express, rutas, controladores, servicios, repositorios, modelos, middlewares y tests.</li>
+<li><code>docs/</code>: documentacion tecnica y reportes.</li>
+<li><code>scripts/</code>: automatizaciones de documentacion, historial y generacion de informes.</li>
+<li><code>.github/</code>: configuraciones de flujos de despliegue e integracion.</li>
+<li><code>appdesplegada-inspect/</code>: carpeta de inspeccion y referencias de aplicacion desplegada, documentacion, assets y evidencia adicional.</li>
+</ul>
+<h2>7. Tecnologias utilizadas</h2>
+<table>
+<thead><tr><th>Capa</th><th>Tecnologia</th><th>Uso</th></tr></thead><tbody>
+<tr><td>Frontend</td><td>React 18</td><td>Construccion de interfaces por componentes.</td></tr>
+<tr><td>Frontend</td><td>TypeScript</td><td>Tipado estatico y contratos de datos.</td></tr>
+<tr><td>Frontend</td><td>Vite</td><td>Servidor de desarrollo y build rapido.</td></tr>
+<tr><td>Frontend</td><td>React Router DOM</td><td>Navegacion entre home, login y modulos protegidos.</td></tr>
+<tr><td>Frontend</td><td>Axios / Fetch</td><td>Consumo de APIs y envio de token Bearer.</td></tr>
+<tr><td>Frontend</td><td>Recharts</td><td>Visualizacion de graficas y metricas.</td></tr>
+<tr><td>Backend</td><td>Node.js</td><td>Entorno de ejecucion JavaScript/TypeScript.</td></tr>
+<tr><td>Backend</td><td>Express</td><td>Definicion de API REST.</td></tr>
+<tr><td>Backend</td><td>jsonwebtoken</td><td>Emision y verificacion de tokens JWT.</td></tr>
+<tr><td>Backend</td><td>cors</td><td>Control de origenes permitidos.</td></tr>
+<tr><td>Pruebas</td><td>Jest</td><td>Pruebas unitarias y de integracion.</td></tr>
+<tr><td>Pruebas</td><td>Supertest</td><td>Validacion HTTP del backend.</td></tr>
+<tr><td>Despliegue</td><td>Azure Static Web Apps / App Service</td><td>Publicacion de frontend y backend/API.</td></tr>
+</tbody></table>
+<h2>8. Frontend del aplicativo</h2>
+<p>El frontend esta organizado para separar pantallas, componentes visuales, componentes de layout, servicios HTTP y hooks. La aplicacion se inicia desde <code>frontend/index.tsx</code> y <code>frontend/App.tsx</code>, y la navegacion principal se define en <code>frontend/router/AppRouter.tsx</code>.</p>
+<h3>8.1 Home</h3>
+<p>La pagina Home presenta la marca GoToGym Developers, historia, mision, enfoque de investigacion, contacto y enlaces sociales. Su objetivo es dar contexto institucional antes del ingreso a la consola. Incluye:</p>
+<ul>
+<li>Barra de navegacion superior.</li>
+<li>Logo de GoToGym.</li>
+<li>Hero con mensaje de bienestar inteligente.</li>
+<li>Tabs de contenido para historia, mision y Quantum Research.</li>
+<li>Seccion de soporte/contacto.</li>
+<li>Enlaces externos a redes sociales.</li>
+</ul>
+<h3>8.2 Login</h3>
+<p>La pantalla de login permite ingresar email y password. Consume <code>loginWithApi</code>, funcion que intenta autenticar contra <code>/api/v1/auth/login</code> y, si no existe ese endpoint, contempla fallback hacia <code>/api/login/</code>. El login:</p>
+<ul>
+<li>Valida que email y password no esten vacios.</li>
+<li>Muestra estado de envio.</li>
+<li>Presenta errores si credenciales o backend fallan.</li>
+<li>Guarda sesion con token, rol, permisos, tenant y refresh token si aplica.</li>
+<li>Redirige a <code>/dashboard</code> cuando la autenticacion es correcta.</li>
+</ul>
+<h3>8.3 Router y rutas protegidas</h3>
+<p>El router define rutas publicas y privadas:</p>
+<ul>
+<li><code>/</code>: Home.</li>
+<li><code>/login</code>: Login.</li>
+<li><code>/dashboard</code>: dashboard protegido.</li>
+<li><code>/smartwatch</code>: modulo de usuario final.</li>
+<li><code>/app-gotogym</code>: modulo APP GOTO GYM.</li>
+<li><code>/business-wellbeing</code>: modulo empresa/gimnasio/admin.</li>
+<li><code>/business-members</code>: miembros empresariales.</li>
+<li><code>/cards</code>: cards de usuario.</li>
+</ul>
+<p>El componente <code>ProtectedRoute</code> valida autenticacion y roles permitidos. Si no hay sesion, redirige a login; si el rol no esta autorizado, redirige al dashboard.</p>
+<h3>8.4 Dashboard</h3>
+<p>El dashboard resume el estado general del sistema. Presenta metricas de integraciones activas, fuentes conectadas, ultima sincronizacion, eventos procesados, estado del sistema y actividad reciente. Se apoya en <code>useDeveloperDashboard</code>, hook que consulta integraciones, permite seleccionar fuentes y maneja estados de sincronizacion.</p>
+<h3>8.5 Header y sidebar</h3>
+<p>El layout de la consola incluye:</p>
+<ul>
+<li>Header con breadcrumb, descripcion de seccion, version, boton de cerrar sesion, campana de notificaciones y configuracion.</li>
+<li>Sidebar con navegacion dinamica segun rol.</li>
+<li>Secciones visibles por rol:</li>
+</ul>
+<p>  - Usuario final: Dashboard, Smartwatch, APP GOTO GYM y, cuando aplica, Equipo Empresa.</p>
+<p>  - Gym/empresa: Dashboard, Bienestar Corporativo y Equipo Empresa.</p>
+<p>  - Admin: acceso completo a secciones principales y modulos administrativos.</p>
+<h3>8.6 Cards</h3>
+<p>Las cards se usan para mostrar informacion sintetica y accionable. Existen cards para dashboard, smartwatch, APP GOTO GYM, bienestar empresarial, miembros y estado de integraciones. En APP GOTO GYM, las cards muestran scores de variables como actividad fisica, sueno, estres, intensidad, estabilidad emocional, vida social, HRV, edad biologica, calidad del sueno y ritmo circadiano.</p>
+<h3>8.7 Smartwatch</h3>
+<p>El modulo smartwatch consulta <code>/api/v1/smartwatch/metrics</code> con token Bearer. Si la API no responde, usa datos mock controlados para mantener la interfaz funcional. Esto permite desarrollo y demostracion aun cuando el backend real no este disponible. El modulo contempla:</p>
+<ul>
+<li>Metricas de salud y actividad.</li>
+<li>Estado de carga.</li>
+<li>Estado de error.</li>
+<li>Indicacion de fuente de datos: API o mock.</li>
+</ul>
+<h3>8.8 APP GOTO GYM</h3>
+<p>Este modulo consume informacion de <code>/api/coach_context/</code> mediante <code>wellbeingService</code>. El frontend extrae scores desde diferentes estructuras posibles: <code>if_snapshot</code>, <code>latest_record</code> y <code>wellbeing_experience_value_v1.if_variable_payload</code>. Esta decision hace robusto el consumo de APIs cuando el backend evoluciona.</p>
+<p>Variables visualizadas:</p>
+<ul>
+<li>Nivel de actividad fisica.</li>
+<li>Horas de sueno promedio.</li>
+<li>Manejo del estres.</li>
+<li>Intensidad de entrenamientos.</li>
+<li>Estabilidad emocional.</li>
+<li>Vida social y conexiones.</li>
+<li>Variabilidad cardiaca.</li>
+<li>Edad biologica.</li>
+<li>Calidad del sueno.</li>
+<li>Sincronizacion del ritmo circadiano.</li>
+</ul>
+<h3>8.9 Bienestar corporativo</h3>
+<p>El modulo empresarial consulta bienestar agregado por ventana de dias. Permite analizar:</p>
+<ul>
+<li>Indice corporativo.</li>
+<li>Activacion.</li>
+<li>Recurrencia.</li>
+<li>Pausas completadas.</li>
+<li>Estado del programa.</li>
+<li>Pausas activas SG-SST.</li>
+<li>Variables IF agregadas.</li>
+<li>Mapa de riesgos.</li>
+<li>Fortalezas.</li>
+<li>Prioridades.</li>
+<li>Experiencias.</li>
+<li>Acciones recomendadas.</li>
+<li>Insights.</li>
+</ul>
+<p>La interfaz evita mostrar datos sensibles individuales y favorece una lectura agregada de empresa.</p>
+<h3>8.10 Equipo empresa</h3>
+<p>El modulo Equipo Empresa presenta directorio, operacion y bienestar agregado por niveles. Incluye busqueda, filtro por estado, indicadores de miembros activos, onboarding, planes asignados y bienestar agregado. El diseno declara explicitamente que el detalle individual de salud requiere consentimiento, scopes y auditoria.</p>
+<h2>9. Backend del aplicativo</h2>
+<p>El backend esta construido con Express y TypeScript. La aplicacion principal se configura en <code>backend/src/app.ts</code>, donde se habilita CORS, JSON, rutas REST y middleware centralizado de errores.</p>
+<h3>9.1 Rutas principales</h3>
+<table>
+<thead><tr><th>Ruta</th><th>Metodo</th><th>Proposito</th><th>Seguridad</th></tr></thead><tbody>
+<tr><td><code>/api/v1/auth/login</code></td><td>POST</td><td>Autenticacion de usuario y emision de JWT.</td><td>Publica con credenciales.</td></tr>
+<tr><td><code>/api/v1/auth/me</code></td><td>GET</td><td>Consultar usuario autenticado.</td><td>Bearer token.</td></tr>
+<tr><td><code>/api/v1/smartwatch/metrics</code></td><td>GET</td><td>Obtener metricas smartwatch.</td><td>Bearer + scope <code>smartwatch:read:self</code>.</td></tr>
+<tr><td><code>/api/v1/business/wellbeing/corporate</code></td><td>GET</td><td>Proxy de bienestar corporativo.</td><td>Bearer + rol empresa/admin + scope corporativo.</td></tr>
+<tr><td><code>/api/integrations</code></td><td>GET</td><td>Listar integraciones.</td><td>Bearer + scope de lectura organizacional.</td></tr>
+<tr><td><code>/api/integrations/:id/sync</code></td><td>POST</td><td>Sincronizar integracion.</td><td>Bearer + scope de sincronizacion.</td></tr>
+<tr><td><code>/api/bodygraph/:integrationId</code></td><td>GET</td><td>Consultar datos BodyGraph por integracion.</td><td>Bearer + scope <code>bodygraph:read:self</code>.</td></tr>
+</tbody></table>
+<h3>9.2 Autenticacion y autorizacion</h3>
+<p>El backend utiliza JWT con <code>jsonwebtoken</code>. Los tokens contienen:</p>
+<ul>
+<li>Identificador del usuario.</li>
+<li>Email.</li>
+<li>Rol.</li>
+<li>Scopes/permisos.</li>
+<li>Tenant.</li>
+<li>Organizacion activa.</li>
+<li>Tipo de token.</li>
+</ul>
+<p>Los middlewares implementados son:</p>
+<ul>
+<li><code>requireAuth</code>: valida encabezado Authorization Bearer y verifica token.</li>
+<li><code>requireRole</code>: restringe por rol.</li>
+<li><code>requireScope</code>: restringe por permiso/scope.</li>
+<li><code>requirePermission</code>: alias semantico de scope.</li>
+<li><code>requireOrganizationAccess</code>: valida que el usuario consulte una organizacion perteneciente a su tenant, salvo administradores.</li>
+</ul>
+<h3>9.3 Roles y permisos</h3>
+<p>El proyecto maneja una capa de RBAC en frontend y una capa de roles/scopes en backend. En frontend se reconocen roles <code>user</code>, <code>gym</code> y <code>admin</code>; en backend existen roles mas orientados a dominio como <code>end_user</code>, <code>company_owner</code>, <code>company_manager</code>, <code>gotogym_admin</code> e <code>integrator</code>.</p>
+<p>Permisos destacados:</p>
+<ul>
+<li><code>smartwatch:read:self</code></li>
+<li><code>bodygraph:read:self</code></li>
+<li><code>coach_context:read:self</code></li>
+<li><code>corporate_wellbeing:read:organization</code></li>
+<li><code>integrations:read:organization</code></li>
+<li><code>integrations:sync:organization</code></li>
+<li><code>organization_members:read:organization</code></li>
+<li><code>applications:manage:organization</code></li>
+<li><code>billing:manage:organization</code></li>
+</ul>
+<h2>10. Consumo de APIs</h2>
+<p>El aplicativo consume APIs mediante Axios y Fetch. El servicio <code>api.ts</code> centraliza una instancia Axios con base URL configurable y agrega automaticamente el header <code>Authorization: Bearer &lt;token&gt;</code> cuando existe sesion.</p>
+<h3>10.1 API de usuario</h3>
+<p>La autenticacion se realiza por <code>/api/v1/auth/login</code>. El frontend guarda la sesion en <code>sessionStorage</code>, no en almacenamiento persistente, lo que reduce exposicion si el navegador se cierra. La funcion <code>/api/v1/auth/me</code> permite validar la sesion y obtener el usuario autenticado.</p>
+<h3>10.2 API de empresa</h3>
+<p>El modulo corporativo consume <code>/api/v1/business/wellbeing/corporate</code>, endpoint backend que funciona como proxy hacia <code>https://api.gotogym.store/api/business/wellbeing/corporate/</code>. El backend conserva el token Bearer y agrega parametros como <code>org</code> y <code>days</code>. La ventana <code>days</code> se normaliza entre 7 y 180 dias para evitar consultas fuera de rango.</p>
+<h3>10.3 API de coach context</h3>
+<p>El frontend consulta <code>/api/coach_context/</code> con <code>include_text=true</code> y opcionalmente <code>username</code>. El payload puede contener perfil, documentos, dispositivos, snapshot IF, negocio y valor de experiencia de bienestar.</p>
+<h3>10.4 API de smartwatch</h3>
+<p>El frontend y backend usan <code>/api/v1/smartwatch/metrics</code>. El endpoint exige JWT y scope. El frontend implementa fallback mock para que la UI se mantenga operativa en ambiente de desarrollo.</p>
+<h3>10.5 API de integraciones y BodyGraph</h3>
+<p>Las integraciones se listan desde <code>/api/integrations</code> y pueden sincronizarse mediante <code>POST /api/integrations/:id/sync</code>. BodyGraph se consulta por integracion en <code>/api/bodygraph/:integrationId</code>, devolviendo informacion como ritmo cardiaco, pasos, sueno, estres, fuente y timestamp.</p>
+<h2>11. Seguridad</h2>
+<p>Medidas implementadas:</p>
+<ul>
+<li>Tokens JWT firmados con secreto configurable.</li>
+<li>Requerimiento de <code>JWT_SECRET</code> en produccion.</li>
+<li>Validacion de issuer.</li>
+<li>Validacion de expiracion en frontend.</li>
+<li>Uso de Authorization Bearer.</li>
+<li>Limpieza de sesion ante 401/403.</li>
+<li>Sesion en <code>sessionStorage</code>.</li>
+<li>Restriccion CORS a <code>https://developers.gotogym.store</code> y <code>http://localhost:5173</code>.</li>
+<li>Control por roles y scopes.</li>
+<li>Validacion de tenant/organizacion.</li>
+<li>Manejo centralizado de errores.</li>
+<li>Fallbacks controlados para desarrollo sin exponer datos reales.</li>
+</ul>
+<h2>12. Calidad y pruebas</h2>
+<p>El proyecto incluye pruebas automatizadas relevantes:</p>
+<h3>12.1 Backend</h3>
+<p>Pruebas con Jest y Supertest para:</p>
+<ul>
+<li>Login exitoso con JWT.</li>
+<li>Login invalido con 401.</li>
+<li>Consulta de usuario autenticado.</li>
+<li>Listado de integraciones.</li>
+<li>Sincronizacion de integraciones.</li>
+<li>Error 404 en integracion inexistente.</li>
+<li>Rechazo por permisos insuficientes.</li>
+<li>Consulta de BodyGraph.</li>
+<li>Consulta de metricas smartwatch.</li>
+<li>Requerimiento de Authorization Bearer.</li>
+<li>Rechazo de roles sin permisos.</li>
+<li>Proxy de bienestar corporativo.</li>
+<li>Normalizacion de dias entre 7 y 180.</li>
+<li>Rechazo de usuarios finales en endpoint corporativo.</li>
+</ul>
+<h3>12.2 Frontend</h3>
+<p>Pruebas para:</p>
+<ul>
+<li>RBAC y helpers de permisos.</li>
+<li>Persistencia y limpieza de sesion.</li>
+<li>Acceso de admin a modulos.</li>
+<li>Restriccion de usuarios y gym a modulos administrativos.</li>
+<li>Extraccion de scores de APP GOTO GYM.</li>
+<li>Hook de metricas smartwatch.</li>
+<li>Renderizado general de la aplicacion.</li>
+</ul>
+<h2>13. Despliegue y ambientes</h2>
+<p>El proyecto contiene configuraciones para despliegue de frontend con Azure Static Web Apps, configuracion <code>staticwebapp.config.json</code>, workflows y scripts de apoyo. El backend esta preparado para compilar TypeScript y ejecutarse desde <code>dist/server.js</code>.</p>
+<p>Comandos principales:</p>
+<ul>
+<li>Frontend desarrollo: <code>npm run dev</code> dentro de <code>frontend/</code>.</li>
+<li>Frontend build: <code>npm run build</code> dentro de <code>frontend/</code>.</li>
+<li>Backend desarrollo: <code>npm run dev</code> dentro de <code>backend/</code>.</li>
+<li>Backend build: <code>npm run build</code> dentro de <code>backend/</code>.</li>
+<li>Backend tests: <code>npm test</code> dentro de <code>backend/</code>.</li>
+<li>Frontend tests: <code>npm test</code> dentro de <code>frontend/</code>.</li>
+</ul>
+<h2>14. Modulos funcionales entregados</h2>
+<table>
+<thead><tr><th>Modulo</th><th>Estado</th><th>Descripcion</th></tr></thead><tbody>
+<tr><td>Home</td><td>Implementado</td><td>Presentacion institucional, historia, mision, investigacion y contacto.</td></tr>
+<tr><td>Login</td><td>Implementado</td><td>Autenticacion con API, manejo de errores y redireccion.</td></tr>
+<tr><td>Dashboard</td><td>Implementado</td><td>Vista general de integraciones, fuentes, eventos y actividad.</td></tr>
+<tr><td>Permisos/RBAC</td><td>Implementado</td><td>Roles, permisos, sesiones, rutas protegidas y tenant context.</td></tr>
+<tr><td>Smartwatch</td><td>Implementado</td><td>Consumo de metricas con fallback mock.</td></tr>
+<tr><td>APP GOTO GYM</td><td>Implementado</td><td>Cards dinamicas de bienestar personal desde coach context.</td></tr>
+<tr><td>Cards</td><td>Implementado</td><td>Visualizacion de indicadores y scores clave.</td></tr>
+<tr><td>Integraciones</td><td>Implementado</td><td>Listado, seleccion y sincronizacion de fuentes.</td></tr>
+<tr><td>BodyGraph</td><td>Implementado</td><td>Datos corporales y de salud asociados a integraciones.</td></tr>
+<tr><td>Bienestar corporativo</td><td>Implementado</td><td>Dashboard agregado para empresa/gimnasio/admin.</td></tr>
+<tr><td>Equipo empresa</td><td>Implementado</td><td>Directorio, operacion y bienestar agregado.</td></tr>
+<tr><td>Notificaciones</td><td>Implementado</td><td>Alertas asociadas a integraciones y eventos criticos.</td></tr>
+<tr><td>Pruebas</td><td>Implementado</td><td>Jest, Supertest y Testing Library.</td></tr>
+</tbody></table>
+<h2>15. Retos tecnicos abordados</h2>
+<ul>
+<li>Mantener compatibilidad entre endpoints propios y endpoints heredados o externos.</li>
+<li>Manejar diferentes estructuras de payload para APP GOTO GYM sin romper la UI.</li>
+<li>Separar datos individuales sensibles de datos corporativos agregados.</li>
+<li>Implementar control de permisos en frontend y backend.</li>
+<li>Conservar una experiencia demostrable aunque una API real no este disponible.</li>
+<li>Normalizar errores HTTP y limpiar sesion ante accesos no autorizados.</li>
+<li>Preparar el aplicativo para ambientes locales y productivos mediante variables de entorno.</li>
+<li>Mejorar progresivamente la interfaz manteniendo componentes reutilizables.</li>
+</ul>
+<h2>16. Conclusiones</h2>
+<p>GoToGym Developers alcanzo una version funcional de consola web con arquitectura moderna, separacion frontend/backend, autenticacion, permisos, consumo de APIs y modulos diferenciados para usuario y empresa. El aplicativo no se limita a una pagina estatica: integra datos, valida sesiones, protege rutas, transforma respuestas de API y presenta informacion de bienestar mediante componentes visuales.</p>
+<p>El proyecto evidencia un proceso incremental de desarrollo entre marzo y junio de 2026, con avances tecnicos, pruebas, despliegues, documentacion y refinamiento visual. La estimacion media de trabajo es de aproximadamente 360 horas, sustentada en el volumen de commits, la variedad de modulos, la cantidad de integraciones y la complejidad de seguridad/autorizacion.</p>
+<p>Como trabajo universitario, el aplicativo demuestra competencias en desarrollo full stack, arquitectura por capas, consumo de servicios REST, manejo de autenticacion JWT, diseno de interfaces, pruebas automatizadas, documentacion tecnica y preparacion para despliegue en la nube.</p>
+  </main>
+</body>
+</html>
