@@ -6,7 +6,12 @@ import {
   regenerateClientSecret,
   updateApplication,
 } from '../../controllers/application.controller';
-import { requireAuth, requireRole, requireScope } from '../middlewares/auth.middleware';
+import {
+  requireAuth,
+  requireRole,
+  requireScope,
+  validateRequestedDeveloperScopes,
+} from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -17,10 +22,9 @@ router.use(
 );
 
 router.get('/', getApplications);
-router.post('/', createApplication);
-router.put('/:id', updateApplication);
+router.post('/', validateRequestedDeveloperScopes(req => req.body.authorizedScopes), createApplication);
+router.put('/:id', validateRequestedDeveloperScopes(req => req.body.authorizedScopes), updateApplication);
 router.post('/:id/disable', disableApplication);
 router.post('/:id/regenerate-secret', regenerateClientSecret);
 
 export default router;
-

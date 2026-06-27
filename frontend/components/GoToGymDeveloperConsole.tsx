@@ -13,6 +13,7 @@ import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToG
 import { CardsSection } from './sections/CardsSection';
 import { IntegrationsMarketplaceSection } from './sections/IntegrationsMarketplaceSection';
 import { ApplicationsSection } from './sections/ApplicationsSection';
+import { ConsentsSection } from './sections/ConsentsSection';
 import { ActionsSection } from './sections/ActionsSection';
 import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
@@ -75,10 +76,12 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     ),
   );
   const currentSection: Section = isUser
-    ? location.pathname === '/smartwatch' || location.pathname === '/cards'
-      ? 'smartwatch'
+      ? location.pathname === '/smartwatch' || location.pathname === '/cards'
+        ? 'smartwatch'
       : location.pathname === '/app-gotogym'
         ? 'app-gotogym'
+        : location.pathname === '/consents'
+          ? 'consents'
         : location.pathname === '/business-members' && hasBusinessWorkspace
           ? 'business-members'
           : 'dashboard'
@@ -91,11 +94,15 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
             ? 'integrations'
             : location.pathname === '/applications'
               ? 'applications'
+              : location.pathname === '/consents'
+                ? 'consents'
           : 'dashboard'
       : location.pathname === '/integrations'
         ? 'integrations'
         : location.pathname === '/applications'
           ? 'applications'
+          : location.pathname === '/consents'
+            ? 'consents'
         : activeSection;
   const isBrandedSection = brandedSections.includes(currentSection);
 
@@ -153,6 +160,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         return;
       }
 
+      if (section === 'consents') {
+        navigate('/consents');
+        return;
+      }
+
       navigate('/dashboard');
       return;
     }
@@ -178,6 +190,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         return;
       }
 
+      if (section === 'consents') {
+        navigate('/consents');
+        return;
+      }
+
       navigate('/dashboard');
       return;
     }
@@ -189,6 +206,11 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
 
     if (isAdmin && section === 'applications') {
       navigate('/applications');
+      return;
+    }
+
+    if (isAdmin && section === 'consents') {
+      navigate('/consents');
       return;
     }
 
@@ -322,6 +344,9 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         }
 
         return <ApplicationsSection />;
+
+      case 'consents':
+        return <ConsentsSection />;
 
       case 'actions':
         return (

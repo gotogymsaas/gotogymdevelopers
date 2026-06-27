@@ -10,6 +10,10 @@ export class ApplicationRepository {
     return applications.find(application => application.id === id);
   }
 
+  async findByClientId(clientId: string): Promise<DeveloperApplication | undefined> {
+    return applications.find(application => application.clientId === clientId);
+  }
+
   async create(application: DeveloperApplication): Promise<DeveloperApplication> {
     applications.unshift(application);
     return application;
@@ -25,4 +29,3 @@ export class ApplicationRepository {
     return application;
   }
 }
-

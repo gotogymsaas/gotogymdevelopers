@@ -1,4 +1,5 @@
 import request from 'supertest';
+import { createHash } from 'crypto';
 import app from '../src/app';
 
 const loginAs = async (email: string): Promise<string> => {
@@ -8,6 +9,14 @@ const loginAs = async (email: string): Promise<string> => {
 
   return loginRes.body?.data?.token as string;
 };
+
+const pkceChallenge = (verifier: string): string =>
+  createHash('sha256')
+    .update(verifier)
+    .digest('base64')
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
 
 describe('Auth API', () => {
   it('POST /api/v1/auth/login debe devolver un JWT para credenciales validas', async () => {
@@ -110,6 +119,150 @@ describe('Integrations API', () => {
   });
 });
 
+describe('Developer Scopes API', () => {
+  it('POST /api/v1/applications debe normalizar jerarquias de scopes', async () => {
+    const token = await loginAs('gym@test.com');
+
+    const res = await request(app)
+      .post('/api/v1/applications')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Analytics Partner',
+        description: 'App para analitica agregada.',
+        authorizedScopes: ['analytics.read'],
+      });
+
+    expect(res.status).toBe(201);
+    expect(res.body.data.authorizedScopes).toEqual(expect.arrayContaining([
+      'analytics.read',
+      'metrics.read',
+      'wellbeing.read',
+      'organization.read',
+      'profile.read',
+    ]));
+  });
+
+  it('POST /api/v1/applications debe rechazar scopes restringidos por rol', async () => {
+    const token = await loginAs('gym@test.com');
+
+    const res = await request(app)
+      .post('/api/v1/applications')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Document Reader',
+        authorizedScopes: ['documents.read'],
+      });
+
+    expect(res.status).toBe(400);
+    expect(res.body.error).toHaveProperty('code', 'INVALID_SCOPES');
+    expect(res.body.error.details.restrictedScopes).toContain('documents.read');
+  });
+});
+
+describe('OAuth 2.1 / OpenID Connect API', () => {
+  it('GET /.well-known/openid-configuration debe publicar metadata OIDC', async () => {
+    const res = await request(app).get('/.well-known/openid-configuration');
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('authorization_endpoint');
+    expect(res.body).toHaveProperty('token_endpoint');
+    expect(res.body.code_challenge_methods_supported).toContain('S256');
+  });
+
+  it('Authorization Code + PKCE debe emitir tokens e introspeccion activa', async () => {
+    const token = await loginAs('gym@test.com');
+    const verifier = 'verifier-1234567890-verifier-1234567890';
+    const redirectUri = 'https://client.example/callback';
+
+    const authorizeRes = await request(app)
+      .get('/oauth/authorize')
+      .query({
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        response_type: 'code',
+        scope: 'openid analytics.read',
+        code_challenge: pkceChallenge(verifier),
+        code_challenge_method: 'S256',
+        state: 'state-001',
+        nonce: 'nonce-001',
+      })
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(authorizeRes.status).toBe(200);
+    expect(authorizeRes.body.data.redirectUrl).toContain('code=');
+
+    const code = new URL(authorizeRes.body.data.redirectUrl).searchParams.get('code');
+    expect(code).toBeTruthy();
+
+    const tokenRes = await request(app)
+      .post('/oauth/token')
+      .send({
+        grant_type: 'authorization_code',
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        code,
+        code_verifier: verifier,
+      });
+
+    expect(tokenRes.status).toBe(200);
+    expect(tokenRes.body).toHaveProperty('access_token');
+    expect(tokenRes.body).toHaveProperty('refresh_token');
+    expect(tokenRes.body).toHaveProperty('id_token');
+    expect(tokenRes.body.scope).toContain('analytics.read');
+
+    const introspectRes = await request(app)
+      .post('/oauth/introspect')
+      .send({ token: tokenRes.body.access_token });
+
+    expect(introspectRes.status).toBe(200);
+    expect(introspectRes.body).toMatchObject({
+      active: true,
+      client_id: 'gtg_org_gym_001_portal',
+      organization_id: 'org-gym-001',
+      token_type: 'Bearer',
+    });
+  });
+
+  it('POST /oauth/revoke debe desactivar access token en introspeccion', async () => {
+    const token = await loginAs('gym@test.com');
+    const verifier = 'verifier-abcdefghi-verifier-abcdefghi';
+    const redirectUri = 'https://client.example/callback';
+
+    const authorizeRes = await request(app)
+      .get('/oauth/authorize')
+      .query({
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        scope: 'wellbeing.read',
+        code_challenge: pkceChallenge(verifier),
+        code_challenge_method: 'S256',
+      })
+      .set('Authorization', `Bearer ${token}`);
+
+    const code = new URL(authorizeRes.body.data.redirectUrl).searchParams.get('code');
+    const tokenRes = await request(app)
+      .post('/oauth/token')
+      .send({
+        grant_type: 'authorization_code',
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        code,
+        code_verifier: verifier,
+      });
+
+    await request(app)
+      .post('/oauth/revoke')
+      .send({ token: tokenRes.body.access_token, token_type_hint: 'access_token' })
+      .expect(200);
+
+    const introspectRes = await request(app)
+      .post('/oauth/introspect')
+      .send({ token: tokenRes.body.access_token });
+
+    expect(introspectRes.body).toHaveProperty('active', false);
+  });
+});
+
 describe('BodyGraph API', () => {
   it('GET /api/bodygraph/1 debe devolver un payload BodyGraph con response estandar', async () => {
     const token = await loginAs('user@test.com');
@@ -169,6 +322,63 @@ describe('Smartwatch API', () => {
     const res = await request(app).get('/api/smartwatch/metrics');
 
     expect(res.status).toBe(404);
+  });
+});
+
+describe('Consents API', () => {
+  it('GET /api/v1/consents debe listar consentimientos del usuario autenticado', async () => {
+    const token = await loginAs('user@test.com');
+
+    const res = await request(app)
+      .get('/api/v1/consents')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body).toHaveProperty('success', true);
+    expect(Array.isArray(res.body.data)).toBe(true);
+    expect(res.body.data[0]).toHaveProperty('integrationName');
+    expect(res.body.data[0]).toHaveProperty('ownerCompany');
+    expect(res.body.data[0]).toHaveProperty('requestedScopes');
+    expect(res.body.data[0]).toHaveProperty('status');
+  });
+
+  it('POST /api/v1/consents/:id/authorize debe autorizar y devolver historial', async () => {
+    const token = await loginAs('user@test.com');
+
+    const res = await request(app)
+      .post('/api/v1/consents/consent-health-connect-001/authorize')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toMatchObject({
+      id: 'consent-health-connect-001',
+      status: 'authorized',
+    });
+    expect(res.body.data.authorizedAt).toBeTruthy();
+    expect(res.body.data.history.some((event: any) => event.action === 'consent.authorized')).toBe(true);
+  });
+
+  it('POST /api/v1/consents/:id/revoke debe revocar un consentimiento autorizado', async () => {
+    const token = await loginAs('user@test.com');
+
+    const res = await request(app)
+      .post('/api/v1/consents/consent-healthkit-001/revoke')
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(res.status).toBe(200);
+    expect(res.body.data).toMatchObject({
+      id: 'consent-healthkit-001',
+      status: 'revoked',
+    });
+    expect(res.body.data.history.some((event: any) => event.action === 'consent.revoked')).toBe(true);
+  });
+
+  it('GET /api/v1/consents debe requerir Authorization Bearer token', async () => {
+    const res = await request(app).get('/api/v1/consents');
+
+    expect(res.status).toBe(401);
+    expect(res.body).toHaveProperty('success', false);
+    expect(res.body.error).toHaveProperty('code', 'UNAUTHORIZED');
   });
 });
 

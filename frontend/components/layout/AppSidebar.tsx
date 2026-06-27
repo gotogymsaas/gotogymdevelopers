@@ -12,6 +12,7 @@ export type Section =
   | 'cards'
   | 'integrations'
   | 'applications'
+  | 'consents'
   | 'actions'
   | 'results'
   | 'notifications';
@@ -85,6 +86,12 @@ const IcoShield = () => (
     <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
   </svg>
 );
+const IcoConsent = () => (
+  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+    <path d="M9 12l2 2 4-5" />
+    <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+  </svg>
+);
 const IcoUsers = () => (
   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
     <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2" />
@@ -144,6 +151,7 @@ const mainNav: NavItem[] = [
   { id: 'cards',          label: 'Cards',            icon: <IcoCard />,    section: 'cards' },
   { id: 'integrations',   label: 'Integraciones',    icon: <IcoLink />,    section: 'integrations' },
   { id: 'applications',   label: 'Mis Aplicaciones', icon: <IcoKey />,     section: 'applications' },
+  { id: 'consents',       label: 'Consentimientos',  icon: <IcoConsent />, section: 'consents' },
   { id: 'actions',        label: 'Acciones',         icon: <IcoZap />,     section: 'actions' },
   { id: 'results',        label: 'Resultados',       icon: <IcoMonitor />, section: 'results' },
   { id: 'notifications',  label: 'Notificaciones',   icon: <IcoBell />,    section: 'notifications' },
@@ -181,6 +189,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       item.section === 'dashboard'
       || item.section === 'smartwatch'
       || item.section === 'app-gotogym'
+      || item.section === 'consents'
       || (hasBusinessAccess && item.section === 'business-members'))
     : isGym
       ? mainNav.filter(item =>
@@ -188,7 +197,8 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
         || item.section === 'business-wellbeing'
         || item.section === 'business-members'
         || item.section === 'integrations'
-        || item.section === 'applications')
+        || item.section === 'applications'
+        || item.section === 'consents')
       : mainNav;
 
   return (

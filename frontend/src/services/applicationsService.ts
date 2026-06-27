@@ -20,7 +20,7 @@ const mockApplications: DeveloperApplication[] = [
     description: 'Aplicacion interna para reportes agregados de bienestar corporativo.',
     ownerOrganizationId: 'org-local',
     clientId: 'gtg_org_local_portal',
-    authorizedScopes: ['corporate_wellbeing:read:application', 'integrations:read:application'],
+    authorizedScopes: ['wellbeing.read', 'analytics.read'],
     status: 'active',
     createdAt: '2026-06-16T12:00:00.000Z',
     updatedAt: '2026-06-16T12:00:00.000Z',

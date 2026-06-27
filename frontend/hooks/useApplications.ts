@@ -13,18 +13,19 @@ import {
 } from '../src/services/applicationsService';
 
 export const APPLICATION_SCOPE_OPTIONS: ApplicationScope[] = [
-  'integrations:read:application',
-  'integrations:sync:application',
-  'coach_context:read:application',
-  'smartwatch:read:application',
-  'corporate_wellbeing:read:application',
-  'webhooks:manage:application',
+  'profile.read',
+  'wellbeing.read',
+  'metrics.read',
+  'analytics.read',
+  'organization.read',
+  'devices.read',
+  'documents.read',
 ];
 
 export const emptyApplicationForm: ApplicationFormInput = {
   name: '',
   description: '',
-  authorizedScopes: ['integrations:read:application'],
+  authorizedScopes: ['profile.read'],
 };
 
 export function useApplications() {
@@ -150,4 +151,3 @@ export function useApplications() {
     regenerateSecret,
   };
 }
-

@@ -5,30 +5,28 @@ import type {
   DeveloperApplicationPublic,
   DeveloperApplicationWithSecret,
 } from '../models/application.model';
-import type { AuthUser, Scope } from '../types/auth';
+import type { AuthUser } from '../types/auth';
+import {
+  DEVELOPER_SCOPES,
+  type DeveloperScope,
+  validateDeveloperScopes,
+} from '../types/developer-scopes';
 import { recordAuditEvent } from './audit.service';
 
 const applicationRepo = new ApplicationRepository();
 
-export const APPLICATION_SCOPES: Scope[] = [
-  'integrations:read:application',
-  'integrations:sync:application',
-  'coach_context:read:application',
-  'smartwatch:read:application',
-  'corporate_wellbeing:read:application',
-  'webhooks:manage:application',
-];
+export const APPLICATION_SCOPES: DeveloperScope[] = [...DEVELOPER_SCOPES];
 
 export interface CreateApplicationInput {
   name: string;
   description?: string;
-  authorizedScopes: Scope[];
+  authorizedScopes: DeveloperScope[];
 }
 
 export interface UpdateApplicationInput {
   name?: string;
   description?: string;
-  authorizedScopes?: Scope[];
+  authorizedScopes?: DeveloperScope[];
 }
 
 const hashSecret = (secret: string) => createHash('sha256').update(secret).digest('hex');
@@ -85,17 +83,16 @@ const validateDescription = (description: unknown): string | undefined => {
   return description.trim();
 };
 
-const validateScopes = (scopes: unknown): Scope[] => {
-  if (!Array.isArray(scopes) || scopes.length === 0) {
-    throw badRequest('At least one authorized scope is required');
+const validateScopes = (scopes: unknown, actor: AuthUser): DeveloperScope[] => {
+  const validation = validateDeveloperScopes(scopes, actor.role);
+  if (!validation.valid) {
+    throw badRequest('One or more scopes are not allowed for this role', {
+      invalidScopes: validation.invalidScopes,
+      restrictedScopes: validation.restrictedScopes,
+    });
   }
 
-  const invalidScopes = scopes.filter(scope => !APPLICATION_SCOPES.includes(scope as Scope));
-  if (invalidScopes.length > 0) {
-    throw badRequest('One or more scopes are not allowed for applications', { invalidScopes });
-  }
-
-  return Array.from(new Set(scopes as Scope[]));
+  return validation.normalizedScopes;
 };
 
 const toPublicApplication = (application: DeveloperApplication): DeveloperApplicationPublic => ({
@@ -146,7 +143,7 @@ export async function createApplication(
     ownerOrganizationId: actor.tenant.organizationId,
     clientId: createClientId(actor.tenant.organizationId),
     clientSecretHash: hashSecret(clientSecret),
-    authorizedScopes: validateScopes(input.authorizedScopes),
+    authorizedScopes: validateScopes(input.authorizedScopes, actor),
     status: 'active',
     createdAt: now,
     updatedAt: now,
@@ -195,7 +192,7 @@ export async function updateApplication(
   }
 
   if (input.authorizedScopes !== undefined) {
-    changes.authorizedScopes = validateScopes(input.authorizedScopes);
+    changes.authorizedScopes = validateScopes(input.authorizedScopes, actor);
   }
 
   const updated = await applicationRepo.update(id, changes);
@@ -280,4 +277,3 @@ export async function regenerateClientSecret(
     clientSecret,
   };
 }
-

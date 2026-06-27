@@ -486,3 +486,4 @@ Lectura funcional:
 | Workspace | Espacio empresarial al que pertenece el usuario. |
 | Guardrails | Reglas de proteccion sobre que datos se comparten. |
 
+

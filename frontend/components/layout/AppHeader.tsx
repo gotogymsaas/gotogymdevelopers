@@ -23,6 +23,7 @@ const sectionMeta: Record<Section, { title: string; desc: string }> = {
   cards: { title: 'Cards', desc: 'Resumen de estadisticas clave de la plataforma' },
   integrations: { title: 'Integraciones / Marketplace', desc: 'Conecta, revisa y configura fuentes disponibles' },
   applications: { title: 'Mis Aplicaciones', desc: 'Gestiona Client ID, secrets, scopes y auditoria de apps' },
+  consents: { title: 'Consentimientos', desc: 'Autoriza, rechaza o revoca acceso de terceros a tu informacion' },
   actions: { title: 'Acciones', desc: 'Ejecuta operaciones y gestiona conexiones manualmente' },
   results: { title: 'Panel de Resultados', desc: 'Visualiza respuestas del sistema y datos sincronizados' },
   notifications: { title: 'Notificaciones', desc: 'Alertas de integraciones desconectadas y eventos criticos' },

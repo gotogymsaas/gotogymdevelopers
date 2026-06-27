@@ -12,8 +12,8 @@ export const applications: DeveloperApplication[] = [
     clientId: 'gtg_org_gym_001_portal',
     clientSecretHash: hashSecret('initial-secret-not-exposed'),
     authorizedScopes: [
-      'corporate_wellbeing:read:application',
-      'integrations:read:application',
+      'wellbeing.read',
+      'analytics.read',
     ],
     status: 'active',
     createdAt: '2026-06-16T12:00:00.000Z',
@@ -21,4 +21,3 @@ export const applications: DeveloperApplication[] = [
     createdByUserId: 'gym-001',
   },
 ];
-

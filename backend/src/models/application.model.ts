@@ -1,4 +1,4 @@
-import type { Scope } from '../types/auth';
+import type { DeveloperScope } from '../types/developer-scopes';
 
 export type DeveloperApplicationStatus = 'active' | 'disabled';
 
@@ -9,7 +9,7 @@ export interface DeveloperApplication {
   ownerOrganizationId: string;
   clientId: string;
   clientSecretHash: string;
-  authorizedScopes: Scope[];
+  authorizedScopes: DeveloperScope[];
   status: DeveloperApplicationStatus;
   createdAt: string;
   updatedAt: string;
@@ -24,7 +24,7 @@ export interface DeveloperApplicationPublic {
   description?: string;
   ownerOrganizationId: string;
   clientId: string;
-  authorizedScopes: Scope[];
+  authorizedScopes: DeveloperScope[];
   status: DeveloperApplicationStatus;
   createdAt: string;
   updatedAt: string;
@@ -36,4 +36,3 @@ export interface DeveloperApplicationPublic {
 export interface DeveloperApplicationWithSecret extends DeveloperApplicationPublic {
   clientSecret: string;
 }
-

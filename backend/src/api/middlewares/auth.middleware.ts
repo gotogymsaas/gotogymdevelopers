@@ -2,6 +2,11 @@ import { NextFunction, Request, Response } from 'express';
 import { verifyAccessToken } from '../../services/auth.service';
 import type { AppPermission, AppRole, Scope } from '../../types/auth';
 import type { ApiResponse } from '../../types/api-response';
+import {
+  internalScopesToDeveloperScopes,
+  type DeveloperScope,
+  validateDeveloperScopes,
+} from '../../types/developer-scopes';
 
 const unauthorized = (res: Response, message: string) => {
   const response: ApiResponse<null> = {
@@ -72,6 +77,48 @@ export function requireScope(scope: Scope) {
 }
 
 export const requirePermission = (permission: AppPermission) => requireScope(permission);
+
+export function requireDeveloperScope(scope: DeveloperScope) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.authUser) {
+      return unauthorized(res, 'Authentication is required');
+    }
+
+    const developerScopes = internalScopesToDeveloperScopes(req.authUser.scopes);
+    if (!developerScopes.includes(scope)) {
+      return forbidden(res, 'Insufficient developer scope');
+    }
+
+    next();
+  };
+}
+
+export function validateRequestedDeveloperScopes(getScopes: (req: Request) => unknown) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.authUser) {
+      return unauthorized(res, 'Authentication is required');
+    }
+
+    const validation = validateDeveloperScopes(getScopes(req), req.authUser.role);
+    if (!validation.valid) {
+      const response: ApiResponse<null> = {
+        success: false,
+        error: {
+          code: 'INVALID_SCOPES',
+          message: 'Requested scopes are invalid or restricted for this role',
+          details: {
+            invalidScopes: validation.invalidScopes,
+            restrictedScopes: validation.restrictedScopes,
+          },
+        },
+      };
+      return res.status(400).json(response);
+    }
+
+    req.body.authorizedScopes = validation.normalizedScopes;
+    next();
+  };
+}
 
 export function requireOrganizationAccess(getOrganizationId: (req: Request) => string | undefined) {
   return (req: Request, res: Response, next: NextFunction) => {

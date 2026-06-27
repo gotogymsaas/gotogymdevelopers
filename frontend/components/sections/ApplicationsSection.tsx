@@ -3,12 +3,13 @@ import type { ApplicationScope, DeveloperApplication } from '../../types/types';
 import { APPLICATION_SCOPE_OPTIONS, useApplications } from '../../hooks/useApplications';
 
 const scopeLabels: Record<ApplicationScope, string> = {
-  'integrations:read:application': 'Leer integraciones',
-  'integrations:sync:application': 'Sincronizar integraciones',
-  'coach_context:read:application': 'Leer coach context',
-  'smartwatch:read:application': 'Leer smartwatch',
-  'corporate_wellbeing:read:application': 'Leer bienestar corporativo',
-  'webhooks:manage:application': 'Gestionar webhooks',
+  'profile.read': 'Perfil',
+  'wellbeing.read': 'Bienestar',
+  'metrics.read': 'Metricas',
+  'analytics.read': 'Analitica',
+  'organization.read': 'Organizacion',
+  'devices.read': 'Dispositivos',
+  'documents.read': 'Documentos',
 };
 
 const formatDate = (value: string) =>
@@ -189,4 +190,3 @@ export const ApplicationsSection: React.FC = () => {
     </section>
   );
 };
-
