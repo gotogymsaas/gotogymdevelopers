@@ -11,6 +11,7 @@ export type Section =
   | 'app-gotogym'
   | 'cards'
   | 'integrations'
+  | 'applications'
   | 'actions'
   | 'results'
   | 'notifications';
@@ -142,6 +143,7 @@ const mainNav: NavItem[] = [
   { id: 'app-gotogym',    label: 'APP GOTO GYM',    icon: <IcoGym />,     section: 'app-gotogym' },
   { id: 'cards',          label: 'Cards',            icon: <IcoCard />,    section: 'cards' },
   { id: 'integrations',   label: 'Integraciones',    icon: <IcoLink />,    section: 'integrations' },
+  { id: 'applications',   label: 'Mis Aplicaciones', icon: <IcoKey />,     section: 'applications' },
   { id: 'actions',        label: 'Acciones',         icon: <IcoZap />,     section: 'actions' },
   { id: 'results',        label: 'Resultados',       icon: <IcoMonitor />, section: 'results' },
   { id: 'notifications',  label: 'Notificaciones',   icon: <IcoBell />,    section: 'notifications' },
@@ -184,7 +186,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
       ? mainNav.filter(item =>
         item.section === 'dashboard'
         || item.section === 'business-wellbeing'
-        || item.section === 'business-members')
+        || item.section === 'business-members'
+        || item.section === 'integrations'
+        || item.section === 'applications')
       : mainNav;
 
   return (

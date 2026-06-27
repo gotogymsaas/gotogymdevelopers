@@ -19,16 +19,16 @@ describe('Auth API', () => {
     expect(res.body).toHaveProperty('success', true);
     expect(res.body.data).toHaveProperty('token');
     expect(typeof res.body.data.token).toBe('string');
-    expect(res.body.data).toHaveProperty('role', 'user');
+    expect(res.body.data).toHaveProperty('role', 'end_user');
     expect(res.body.data.user).toMatchObject({
       id: 'user-001',
       email: 'user@test.com',
-      role: 'user',
+      role: 'end_user',
       tenant: {
         tenantId: 'tenant-user-001',
       },
     });
-    expect(res.body.data.user.permissions).toContain('smartwatch:read');
+    expect(res.body.data.user.permissions).toContain('smartwatch:read:self');
   });
 
   it('POST /api/v1/auth/login debe devolver 401 con credenciales invalidas', async () => {
@@ -52,12 +52,12 @@ describe('Auth API', () => {
     expect(res.body).toHaveProperty('success', true);
     expect(res.body.data).toMatchObject({
       id: 'admin-001',
-      role: 'admin',
+      role: 'gotogym_admin',
       tenant: {
         tenantId: 'tenant-platform',
       },
     });
-    expect(res.body.data.permissions).toContain('admin:modules:read');
+    expect(res.body.data.permissions).toContain('audit_logs:read:platform');
   });
 });
 
@@ -100,7 +100,7 @@ describe('Integrations API', () => {
   });
 
   it('POST /api/integrations/1/sync debe rechazar usuarios sin permiso de sincronizacion', async () => {
-    const token = await loginAs('gym@test.com');
+    const token = await loginAs('user@test.com');
     const res = await request(app)
       .post('/api/integrations/1/sync')
       .set('Authorization', `Bearer ${token}`);
@@ -212,7 +212,7 @@ describe('Corporate Wellbeing API', () => {
     global.fetch = fetchMock;
 
     const res = await request(app)
-      .get('/api/v1/business/wellbeing/corporate?org=123&days=45')
+      .get('/api/v1/business/wellbeing/corporate?org=org-gym-001&days=45')
       .set('Authorization', `Bearer ${token}`);
 
     expect(res.status).toBe(200);
@@ -222,7 +222,7 @@ describe('Corporate Wellbeing API', () => {
 
     const [url, options] = fetchMock.mock.calls[0];
     expect(String(url)).toContain('/api/business/wellbeing/corporate/');
-    expect(String(url)).toContain('org=123');
+    expect(String(url)).toContain('org=org-gym-001');
     expect(String(url)).toContain('days=45');
     expect(options.headers.Authorization).toBe(`Bearer ${token}`);
   });

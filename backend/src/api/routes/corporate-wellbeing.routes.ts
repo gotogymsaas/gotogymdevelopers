@@ -1,6 +1,6 @@
 import { Router } from 'express';
 import { getCorporateWellbeing } from '../../controllers/corporate-wellbeing.controller';
-import { requireAuth, requirePermission, requireRole } from '../middlewares/auth.middleware';
+import { requireAuth, requireOrganizationAccess, requireRole, requireScope } from '../middlewares/auth.middleware';
 
 const router = Router();
 
@@ -11,8 +11,12 @@ router.options('/corporate', (_req, res) => {
 router.get(
   '/corporate',
   requireAuth,
-  requireRole('gym', 'admin'),
-  requirePermission('business:wellbeing:read'),
+  requireRole('company_owner', 'company_manager', 'gotogym_admin'),
+  requireScope('corporate_wellbeing:read:organization'),
+  requireOrganizationAccess(req => {
+    const org = typeof req.query.org === 'string' ? req.query.org.trim() : '';
+    return org || req.authUser?.tenant.organizationId;
+  }),
   getCorporateWellbeing,
 );
 

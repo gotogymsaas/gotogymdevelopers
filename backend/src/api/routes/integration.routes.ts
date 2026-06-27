@@ -1,10 +1,10 @@
 import { Router } from 'express';
 import { getIntegrations, syncIntegration } from '../../controllers/integration.controller';
-import { requireAuth, requirePermission } from '../middlewares/auth.middleware';
+import { requireAuth, requireScope } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/', requireAuth, requirePermission('integrations:read'), getIntegrations);
-router.post('/:id/sync', requireAuth, requirePermission('integrations:sync'), syncIntegration);
+router.get('/', requireAuth, requireScope('integrations:read:organization'), getIntegrations);
+router.post('/:id/sync', requireAuth, requireScope('integrations:sync:organization'), syncIntegration);
 
 export default router;

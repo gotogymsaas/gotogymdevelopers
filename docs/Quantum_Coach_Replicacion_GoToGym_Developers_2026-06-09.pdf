@@ -1,0 +1,202 @@
+%PDF-1.4
+1 0 obj
+<< /Type /Font /Subtype /Type1 /BaseFont /Helvetica >>
+endobj
+2 0 obj
+<< /Length 4310 >>
+stream
+BT /F1 18 Tf 1 0 0 1 54 760 Tm (Informe tecnico: replicacion de GoToGym Quantum Coach) Tj ET
+BT /F1 18 Tf 1 0 0 1 54 737 Tm (en GoToGym Developers) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 704 Tm (Fecha: 2026-06-09) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 691 Tm (Repos revisados: appdesplegada-inspect y gotogymdevelopers) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 678 Tm (Objetivo: determinar si el chat GoToGym Quantum Coach puede replicarse aqui y bajo que alcance.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 659 Tm (Conclusion ejecutiva) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 637 Tm (Si, el Quantum Coach se puede replicar en gotogymdevelopers, pero no como copia directa. La) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 623 Tm (app de referencia esta construida sobre Django REST + JavaScript vanilla, mientras que) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 609 Tm (gotogymdevelopers usa Express/TypeScript + React/Vite. La estrategia correcta es portar el) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 595 Tm (producto por capas: contrato de API, motor conversacional, memoria, experiencias QAF,) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 581 Tm (interfaz React y observabilidad.) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 560 Tm (La opcion recomendada es una replicacion progresiva. Primero un MVP conversacional con) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 546 Tm (/api/chat, Azure/OpenAI, contexto de coach ya disponible y quick actions basicas. Despues se) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 532 Tm (migran experiencias QAF, memoria persistente, adjuntos, voz y analitica. Esto reduce riesgo) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 518 Tm (y permite probar valor antes de traer todo el sistema.) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 497 Tm (DICTAMEN: Dictamen: viable con adaptacion media-alta. No es un "copiar y pegar"; es una) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 483 Tm (migracion funcional hacia la arquitectura actual.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 455 Tm (Que existe en appdesplegada) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 433 Tm (En appdesplegada el Quantum Coach es un sistema completo, no solo una ventana de chat. Esta) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 419 Tm (compuesto por frontend, backend, motor QAF, memoria, runtime IA, experiencias) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 405 Tm (especializadas, adjuntos, voz y trazabilidad.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 384 Tm (- Frontend: frontend/js/chat.js inyecta el widget GoToGym Quantum Coach, maneja historial,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 370 Tm (drawer de memoria, quick actions, adjuntos, microfono, voz y flujos guiados.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 353 Tm (- Endpoint principal: backend/api/urls.py registra path\("chat/", views.chat\), equivalente) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 339 Tm (a POST /api/chat/.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 322 Tm (- Motor de decision: backend/api/chat_gateway.py decide CONTINUE, CONFIRM, START,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 308 Tm (EXPERIENCE_STEP o ATTACHMENT_ANALYSIS.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 291 Tm (- Motor QAF: backend/api/qaf_cognition/* contiene decision layer, router cognitivo,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 277 Tm (emotional engine, memory engine, response policy, language governance y generadores.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 260 Tm (- Experiencias QAF: calorias, meal planner, perfil metabolico, postura, lifestyle,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 246 Tm (motivacion, progresion, medicion muscular, skin health, shape presence y posture) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 232 Tm (proportion.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 215 Tm (- IA: backend/api/llm/azure_client.py integra Azure OpenAI Chat con deployment) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 201 Tm (gpt-4.1-mini, API key o Managed Identity.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 184 Tm (- Arquitectura: ARCHITECTURE.md documenta Azure OpenAI por Managed Identity, backend) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 170 Tm (Django, PostgreSQL, Blob Storage, Front Door, Key Vault y Application Insights.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 153 Tm (- n8n: aparece como legado/descomisionado; el runtime actual documentado es backend-first.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 130 Tm (Que existe hoy en gotogymdevelopers) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 108 Tm (El repo actual ya tiene una base util, pero no contiene el Quantum Coach conversacional) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 94 Tm (completo. Hay un frontend React/Vite, un backend Express/TypeScript y servicios de) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 80 Tm (contexto/bienestar.) Tj ET
+endstream
+endobj
+3 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R >> >> /Contents 2 0 R >>
+endobj
+4 0 obj
+<< /Length 4628 >>
+stream
+BT /F1 10 Tf 1 0 0 1 66 760 Tm (- Backend actual: backend/src/app.ts registra /api/integrations, /api/bodygraph,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 746 Tm (/api/v1/auth, /api/v1/smartwatch y /api/v1/business/wellbeing.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 729 Tm (- No se encontro /api/chat ni un controlador conversacional equivalente al Quantum Coach.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 712 Tm (- Si existe consumo de /api/coach_context/ desde) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 698 Tm (frontend/src/services/wellbeingService.ts, pero es un cliente hacia el API de GoToGym,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 684 Tm (no el motor local del coach.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 667 Tm (- docs/COACH_CONTEXT_ENDPOINT_MAP.md documenta un contrato fuerte de contexto de usuario:) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 653 Tm (profile, documents, devices, if_snapshot, business y wellbeing_experience_value_v1.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 636 Tm (- La consola frontend usa useCoachContext y componentes de cards para mostrar bienestar,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 622 Tm (lo cual sirve como insumo para personalizacion del chat.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 605 Tm (- El package raiz ya incluye openai, pero backend/package.json no lo incluye. Si el chat) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 591 Tm (vive en backend, conviene agregar el SDK alli o usar fetch contra el proveedor.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 568 Tm (Brecha tecnica) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 546 Tm (Tabla: Area | appdesplegada | gotogymdevelopers | Brecha) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 532 Tm (Chat UI | Widget JS completo | React sin chat equivalente | Alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 518 Tm (Endpoint chat | POST /api/chat/ | No existe | Alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 504 Tm (IA | Azure OpenAI backend-first | openai en raiz, no integrado al backend | Media) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 490 Tm (Contexto usuario | /api/coach_context/ completo | Cliente y documentacion existentes | Baja-media) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 476 Tm (QAF experiencias | 13 experiencias y motores | Solo lectura/visualizacion de bienestar | Alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 462 Tm (Memoria | Conversational memory y share preview | No encontrada localmente | Alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 448 Tm (Adjuntos/OCR | Upload + OCR + Blob + vision | No encontrado | Alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 434 Tm (Voz | Preferencias, recomendacion y telemetria | No encontrado | Media-alta) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 420 Tm (Observabilidad | Headers X-Chat-* y scripts de pruebas | Basico | Media) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 396 Tm (Arquitectura recomendada para replicarlo aqui) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 374 Tm (La replicacion debe respetar la arquitectura de gotogymdevelopers. En lugar de traer Django,) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 360 Tm (se recomienda crear un modulo Coach en Express/TypeScript y componentes React nativos.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 339 Tm (- Backend: crear /api/v1/coach/chat con controller, service, router y tipos TypeScript.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 322 Tm (- Contexto: reutilizar el contrato /api/coach_context/ como fuente inicial para perfil,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 308 Tm (IF, devices y wellbeing_experience_value_v1.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 291 Tm (- IA: encapsular un CoachLLMService con proveedor configurable: OpenAI directo o Azure) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 277 Tm (OpenAI. Variables sugeridas: OPENAI_API_KEY o AZURE_OPENAI_ENDPOINT,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 263 Tm (AZURE_OPENAI_DEPLOYMENT, AZURE_OPENAI_API_VERSION.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 246 Tm (- Gateway: portar la logica esencial de chat_gateway.py a TypeScript: deteccion de) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 232 Tm (intencion explicita, guardrails de tercera persona/informacional, decision) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 218 Tm (START/CONFIRM/CONTINUE y score.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 201 Tm (- Frontend: construir un componente React QuantumCoachPanel con mensajes, input, quick) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 187 Tm (actions, estado de carga, reset y consumo del endpoint local.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 170 Tm (- Persistencia: iniciar con memoria de sesion/localStorage y luego mover a base de datos) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 156 Tm (si el producto necesita continuidad real entre sesiones.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 139 Tm (- Observabilidad: devolver metadata en JSON y headers equivalentes: gateway_decision,) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 125 Tm (route, mode, runtime_source y fallback_reason.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 102 Tm (Fases sugeridas) Tj ET
+BT /F1 12 Tf 1 0 0 1 54 77 Tm (Fase 1 - MVP conversacional) Tj ET
+endstream
+endobj
+5 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R >> >> /Contents 4 0 R >>
+endobj
+6 0 obj
+<< /Length 4190 >>
+stream
+BT /F1 10 Tf 1 0 0 1 66 760 Tm (- Crear /api/v1/coach/chat en Express.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 743 Tm (- Agregar servicio LLM con prompts basados en build_quantum_coach_messages.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 726 Tm (- Usar coach_context como contexto de entrada cuando el usuario este autenticado.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 709 Tm (- Crear UI React con saludo, mensajes, quick actions y boton "Ver experiencias QAF".) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 692 Tm (- Alcance: conversacion y coaching general, sin activar experiencias complejas todavia.) Tj ET
+BT /F1 12 Tf 1 0 0 1 54 672 Tm (Fase 2 - Gateway QAF y experiencias basicas) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 654 Tm (- Portar chat_gateway.py y compute_intervention_score a TypeScript.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 637 Tm (- Implementar catalogo de experiencias y contratos de quick actions.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 620 Tm (- Conectar 2 o 3 experiencias iniciales: lifestyle, progression y motivation, porque) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 606 Tm (dependen menos de OCR o vision.) Tj ET
+BT /F1 12 Tf 1 0 0 1 54 586 Tm (Fase 3 - Memoria y continuidad) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 568 Tm (- Guardar conversaciones por usuario/conversation_id.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 551 Tm (- Implementar resumen de sesion y memoria selectiva.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 534 Tm (- Agregar controles de privacidad: listar, borrar y no guardar.) Tj ET
+BT /F1 12 Tf 1 0 0 1 54 514 Tm (Fase 4 - Adjuntos, vision y voz) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 496 Tm (- Agregar upload de imagen/PDF, validaciones, limites, OCR o extraccion de texto.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 479 Tm (- Agregar speech-to-text/text-to-speech si el producto lo requiere.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 462 Tm (- Replicar headers/trazas para QA y monitoreo.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 439 Tm (Riesgos y cuidados) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 417 Tm (- Datos sensibles: coach_context puede contener salud, documentos, dispositivos, empresa y) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 403 Tm (datos personales. La UI debe usar el bloque seguro wellbeing_experience_value_v1 siempre) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 389 Tm (que sea suficiente.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 372 Tm (- Costos IA: definir limites de tokens, timeouts, reintentos, fallback y telemetria antes) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 358 Tm (de abrirlo a usuarios.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 341 Tm (- No diagnosticar: el prompt debe mantener tono educativo y no sustituir atencion medica.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 324 Tm (- Migracion parcial: copiar todo views.py de Django seria riesgoso. Lo sano es portar) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 310 Tm (algoritmos pequenos y contratos.) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 293 Tm (- Compatibilidad: los nombres de endpoints deben alinearse con el prefijo actual /api/v1) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 279 Tm (para no romper la app.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 256 Tm (Estimacion de esfuerzo) Tj ET
+BT /F1 9 Tf 1 0 0 1 54 234 Tm (Tabla: Alcance | Tiempo estimado | Resultado) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 220 Tm (MVP chat + UI React | 3 a 5 dias | Coach conversacional funcional con contexto basico) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 206 Tm (Gateway QAF + 3 experiencias | 1 a 2 semanas | Activacion controlada y quick actions utiles) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 192 Tm (Memoria persistente | 1 semana | Continuidad entre sesiones y privacidad basica) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 178 Tm (Adjuntos + voz + vision | 2 a 4 semanas | Paridad alta con appdesplegada) Tj ET
+BT /F1 8 Tf 1 0 0 1 54 164 Tm (Paridad casi completa | 4 a 8 semanas | Replica robusta con pruebas y observabilidad) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 140 Tm (Decision recomendada) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 118 Tm (Recomiendo replicar el Quantum Coach en gotogymdevelopers mediante un MVP backend-first en) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 104 Tm (TypeScript, usando la identidad visual y UX de la captura, pero sin intentar migrar todo el) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 90 Tm (legado de Django en un solo bloque. La prioridad debe ser demostrar una conversacion util,) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 76 Tm (personalizada y segura; luego se incorporan QAF, memoria y adjuntos.) Tj ET
+endstream
+endobj
+7 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R >> >> /Contents 6 0 R >>
+endobj
+8 0 obj
+<< /Length 1438 >>
+stream
+BT /F1 10 Tf 1 0 0 1 54 760 Tm (El primer entregable tecnico deberia ser: endpoint /api/v1/coach/chat, componente React) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 746 Tm (QuantumCoachPanel, servicio LLM, gateway basico START/CONFIRM/CONTINUE, uso de coach_context) Tj ET
+BT /F1 10 Tf 1 0 0 1 54 732 Tm (y pruebas unitarias del router conversacional.) Tj ET
+BT /F1 14 Tf 1 0 0 1 54 705 Tm (Referencias locales revisadas) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 683 Tm (- appdesplegada-inspect/ARCHITECTURE.md) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 666 Tm (- appdesplegada-inspect/STACK.md) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 649 Tm (- appdesplegada-inspect/docs/FLUJO_FUNCIONAMIENTO_IA_CHAT.md) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 632 Tm (- appdesplegada-inspect/docs/executive/acta_cierre_quantum_coach_v1.md) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 615 Tm (- appdesplegada-inspect/backend/api/urls.py) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 598 Tm (- appdesplegada-inspect/backend/api/chat_gateway.py) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 581 Tm (- appdesplegada-inspect/backend/api/llm/azure_client.py) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 564 Tm (- appdesplegada-inspect/frontend/js/chat.js) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 547 Tm (- backend/src/app.ts) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 530 Tm (- backend/src/services/corporate-wellbeing.service.ts) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 513 Tm (- frontend/src/services/wellbeingService.ts) Tj ET
+BT /F1 10 Tf 1 0 0 1 66 496 Tm (- docs/COACH_CONTEXT_ENDPOINT_MAP.md) Tj ET
+endstream
+endobj
+9 0 obj
+<< /Type /Page /Parent 10 0 R /MediaBox [0 0 612 792] /Resources << /Font << /F1 1 0 R >> >> /Contents 8 0 R >>
+endobj
+10 0 obj
+<< /Type /Pages /Kids [3 0 R 5 0 R 7 0 R 9 0 R] /Count 4 >>
+endobj
+11 0 obj
+<< /Type /Catalog /Pages 10 0 R >>
+endobj
+xref
+0 12
+0000000000 65535 f 
+0000000009 00000 n 
+0000000079 00000 n 
+0000004441 00000 n 
+0000004568 00000 n 
+0000009248 00000 n 
+0000009375 00000 n 
+0000013617 00000 n 
+0000013744 00000 n 
+0000015234 00000 n 
+0000015361 00000 n 
+0000015437 00000 n 
+trailer
+<< /Size 12 /Root 11 0 R >>
+startxref
+15488
+%%EOF

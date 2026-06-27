@@ -1,14 +1,18 @@
 import jwt, { type JwtPayload, type SignOptions } from 'jsonwebtoken';
 import { createHash, timingSafeEqual } from 'crypto';
 import { mockUsers } from '../data/mock-users';
-import type { AppPermission, AppRole, AuthUser, TenantContext } from '../types/auth';
+import type { AppRole, AuthUser, Scope, TenantContext } from '../types/auth';
 
 interface AccessTokenPayload extends JwtPayload {
   sub: string;
   email: string;
   role: AppRole;
-  permissions: AppPermission[];
+  scopes: Scope[];
+  permissions?: Scope[];
   tenant: TenantContext;
+  activeOrganizationId: string;
+  applicationId?: string;
+  type: 'user' | 'application';
 }
 
 interface LoginResult {
@@ -27,19 +31,33 @@ if (process.env.NODE_ENV === 'production' && !process.env.JWT_SECRET) {
 }
 
 const isAppRole = (value: unknown): value is AppRole =>
-  value === 'user' || value === 'gym' || value === 'admin';
+  value === 'end_user'
+  || value === 'company_owner'
+  || value === 'company_manager'
+  || value === 'gotogym_admin'
+  || value === 'integrator';
 
-const APP_PERMISSIONS: AppPermission[] = [
-  'integrations:read',
-  'integrations:sync',
-  'bodygraph:read',
-  'smartwatch:read',
-  'business:wellbeing:read',
-  'admin:modules:read',
+const APP_SCOPES: Scope[] = [
+  'profile:read:self',
+  'profile:update:self',
+  'smartwatch:read:self',
+  'coach_context:read:self',
+  'bodygraph:read:self',
+  'organization:read:organization',
+  'organization:update:organization',
+  'organization_members:read:organization',
+  'organization_members:invite:organization',
+  'corporate_wellbeing:read:organization',
+  'integrations:read:organization',
+  'integrations:sync:organization',
+  'applications:manage:organization',
+  'api_credentials:manage:organization',
+  'audit_logs:read:platform',
+  'billing:manage:organization',
 ];
 
-const isAppPermission = (value: unknown): value is AppPermission =>
-  typeof value === 'string' && APP_PERMISSIONS.includes(value as AppPermission);
+const isScope = (value: unknown): value is Scope =>
+  typeof value === 'string' && APP_SCOPES.includes(value as Scope);
 
 const isTenantContext = (value: unknown): value is TenantContext => {
   if (!value || typeof value !== 'object') {
@@ -47,21 +65,31 @@ const isTenantContext = (value: unknown): value is TenantContext => {
   }
 
   const tenant = value as Partial<TenantContext>;
-  return typeof tenant.tenantId === 'string' && tenant.tenantId.length > 0;
+  return typeof tenant.tenantId === 'string'
+    && tenant.tenantId.length > 0
+    && typeof tenant.organizationId === 'string'
+    && tenant.organizationId.length > 0
+    && typeof tenant.membershipId === 'string'
+    && tenant.membershipId.length > 0;
 };
 
 const toAuthUser = (input: {
   id: string;
   email: string;
   role: AppRole;
-  permissions: AppPermission[];
+  scopes: Scope[];
   tenant: TenantContext;
+  applicationId?: string;
+  tokenType?: 'user' | 'application';
 }): AuthUser => ({
   id: input.id,
   email: input.email,
   role: input.role,
-  permissions: [...input.permissions],
+  scopes: [...input.scopes],
+  permissions: [...input.scopes],
   tenant: { ...input.tenant },
+  applicationId: input.applicationId,
+  tokenType: input.tokenType ?? 'user',
 });
 
 const hashPassword = (password: string): string =>
@@ -79,8 +107,12 @@ const signAccessToken = (user: AuthUser): string => {
     sub: user.id,
     email: user.email,
     role: user.role,
-    permissions: user.permissions,
+    scopes: user.scopes,
+    permissions: user.scopes,
     tenant: user.tenant,
+    activeOrganizationId: user.tenant.organizationId,
+    applicationId: user.applicationId,
+    type: user.tokenType,
   };
 
   return jwt.sign(payload, JWT_SECRET, {
@@ -126,9 +158,11 @@ export function verifyAccessToken(token: string): AuthUser | null {
       typeof decoded.sub !== 'string'
       || typeof decoded.email !== 'string'
       || !isAppRole(decoded.role)
-      || !Array.isArray(decoded.permissions)
-      || !decoded.permissions.every(isAppPermission)
+      || !Array.isArray(decoded.scopes)
+      || !decoded.scopes.every(isScope)
       || !isTenantContext(decoded.tenant)
+      || decoded.activeOrganizationId !== decoded.tenant.organizationId
+      || (decoded.type !== 'user' && decoded.type !== 'application')
     ) {
       return null;
     }
@@ -137,8 +171,11 @@ export function verifyAccessToken(token: string): AuthUser | null {
       id: decoded.sub,
       email: decoded.email,
       role: decoded.role,
-      permissions: decoded.permissions,
+      scopes: decoded.scopes,
+      permissions: decoded.scopes,
       tenant: decoded.tenant,
+      applicationId: typeof decoded.applicationId === 'string' ? decoded.applicationId : undefined,
+      tokenType: decoded.type,
     };
   } catch {
     return null;

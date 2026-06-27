@@ -8,6 +8,8 @@ import SmartwatchPage from '../pages/SmartwatchPage';
 import AppGoToGymPage from '../pages/AppGoToGymPage';
 import BusinessWellbeingPage from '../pages/BusinessWellbeingPage';
 import BusinessMembersPage from '../pages/BusinessMembersPage';
+import IntegrationsPage from '../pages/IntegrationsPage';
+import ApplicationsPage from '../pages/ApplicationsPage';
 import ProtectedRoute from './ProtectedRoute';
 
 interface AppRouterProps {
@@ -61,6 +63,22 @@ const AppRouter: React.FC<AppRouterProps> = ({ isAuthenticated, onLogin, onLogou
         element={(
           <ProtectedRoute allowedRoles={['user', 'gym', 'admin']}>
             <BusinessMembersPage onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/integrations"
+        element={(
+          <ProtectedRoute allowedRoles={['gym', 'admin']}>
+            <IntegrationsPage onLogout={onLogout} />
+          </ProtectedRoute>
+        )}
+      />
+      <Route
+        path="/applications"
+        element={(
+          <ProtectedRoute allowedRoles={['gym', 'admin']}>
+            <ApplicationsPage onLogout={onLogout} />
           </ProtectedRoute>
         )}
       />

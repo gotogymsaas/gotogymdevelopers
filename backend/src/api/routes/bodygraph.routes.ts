@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import { getBodyGraph } from '../../controllers/bodygraph.controller';
-import { requireAuth, requirePermission } from '../middlewares/auth.middleware';
+import { requireAuth, requireScope } from '../middlewares/auth.middleware';
 
 const router = Router();
 
-router.get('/:integrationId', requireAuth, requirePermission('bodygraph:read'), getBodyGraph);
+router.get('/:integrationId', requireAuth, requireScope('bodygraph:read:self'), getBodyGraph);
 
 export default router;

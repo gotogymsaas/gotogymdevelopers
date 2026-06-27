@@ -9,11 +9,57 @@ export type IntegrationStatus =
   | 'failed'
   | 'unauthorized';
 
+export type IntegrationCategory =
+  | 'Wearables'
+  | 'Salud'
+  | 'Actividad'
+  | 'Empresa'
+  | 'Manual';
+
 export interface Integration {
   id: string;
   name: string;
   status: IntegrationStatus;
   lastSync: string | null;
+  category?: IntegrationCategory;
+  description?: string;
+  providerKey?: string;
+  configurable?: boolean;
+}
+
+export type DeveloperApplicationStatus = 'active' | 'disabled';
+
+export type ApplicationScope =
+  | 'integrations:read:application'
+  | 'integrations:sync:application'
+  | 'coach_context:read:application'
+  | 'smartwatch:read:application'
+  | 'corporate_wellbeing:read:application'
+  | 'webhooks:manage:application';
+
+export interface DeveloperApplication {
+  id: string;
+  name: string;
+  description?: string;
+  ownerOrganizationId: string;
+  clientId: string;
+  authorizedScopes: ApplicationScope[];
+  status: DeveloperApplicationStatus;
+  createdAt: string;
+  updatedAt: string;
+  disabledAt?: string;
+  createdByUserId: string;
+  updatedByUserId?: string;
+}
+
+export interface DeveloperApplicationWithSecret extends DeveloperApplication {
+  clientSecret: string;
+}
+
+export interface ApplicationFormInput {
+  name: string;
+  description: string;
+  authorizedScopes: ApplicationScope[];
 }
 
 export interface BodyGraphData {

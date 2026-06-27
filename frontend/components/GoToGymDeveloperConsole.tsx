@@ -11,7 +11,8 @@ import { BusinessWellbeingSection } from './sections/BusinessWellbeingSection';
 import { BusinessMembersSection } from './sections/BusinessMembersSection';
 import { AppGoToGymSection, AppGoToGymWidgetsSection } from './sections/AppGoToGymSection';
 import { CardsSection } from './sections/CardsSection';
-import { IntegrationsTable } from './sections/IntegrationsTable';
+import { IntegrationsMarketplaceSection } from './sections/IntegrationsMarketplaceSection';
+import { ApplicationsSection } from './sections/ApplicationsSection';
 import { ActionsSection } from './sections/ActionsSection';
 import { ResultsPanel } from './sections/ResultsPanel';
 import { NotificationsSection } from './sections/NotificationsSection';
@@ -86,8 +87,16 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         ? 'business-wellbeing'
         : location.pathname === '/business-members'
           ? 'business-members'
+          : location.pathname === '/integrations'
+            ? 'integrations'
+            : location.pathname === '/applications'
+              ? 'applications'
           : 'dashboard'
-      : activeSection;
+      : location.pathname === '/integrations'
+        ? 'integrations'
+        : location.pathname === '/applications'
+          ? 'applications'
+        : activeSection;
   const isBrandedSection = brandedSections.includes(currentSection);
 
   const {
@@ -159,7 +168,27 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         return;
       }
 
+      if (section === 'integrations') {
+        navigate('/integrations');
+        return;
+      }
+
+      if (section === 'applications') {
+        navigate('/applications');
+        return;
+      }
+
       navigate('/dashboard');
+      return;
+    }
+
+    if (isAdmin && section === 'integrations') {
+      navigate('/integrations');
+      return;
+    }
+
+    if (isAdmin && section === 'applications') {
+      navigate('/applications');
       return;
     }
 
@@ -172,6 +201,7 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
     }
 
     setActiveSection('integrations');
+    navigate('/integrations');
     if (integrationId) {
       setHighlightedIntegrationId(integrationId);
       setTimeout(() => setHighlightedIntegrationId(null), 3000);
@@ -270,18 +300,28 @@ export const GoToGymDeveloperConsole: React.FC<GoToGymDeveloperConsoleProps> = (
         );
 
       case 'integrations':
+        if (!isGym && !isAdmin) {
+          return null;
+        }
+
         return (
-          <IntegrationsTable
+          <IntegrationsMarketplaceSection
             integrations={integrations}
             selectedSource={selectedSource}
             uiState={uiState}
             onSelect={setSelectedSource}
-            onSync={handleSync}
-            onSyncRow={syncIntegration}
+            onConnect={syncIntegration}
             syncingId={syncingId}
             highlightedId={highlightedIntegrationId}
           />
         );
+
+      case 'applications':
+        if (!isGym && !isAdmin) {
+          return null;
+        }
+
+        return <ApplicationsSection />;
 
       case 'actions':
         return (

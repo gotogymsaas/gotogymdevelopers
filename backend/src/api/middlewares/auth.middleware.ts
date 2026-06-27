@@ -1,6 +1,6 @@
 import { NextFunction, Request, Response } from 'express';
 import { verifyAccessToken } from '../../services/auth.service';
-import type { AppPermission, AppRole } from '../../types/auth';
+import type { AppPermission, AppRole, Scope } from '../../types/auth';
 import type { ApiResponse } from '../../types/api-response';
 
 const unauthorized = (res: Response, message: string) => {
@@ -57,14 +57,41 @@ export function requireRole(...roles: AppRole[]) {
   };
 }
 
-export function requirePermission(permission: AppPermission) {
+export function requireScope(scope: Scope) {
   return (req: Request, res: Response, next: NextFunction) => {
     if (!req.authUser) {
       return unauthorized(res, 'Authentication is required');
     }
 
-    if (!req.authUser.permissions.includes(permission)) {
-      return forbidden(res, 'Insufficient permission');
+    if (!req.authUser.scopes.includes(scope)) {
+      return forbidden(res, 'Insufficient scope');
+    }
+
+    next();
+  };
+}
+
+export const requirePermission = (permission: AppPermission) => requireScope(permission);
+
+export function requireOrganizationAccess(getOrganizationId: (req: Request) => string | undefined) {
+  return (req: Request, res: Response, next: NextFunction) => {
+    if (!req.authUser) {
+      return unauthorized(res, 'Authentication is required');
+    }
+
+    if (req.authUser.role === 'gotogym_admin') {
+      next();
+      return;
+    }
+
+    const organizationId = getOrganizationId(req);
+    if (!organizationId) {
+      next();
+      return;
+    }
+
+    if (organizationId !== req.authUser.tenant.organizationId) {
+      return forbidden(res, 'Organization is outside the active tenant');
     }
 
     next();
