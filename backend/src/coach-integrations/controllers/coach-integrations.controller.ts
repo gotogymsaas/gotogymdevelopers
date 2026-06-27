@@ -44,9 +44,9 @@ export function getCapabilities(req: Request, res: Response, next: NextFunction)
   }
 }
 
-export function getContext(req: Request, res: Response, next: NextFunction) {
+export async function getContext(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = buildCoachContext(requireOAuthToken(req), req.body ?? {});
+    const data = await buildCoachContext(requireOAuthToken(req), req.body ?? {});
     const response: ApiResponse<typeof data> = { success: true, data };
     res.json(response);
   } catch (err) {
@@ -54,9 +54,9 @@ export function getContext(req: Request, res: Response, next: NextFunction) {
   }
 }
 
-export function executeQAF(req: Request, res: Response, next: NextFunction) {
+export async function executeQAF(req: Request, res: Response, next: NextFunction) {
   try {
-    const data = executeQAFExperience(requireOAuthToken(req), req.body ?? {});
+    const data = await executeQAFExperience(requireOAuthToken(req), req.body ?? {});
     const response: ApiResponse<typeof data> = { success: true, data };
     res.json(response);
   } catch (err) {

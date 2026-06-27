@@ -69,11 +69,13 @@ export async function token(req: Request, res: Response, next: NextFunction) {
         clientId,
         redirectUri: requireString(req.body.redirect_uri, 'redirect_uri'),
         codeVerifier: requireString(req.body.code_verifier, 'code_verifier'),
+        clientSecret: readString(req.body.client_secret),
       })
       : grantType === 'refresh_token'
         ? await OAuthService.rotateRefreshToken({
           refreshToken: requireString(req.body.refresh_token, 'refresh_token'),
           clientId,
+          clientSecret: readString(req.body.client_secret),
         })
         : (() => {
           const error: any = new Error('Unsupported grant_type');

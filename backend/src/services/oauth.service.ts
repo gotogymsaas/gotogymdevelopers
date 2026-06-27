@@ -1,6 +1,7 @@
 import jwt, { type JwtPayload } from 'jsonwebtoken';
 import { createHash, createPublicKey, generateKeyPairSync, randomBytes, randomUUID } from 'crypto';
 import { ApplicationRepository } from '../repositories/application.repository';
+import { ConsentRepository } from '../repositories/consent.repository';
 import { OAuthRepository } from '../repositories/oauth.repository';
 import type {
   OAuthAuthorizationCode,
@@ -19,15 +20,19 @@ import {
   validateDeveloperScopes,
 } from '../types/developer-scopes';
 import { recordAuditEvent } from './audit.service';
+import type { IntegrationConsent } from '../models/consent.model';
+import { DEVELOPER_SCOPE_DEFINITIONS } from '../types/developer-scopes';
 
 const oauthRepo = new OAuthRepository();
 const applicationRepo = new ApplicationRepository();
+const consentRepo = new ConsentRepository();
 
 const ISSUER = process.env.OAUTH_ISSUER ?? 'https://developers.gotogym.store';
 const ACCESS_TOKEN_TTL_SECONDS = Number(process.env.OAUTH_ACCESS_TOKEN_TTL_SECONDS ?? 900);
 const ID_TOKEN_TTL_SECONDS = Number(process.env.OAUTH_ID_TOKEN_TTL_SECONDS ?? 900);
 const REFRESH_TOKEN_TTL_SECONDS = Number(process.env.OAUTH_REFRESH_TOKEN_TTL_SECONDS ?? 60 * 60 * 24 * 30);
 const AUTH_CODE_TTL_SECONDS = Number(process.env.OAUTH_AUTH_CODE_TTL_SECONDS ?? 300);
+const REQUIRE_CLIENT_SECRET = process.env.OAUTH_REQUIRE_CLIENT_SECRET === 'true';
 
 const badRequest = (message: string, details?: unknown) => {
   const error: any = new Error(message);
@@ -45,6 +50,7 @@ const unauthorizedClient = () => {
 };
 
 const tokenHash = (token: string): string => createHash('sha256').update(token).digest('hex');
+const hashSecret = (secret: string): string => createHash('sha256').update(secret).digest('hex');
 
 const secondsFromNow = (seconds: number): string =>
   new Date(Date.now() + seconds * 1000).toISOString();
@@ -84,6 +90,112 @@ const assertClientScopes = async (clientId: string, scopes: DeveloperScope[]) =>
   }
 
   return application;
+};
+
+const assertRedirectUri = async (clientId: string, redirectUri: string) => {
+  const application = await applicationRepo.findByClientId(clientId);
+  if (!application || application.status !== 'active') {
+    throw unauthorizedClient();
+  }
+
+  const normalized = new URL(redirectUri);
+  normalized.hash = '';
+  if (!application.redirectUris.includes(normalized.toString())) {
+    throw badRequest('Redirect URI is not registered for this client');
+  }
+
+  return application;
+};
+
+const assertClientSecret = async (clientId: string, clientSecret?: string) => {
+  if (!clientSecret && !REQUIRE_CLIENT_SECRET) {
+    return;
+  }
+
+  const application = await applicationRepo.findByClientId(clientId);
+  if (!application || application.status !== 'active') {
+    throw unauthorizedClient();
+  }
+
+  if (!clientSecret || application.clientSecretHash !== hashSecret(clientSecret)) {
+    throw unauthorizedClient();
+  }
+};
+
+const scopesRequireConsent = (scopes: DeveloperScope[]) =>
+  scopes.some(scope => DEVELOPER_SCOPE_DEFINITIONS[scope].requiresConsent);
+
+const ensureAuthorizedConsent = async (input: {
+  actor: AuthUser;
+  clientId: string;
+  requestedScopes: DeveloperScope[];
+}) => {
+  if (!scopesRequireConsent(input.requestedScopes)) {
+    return { authorized: true as const };
+  }
+
+  const existingConsent = await consentRepo.findByUserAndClient(input.actor.id, input.clientId);
+  const missingScopes = input.requestedScopes.filter(scope =>
+    DEVELOPER_SCOPE_DEFINITIONS[scope].requiresConsent
+    && !existingConsent?.requestedScopes.includes(scope)
+  );
+
+  if (existingConsent?.status === 'authorized' && missingScopes.length === 0) {
+    return { authorized: true as const };
+  }
+
+  const application = await applicationRepo.findByClientId(input.clientId);
+  const now = new Date().toISOString();
+  const consent: IntegrationConsent = existingConsent
+    ? await consentRepo.update(existingConsent.id, {
+        status: 'pending',
+        requestedScopes: [...new Set([...existingConsent.requestedScopes, ...input.requestedScopes])],
+        rejectedAt: undefined,
+        revokedAt: undefined,
+        updatedAt: now,
+      }) as IntegrationConsent
+    : await consentRepo.create({
+        id: randomUUID(),
+        userId: input.actor.id,
+        integrationId: application?.id ?? input.clientId,
+        clientId: input.clientId,
+        integrationName: application?.name ?? input.clientId,
+        ownerCompany: application?.ownerOrganizationId ?? 'unknown',
+        requestedScopes: input.requestedScopes,
+        status: 'pending',
+        requestedAt: now,
+        updatedAt: now,
+      });
+
+  await consentRepo.addHistory({
+    id: randomUUID(),
+    consentId: consent.id,
+    action: 'consent.requested',
+    actorUserId: input.actor.id,
+    status: 'pending',
+    createdAt: now,
+    metadata: {
+      clientId: input.clientId,
+      scopes: input.requestedScopes,
+    },
+  });
+
+  recordAuditEvent({
+    action: 'consent.requested',
+    actorUserId: input.actor.id,
+    organizationId: input.actor.tenant.organizationId,
+    resourceType: 'consent',
+    resourceId: consent.id,
+    metadata: {
+      clientId: input.clientId,
+      scopes: input.requestedScopes,
+    },
+  });
+
+  return {
+    authorized: false as const,
+    consent,
+  };
 };
 
 const getOrCreateActiveKey = async (): Promise<OAuthSigningKey> => {
@@ -200,6 +312,21 @@ export async function createAuthorizationCode(input: {
 
   const requestedScopes = normalizeScopes(input.scope.replace(/\bopenid\b/g, '').trim(), input.actor.role);
   await assertClientScopes(input.clientId, requestedScopes);
+  await assertRedirectUri(input.clientId, input.redirectUri);
+  const consentDecision = await ensureAuthorizedConsent({
+    actor: input.actor,
+    clientId: input.clientId,
+    requestedScopes,
+  });
+
+  if (!consentDecision.authorized) {
+    return {
+      consentRequired: true,
+      consentId: consentDecision.consent.id,
+      requestedScopes,
+      expiresIn: 0,
+    };
+  }
 
   const authorizationCode: OAuthAuthorizationCode = {
     code: createOpaqueToken('gtg_code'),
@@ -313,7 +440,9 @@ export async function exchangeAuthorizationCode(input: {
   clientId: string;
   redirectUri: string;
   codeVerifier: string;
+  clientSecret?: string;
 }): Promise<OAuthTokenResponse> {
+  await assertClientSecret(input.clientId, input.clientSecret);
   const authorizationCode = await oauthRepo.findAuthorizationCode(input.code);
   if (!authorizationCode) {
     throw badRequest('Invalid authorization code');
@@ -340,7 +469,9 @@ export async function exchangeAuthorizationCode(input: {
 export async function rotateRefreshToken(input: {
   refreshToken: string;
   clientId: string;
+  clientSecret?: string;
 }): Promise<OAuthTokenResponse> {
+  await assertClientSecret(input.clientId, input.clientSecret);
   const refreshHash = tokenHash(input.refreshToken);
   const storedRefreshToken = await oauthRepo.findRefreshToken(refreshHash);
 

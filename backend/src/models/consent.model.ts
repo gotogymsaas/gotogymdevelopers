@@ -12,6 +12,7 @@ export interface IntegrationConsent {
   id: string;
   userId: string;
   integrationId: string;
+  clientId?: string;
   integrationName: string;
   ownerCompany: string;
   requestedScopes: DeveloperScope[];

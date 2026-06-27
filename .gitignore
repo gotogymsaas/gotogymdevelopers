@@ -16,6 +16,10 @@ backend/dist/
 *.log
 npm-debug.log*
 
+# Local persisted API state
+/data/
+/backend/data/
+
 # OS
 .DS_Store
 Thumbs.db

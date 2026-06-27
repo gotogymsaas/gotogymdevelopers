@@ -1,85 +1,99 @@
 import type { OAuthAuthorizationCode, OAuthRefreshToken, OAuthSigningKey } from '../models/oauth.model';
-
-const authorizationCodes: OAuthAuthorizationCode[] = [];
-const refreshTokens: OAuthRefreshToken[] = [];
-const revokedAccessTokenIds = new Set<string>();
-const signingKeys: OAuthSigningKey[] = [];
+import { readStore, updateStore } from '../storage/persistent-store';
 
 export class OAuthRepository {
   async saveAuthorizationCode(code: OAuthAuthorizationCode): Promise<OAuthAuthorizationCode> {
-    authorizationCodes.unshift(code);
+    updateStore(state => {
+      state.oauth.authorizationCodes.unshift(code);
+    });
     return code;
   }
 
   async findAuthorizationCode(code: string): Promise<OAuthAuthorizationCode | undefined> {
-    return authorizationCodes.find(current => current.code === code);
+    return readStore().oauth.authorizationCodes.find(current => current.code === code);
   }
 
   async consumeAuthorizationCode(code: string): Promise<void> {
-    const authorizationCode = await this.findAuthorizationCode(code);
-    if (authorizationCode) {
-      authorizationCode.consumedAt = new Date().toISOString();
-    }
+    updateStore(state => {
+      const authorizationCode = state.oauth.authorizationCodes.find(current => current.code === code);
+      if (authorizationCode) {
+        authorizationCode.consumedAt = new Date().toISOString();
+      }
+    });
   }
 
   async saveRefreshToken(token: OAuthRefreshToken): Promise<OAuthRefreshToken> {
-    refreshTokens.unshift(token);
+    updateStore(state => {
+      state.oauth.refreshTokens.unshift(token);
+    });
     return token;
   }
 
   async findRefreshToken(tokenHash: string): Promise<OAuthRefreshToken | undefined> {
-    return refreshTokens.find(current => current.tokenHash === tokenHash);
+    return readStore().oauth.refreshTokens.find(current => current.tokenHash === tokenHash);
   }
 
   async revokeRefreshToken(tokenHash: string, replacedByHash?: string): Promise<void> {
-    const token = await this.findRefreshToken(tokenHash);
-    if (token) {
-      token.revokedAt = new Date().toISOString();
-      token.replacedByHash = replacedByHash;
-    }
+    updateStore(state => {
+      const token = state.oauth.refreshTokens.find(current => current.tokenHash === tokenHash);
+      if (token) {
+        token.revokedAt = new Date().toISOString();
+        token.replacedByHash = replacedByHash;
+      }
+    });
   }
 
   async revokeRefreshTokenFamily(familyId: string): Promise<void> {
     const now = new Date().toISOString();
-    refreshTokens
-      .filter(token => token.familyId === familyId && !token.revokedAt)
-      .forEach(token => {
-        token.revokedAt = now;
-      });
+    updateStore(state => {
+      state.oauth.refreshTokens
+        .filter(token => token.familyId === familyId && !token.revokedAt)
+        .forEach(token => {
+          token.revokedAt = now;
+        });
+    });
   }
 
   async revokeAccessTokenId(jti: string): Promise<void> {
-    revokedAccessTokenIds.add(jti);
+    updateStore(state => {
+      if (!state.oauth.revokedAccessTokenIds.includes(jti)) {
+        state.oauth.revokedAccessTokenIds.push(jti);
+      }
+    });
   }
 
   async isAccessTokenRevoked(jti: string): Promise<boolean> {
-    return revokedAccessTokenIds.has(jti);
+    return readStore().oauth.revokedAccessTokenIds.includes(jti);
   }
 
   async saveSigningKey(key: OAuthSigningKey): Promise<OAuthSigningKey> {
-    signingKeys.unshift(key);
+    updateStore(state => {
+      state.oauth.signingKeys.unshift(key);
+    });
     return key;
   }
 
   async listSigningKeys(): Promise<OAuthSigningKey[]> {
-    return [...signingKeys];
+    return [...readStore().oauth.signingKeys];
   }
 
   async getActiveSigningKey(): Promise<OAuthSigningKey | undefined> {
-    return signingKeys.find(key => key.status === 'active');
+    return readStore().oauth.signingKeys.find(key => key.status === 'active');
   }
 
   async findSigningKey(kid: string): Promise<OAuthSigningKey | undefined> {
-    return signingKeys.find(key => key.kid === kid);
+    return readStore().oauth.signingKeys.find(key => key.kid === kid);
   }
 
   async retireActiveKeys(): Promise<void> {
     const now = new Date().toISOString();
-    signingKeys
-      .filter(key => key.status === 'active')
-      .forEach(key => {
-        key.status = 'retiring';
-        key.retiredAt = now;
-      });
+    updateStore(state => {
+      state.oauth.signingKeys
+        .filter(key => key.status === 'active')
+        .forEach(key => {
+          key.status = 'retiring';
+          key.retiredAt = now;
+        });
+    });
   }
 }

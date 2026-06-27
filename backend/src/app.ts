@@ -11,10 +11,10 @@ import oauthRoutes from './api/routes/oauth.routes';
 import coachIntegrationRoutes from './coach-integrations/routes/coach-integrations.routes';
 import { errorHandler } from './api/middlewares/error.middleware';
 
-const allowedOrigins = [
-  'https://developers.gotogym.store',
-  'http://localhost:5173',
-];
+const allowedOrigins = (process.env.CORS_ORIGINS ?? 'https://developers.gotogym.store,http://localhost:5173')
+  .split(',')
+  .map(origin => origin.trim())
+  .filter(Boolean);
 
 const app = express();
 app.use(cors({ origin: allowedOrigins, optionsSuccessStatus: 200 }));
@@ -22,6 +22,15 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 
 // Futuro: app.use(authMiddleware)
+
+app.get('/health', (_req, res) => {
+  res.json({
+    success: true,
+    service: 'gotogym-developers-api',
+    status: 'ok',
+    timestamp: new Date().toISOString(),
+  });
+});
 
 app.use('/api/integrations', integrationRoutes);
 app.use('/api/bodygraph', bodygraphRoutes);

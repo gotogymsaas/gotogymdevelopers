@@ -25,6 +25,7 @@ export const APPLICATION_SCOPE_OPTIONS: ApplicationScope[] = [
 export const emptyApplicationForm: ApplicationFormInput = {
   name: '',
   description: '',
+  redirectUris: ['https://client.example/callback'],
   authorizedScopes: ['profile.read'],
 };
 
@@ -74,6 +75,7 @@ export function useApplications() {
     setForm({
       name: application.name,
       description: application.description ?? '',
+      redirectUris: [...application.redirectUris],
       authorizedScopes: [...application.authorizedScopes],
     });
   };

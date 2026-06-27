@@ -2,6 +2,26 @@ import type { ConsentHistoryEvent, IntegrationConsent } from '../models/consent.
 
 export const consents: IntegrationConsent[] = [
   {
+    id: 'consent-portal-gym-001',
+    userId: 'gym-001',
+    integrationId: 'app-001',
+    clientId: 'gtg_org_gym_001_portal',
+    integrationName: 'Portal Bienestar Empresa',
+    ownerCompany: 'GoToGym',
+    requestedScopes: [
+      'profile.read',
+      'wellbeing.read',
+      'metrics.read',
+      'analytics.read',
+      'organization.read',
+      'devices.read',
+    ],
+    status: 'authorized',
+    requestedAt: '2026-06-16T12:00:00.000Z',
+    authorizedAt: '2026-06-16T12:05:00.000Z',
+    updatedAt: '2026-06-16T12:05:00.000Z',
+  },
+  {
     id: 'consent-healthkit-001',
     userId: 'user-001',
     integrationId: '1',
@@ -40,6 +60,14 @@ export const consents: IntegrationConsent[] = [
 ];
 
 export const consentHistory: ConsentHistoryEvent[] = [
+  {
+    id: 'consent-history-000',
+    consentId: 'consent-portal-gym-001',
+    action: 'consent.authorized',
+    actorUserId: 'gym-001',
+    status: 'authorized',
+    createdAt: '2026-06-16T12:05:00.000Z',
+  },
   {
     id: 'consent-history-001',
     consentId: 'consent-healthkit-001',

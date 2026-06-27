@@ -5,24 +5,37 @@ import {
   CoachTenantContext,
   CoachUserContext,
 } from '../types/coach-integration.types';
-import { evaluateConsentPolicy, parseGrantedScopes } from './third-party-consent-policy.service';
+import {
+  evaluateConsentPolicy,
+  getConsentedScopesForClient,
+  parseGrantedScopes,
+} from './third-party-consent-policy.service';
 import { enforceSensitiveDataPolicy } from './sensitive-data-guard.service';
 import { recordAuditEvent } from '../../services/audit.service';
 
 const toTenantContext = (
   token: OAuthIntrospectionResponse,
   subjectUserId?: string,
-): CoachTenantContext => ({
-  tenantId: token.tenant_id ?? 'unknown-tenant',
-  organizationId: token.organization_id ?? 'unknown-organization',
-  clientId: token.client_id ?? 'unknown-client',
-  subjectUserId: subjectUserId ?? token.sub ?? 'unknown-user',
-});
+): CoachTenantContext => {
+  if (subjectUserId && token.sub && subjectUserId !== token.sub) {
+    const error: any = new Error('Subject user is outside the OAuth token');
+    error.status = 403;
+    error.code = 'FORBIDDEN';
+    throw error;
+  }
 
-export function buildCoachContext(
+  return {
+    tenantId: token.tenant_id ?? 'unknown-tenant',
+    organizationId: token.organization_id ?? 'unknown-organization',
+    clientId: token.client_id ?? 'unknown-client',
+    subjectUserId: subjectUserId ?? token.sub ?? 'unknown-user',
+  };
+};
+
+export async function buildCoachContext(
   token: OAuthIntrospectionResponse,
   request: CoachContextRequest,
-): CoachUserContext {
+): Promise<CoachUserContext> {
   const grantedScopes = parseGrantedScopes(token.scope);
   const requestedScopes = expandDeveloperScopes(
     request.requestedScopes && request.requestedScopes.length > 0
@@ -30,7 +43,8 @@ export function buildCoachContext(
       : ['profile.read', 'wellbeing.read'],
   ).filter(scope => grantedScopes.includes(scope));
   const tenant = toTenantContext(token, request.subjectUserId);
-  const consent = evaluateConsentPolicy(requestedScopes, grantedScopes);
+  const consentedScopes = await getConsentedScopesForClient(tenant.subjectUserId, tenant.clientId);
+  const consent = evaluateConsentPolicy(requestedScopes, grantedScopes, consentedScopes);
 
   const baseContext: CoachUserContext = {
     subjectUserId: tenant.subjectUserId,
@@ -71,7 +85,8 @@ export function buildCoachContext(
     redactions: [],
   };
 
-  const safeContext = enforceSensitiveDataPolicy(baseContext, grantedScopes);
+  const effectiveScopes = consent.allowed ? grantedScopes : [];
+  const safeContext = enforceSensitiveDataPolicy(baseContext, effectiveScopes);
 
   recordAuditEvent({
     action: 'quantum_coach.context.shared',

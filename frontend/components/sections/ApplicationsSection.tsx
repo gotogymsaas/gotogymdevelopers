@@ -47,6 +47,10 @@ const ApplicationRow: React.FC<ApplicationRowProps> = ({
         <span>Client ID</span>
         <code>{application.clientId}</code>
       </div>
+      <div className="gtg-application-client">
+        <span>Redirect URI</span>
+        <code>{application.redirectUris[0] ?? 'Sin callback'}</code>
+      </div>
     </div>
 
     <div className="gtg-application-scopes">
@@ -139,6 +143,15 @@ export const ApplicationsSection: React.FC = () => {
               maxLength={240}
               onChange={event => setForm(current => ({ ...current, description: event.target.value }))}
               placeholder="Uso interno, integracion de partner o panel corporativo"
+            />
+          </label>
+
+          <label className="gtg-field">
+            <span>Redirect URI OAuth</span>
+            <input
+              value={form.redirectUris[0] ?? ''}
+              onChange={event => setForm(current => ({ ...current, redirectUris: [event.target.value] }))}
+              placeholder="https://miapp.com/oauth/callback"
             />
           </label>
 

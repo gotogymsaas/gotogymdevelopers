@@ -20,6 +20,7 @@ const mockApplications: DeveloperApplication[] = [
     description: 'Aplicacion interna para reportes agregados de bienestar corporativo.',
     ownerOrganizationId: 'org-local',
     clientId: 'gtg_org_local_portal',
+    redirectUris: ['https://client.example/callback'],
     authorizedScopes: ['wellbeing.read', 'analytics.read'],
     status: 'active',
     createdAt: '2026-06-16T12:00:00.000Z',
@@ -82,6 +83,7 @@ export const createApplication = async (
       ownerOrganizationId: 'org-local',
       clientId: `gtg_local_${Date.now()}`,
       clientSecret: createLocalSecret(),
+      redirectUris: [...input.redirectUris],
       authorizedScopes: [...input.authorizedScopes],
       status: 'active',
       createdAt: now,
@@ -118,6 +120,7 @@ export const updateApplication = async (
       ...current,
       name: input.name.trim(),
       ...optionalDescription(input.description),
+      redirectUris: [...input.redirectUris],
       authorizedScopes: [...input.authorizedScopes],
       updatedAt: new Date().toISOString(),
     };

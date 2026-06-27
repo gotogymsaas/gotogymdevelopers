@@ -129,6 +129,7 @@ describe('Developer Scopes API', () => {
       .send({
         name: 'Analytics Partner',
         description: 'App para analitica agregada.',
+        redirectUris: ['https://analytics.example/callback'],
         authorizedScopes: ['analytics.read'],
       });
 
@@ -150,6 +151,7 @@ describe('Developer Scopes API', () => {
       .set('Authorization', `Bearer ${token}`)
       .send({
         name: 'Document Reader',
+        redirectUris: ['https://documents.example/callback'],
         authorizedScopes: ['documents.read'],
       });
 
@@ -260,6 +262,79 @@ describe('OAuth 2.1 / OpenID Connect API', () => {
       .send({ token: tokenRes.body.access_token });
 
     expect(introspectRes.body).toHaveProperty('active', false);
+  });
+
+  it('GET /oauth/authorize debe solicitar consentimiento cuando la app no esta autorizada', async () => {
+    const token = await loginAs('gym@test.com');
+    const createAppRes = await request(app)
+      .post('/api/v1/applications')
+      .set('Authorization', `Bearer ${token}`)
+      .send({
+        name: 'Nueva App Coach',
+        redirectUris: ['https://new-client.example/callback'],
+        authorizedScopes: ['wellbeing.read'],
+      });
+
+    const authorizeRes = await request(app)
+      .get('/oauth/authorize')
+      .query({
+        client_id: createAppRes.body.data.clientId,
+        redirect_uri: 'https://new-client.example/callback',
+        scope: 'wellbeing.read',
+        code_challenge: pkceChallenge('verifier-consent-required-1234567890'),
+        code_challenge_method: 'S256',
+      })
+      .set('Authorization', `Bearer ${token}`);
+
+    expect(authorizeRes.status).toBe(200);
+    expect(authorizeRes.body.data).toMatchObject({
+      consentRequired: true,
+    });
+    expect(authorizeRes.body.data.consentId).toBeTruthy();
+  });
+
+  it('POST /api/v1/coach-integrations/context debe respetar consentimiento autorizado', async () => {
+    const token = await loginAs('gym@test.com');
+    const verifier = 'verifier-coach-context-1234567890';
+    const redirectUri = 'https://client.example/callback';
+
+    const authorizeRes = await request(app)
+      .get('/oauth/authorize')
+      .query({
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        scope: 'wellbeing.read metrics.read',
+        code_challenge: pkceChallenge(verifier),
+        code_challenge_method: 'S256',
+      })
+      .set('Authorization', `Bearer ${token}`);
+
+    const code = new URL(authorizeRes.body.data.redirectUrl).searchParams.get('code');
+    const tokenRes = await request(app)
+      .post('/oauth/token')
+      .send({
+        grant_type: 'authorization_code',
+        client_id: 'gtg_org_gym_001_portal',
+        redirect_uri: redirectUri,
+        code,
+        code_verifier: verifier,
+      });
+
+    const contextRes = await request(app)
+      .post('/api/v1/coach-integrations/context')
+      .set('Authorization', `Bearer ${tokenRes.body.access_token}`)
+      .send({
+        subjectUserId: 'gym-001',
+        requestedScopes: ['profile.read', 'wellbeing.read', 'metrics.read'],
+      });
+
+    expect(contextRes.status).toBe(200);
+    expect(contextRes.body.data.consent).toMatchObject({
+      allowed: true,
+      missingScopes: [],
+    });
+    expect(contextRes.body.data).toHaveProperty('wellbeing');
+    expect(contextRes.body.data).toHaveProperty('metrics');
   });
 });
 

@@ -3,11 +3,11 @@ import type { QAFExecutionRequest, QAFExecutionResult } from '../types/coach-int
 import { buildCoachContext } from './coach-context-orchestrator.service';
 import { recordAuditEvent } from '../../services/audit.service';
 
-export function executeQAFExperience(
+export async function executeQAFExperience(
   token: OAuthIntrospectionResponse,
   request: QAFExecutionRequest,
-): QAFExecutionResult {
-  const context = buildCoachContext(token, {
+): Promise<QAFExecutionResult> {
+  const context = await buildCoachContext(token, {
     subjectUserId: request.subjectUserId,
     requestedScopes: ['profile.read', 'wellbeing.read', 'metrics.read'],
   });

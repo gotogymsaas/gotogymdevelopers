@@ -44,6 +44,7 @@ export interface DeveloperApplication {
   description?: string;
   ownerOrganizationId: string;
   clientId: string;
+  redirectUris: string[];
   authorizedScopes: ApplicationScope[];
   status: DeveloperApplicationStatus;
   createdAt: string;
@@ -60,6 +61,7 @@ export interface DeveloperApplicationWithSecret extends DeveloperApplication {
 export interface ApplicationFormInput {
   name: string;
   description: string;
+  redirectUris: string[];
   authorizedScopes: ApplicationScope[];
 }
 

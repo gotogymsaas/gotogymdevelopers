@@ -9,6 +9,7 @@ export interface DeveloperApplication {
   ownerOrganizationId: string;
   clientId: string;
   clientSecretHash: string;
+  redirectUris: string[];
   authorizedScopes: DeveloperScope[];
   status: DeveloperApplicationStatus;
   createdAt: string;
@@ -24,6 +25,7 @@ export interface DeveloperApplicationPublic {
   description?: string;
   ownerOrganizationId: string;
   clientId: string;
+  redirectUris: string[];
   authorizedScopes: DeveloperScope[];
   status: DeveloperApplicationStatus;
   createdAt: string;

@@ -20,12 +20,14 @@ export const APPLICATION_SCOPES: DeveloperScope[] = [...DEVELOPER_SCOPES];
 export interface CreateApplicationInput {
   name: string;
   description?: string;
+  redirectUris?: string[];
   authorizedScopes: DeveloperScope[];
 }
 
 export interface UpdateApplicationInput {
   name?: string;
   description?: string;
+  redirectUris?: string[];
   authorizedScopes?: DeveloperScope[];
 }
 
@@ -95,12 +97,40 @@ const validateScopes = (scopes: unknown, actor: AuthUser): DeveloperScope[] => {
   return validation.normalizedScopes;
 };
 
+const validateRedirectUris = (redirectUris: unknown): string[] => {
+  const rawUris = Array.isArray(redirectUris) ? redirectUris : [];
+  if (rawUris.length === 0) {
+    throw badRequest('At least one redirect URI is required');
+  }
+
+  const parsedUris = rawUris.map(value => {
+    if (typeof value !== 'string') {
+      throw badRequest('Redirect URIs must be strings');
+    }
+
+    const trimmed = value.trim();
+    try {
+      const url = new URL(trimmed);
+      if (url.protocol !== 'https:' && url.hostname !== 'localhost') {
+        throw badRequest('Redirect URIs must use HTTPS, except localhost during development');
+      }
+      url.hash = '';
+      return url.toString();
+    } catch {
+      throw badRequest('One or more redirect URIs are invalid');
+    }
+  });
+
+  return [...new Set(parsedUris)];
+};
+
 const toPublicApplication = (application: DeveloperApplication): DeveloperApplicationPublic => ({
   id: application.id,
   name: application.name,
   description: application.description,
   ownerOrganizationId: application.ownerOrganizationId,
   clientId: application.clientId,
+  redirectUris: [...application.redirectUris],
   authorizedScopes: [...application.authorizedScopes],
   status: application.status,
   createdAt: application.createdAt,
@@ -143,6 +173,7 @@ export async function createApplication(
     ownerOrganizationId: actor.tenant.organizationId,
     clientId: createClientId(actor.tenant.organizationId),
     clientSecretHash: hashSecret(clientSecret),
+    redirectUris: validateRedirectUris(input.redirectUris),
     authorizedScopes: validateScopes(input.authorizedScopes, actor),
     status: 'active',
     createdAt: now,
@@ -193,6 +224,10 @@ export async function updateApplication(
 
   if (input.authorizedScopes !== undefined) {
     changes.authorizedScopes = validateScopes(input.authorizedScopes, actor);
+  }
+
+  if (input.redirectUris !== undefined) {
+    changes.redirectUris = validateRedirectUris(input.redirectUris);
   }
 
   const updated = await applicationRepo.update(id, changes);

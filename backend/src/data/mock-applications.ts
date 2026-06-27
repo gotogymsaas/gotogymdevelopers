@@ -11,6 +11,7 @@ export const applications: DeveloperApplication[] = [
     ownerOrganizationId: 'org-gym-001',
     clientId: 'gtg_org_gym_001_portal',
     clientSecretHash: hashSecret('initial-secret-not-exposed'),
+    redirectUris: ['https://client.example/callback'],
     authorizedScopes: [
       'wellbeing.read',
       'analytics.read',
