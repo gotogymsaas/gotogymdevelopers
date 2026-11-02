@@ -48,3 +48,13 @@ test('exchange blocks other browser origin',async()=>{const t=await ticket();con
 test('expired ticket rejected',async()=>{const t=await ticket();jest.spyOn(Date,'now').mockReturnValue(Date.now()+61000);await expect(identity.exchange(t,verifier)).rejects.toThrow();});
 test('disabled SSO hidden and unavailable',async()=>{process.env.OIDC_ENABLED='false';expect((await request(app).get('/api/v1/auth/identity/status')).body.enabled).toBe(false);expect((await request(app).get('/api/v1/auth/identity/start?challenge='+challenge)).status).toBe(404);});
 test('demo password login disabled in production by default',async()=>{const prior=process.env.NODE_ENV;process.env.NODE_ENV='production';delete process.env.ALLOW_DEMO_LOGIN;try{expect(await loginWithEmailPassword('user@test.com','123456')).toBeNull();expect(()=>identity.config()).toThrow('identity_database_not_configured');}finally{process.env.NODE_ENV=prior;}});
+
+
+test('unresolved Key Vault reference is not a client credential',()=>{
+ process.env.OIDC_CLIENT_SECRET='@Microsoft.KeyVault(placeholder)';
+ expect(()=>identity.config()).toThrow('identity_configuration');
+});
+test('ID token standard subject must be a string',async()=>{
+ tokenOverrides={sub:42};const f=await begin();
+ await expect(identity.complete(f.state,'code',f.browser)).rejects.toThrow();
+});
