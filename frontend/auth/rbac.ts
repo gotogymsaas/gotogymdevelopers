@@ -210,7 +210,7 @@ const parsePermissions = (value: unknown, role: UserRole): AppPermission[] => {
   }
 
   const permissions = value.filter(isAppPermission);
-  return permissions.length > 0 ? permissions : defaultPermissionsByRole(role);
+  return permissions; // An explicit empty grant must remain empty.
 };
 
 const parseTenant = (value: unknown): TenantContext | undefined => {

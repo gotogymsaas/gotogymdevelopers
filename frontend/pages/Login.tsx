@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+import { identityAvailable, startIdentity, finishIdentity } from '../auth/identity';
+import React, { useEffect, useRef, useState } from 'react';
 import { Navigate, useNavigate } from 'react-router-dom';
 import { loginWithApi } from '../auth/rbac';
 import logoUrl from '../assets/gotogym-logo.jpg';
@@ -46,6 +47,15 @@ const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
   const [errorMessage, setErrorMessage] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
+  const [identityEnabled, setIdentityEnabled] = useState(false);
+  const identityStarted = useRef(false);
+  useEffect(() => {
+    void identityAvailable().then(setIdentityEnabled);
+    if (!identityStarted.current) {
+      identityStarted.current = true;
+      void finishIdentity().then(done => { if (done) { onLogin(); navigate('/dashboard', { replace: true }); } }).catch(e => setErrorMessage(e.message));
+    }
+  }, [navigate, onLogin]);
 
   if (isAuthenticated) {
     return <Navigate to="/dashboard" replace />;
@@ -133,6 +143,7 @@ const Login: React.FC<LoginProps> = ({ isAuthenticated, onLogin }) => {
         </p>
 
         <div style={{ width: '100%', maxWidth: '420px' }}>
+          {identityEnabled && <button type="button" onClick={() => { void startIdentity().catch(() => setErrorMessage('No se pudo iniciar el acceso con GoToGym.')); }} style={{ ...inputStyle, cursor: 'pointer', marginBottom: '24px', color: '#e3c269' }}>Continuar con GoToGym</button>}
           <label htmlFor="email" style={{ display: 'block', marginBottom: '14px', color: '#d9d9d9', fontWeight: 700 }}>
             Email
             <input

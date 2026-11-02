@@ -122,6 +122,7 @@ const signAccessToken = (user: AuthUser): string => {
 };
 
 export async function loginWithEmailPassword(email: string, password: string): Promise<LoginResult | null> {
+  if (process.env.NODE_ENV === 'production' && process.env.ALLOW_DEMO_LOGIN !== 'true') return null;
   const normalizedEmail = email.trim().toLowerCase();
   const user = mockUsers.find(
     currentUser =>
@@ -148,6 +149,7 @@ export function verifyAccessToken(token: string): AuthUser | null {
   try {
     const decoded = jwt.verify(token, JWT_SECRET, {
       issuer: JWT_ISSUER,
+      algorithms: ['HS256'],
     }) as AccessTokenPayload | string;
 
     if (typeof decoded === 'string') {
@@ -180,4 +182,11 @@ export function verifyAccessToken(token: string): AuthUser | null {
   } catch {
     return null;
   }
+}
+
+/** Only called with server-provisioned local permissions, never raw IdP claims. */
+export function issueIdentitySession(user: AuthUser): LoginResult {
+  if (!user || typeof user.id !== 'string' || !user.id || typeof user.email !== 'string' || !isAppRole(user.role) || !Array.isArray(user.scopes) || !user.scopes.every(isScope) || !isTenantContext(user.tenant) || user.tokenType !== 'user') throw new Error('identity_binding_invalid');
+  const safe = toAuthUser(user);
+  return { token: signAccessToken(safe), role: safe.role, user: safe, expiresIn: JWT_EXPIRES_IN };
 }
