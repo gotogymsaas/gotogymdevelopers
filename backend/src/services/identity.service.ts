@@ -25,7 +25,7 @@ export function config() {
   const frontend = httpsUrl(process.env.OIDC_FRONTEND_CALLBACK);
   const clientId = process.env.OIDC_CLIENT_ID;
   const secret = process.env.OIDC_CLIENT_SECRET;
-  if (!clientId || !secret) throw new Error('identity_configuration');
+  if (!clientId || !secret || secret.startsWith('@Microsoft.KeyVault')) throw new Error('identity_configuration');
   return { issuer, redirect, frontend, clientId, secret };
 }
 async function jsonFetch(url: string, init: RequestInit = {}) {
@@ -74,7 +74,7 @@ export async function complete(state: string, code: string, browser: string) {
   const keys = (jwks.keys || []).filter((k: any) => k.kid === decoded.header.kid && k.kty === 'RSA' && (!k.use || k.use === 'sig') && (!k.alg || k.alg === 'RS256'));
   if (keys.length !== 1) throw new Error('identity_key');
   const claims = jwt.verify(tokens.id_token, createPublicKey({ key: keys[0], format: 'jwk' }), { algorithms: ['RS256'], issuer: c.issuer, audience: c.clientId, clockTolerance: 60 }) as JwtPayload;
-  if (typeof claims.exp !== 'number' || typeof claims.iat !== 'number' || claims.iat > Date.now() / 1000 + 60 || !claims.sub || typeof claims.oid !== 'string' || !equal(String(claims.nonce || ''), f.nonce)) throw new Error('identity_claims');
+  if (typeof claims.exp !== 'number' || typeof claims.iat !== 'number' || claims.iat > Date.now() / 1000 + 60 || typeof claims.sub !== 'string' || !claims.sub || typeof claims.oid !== 'string' || !equal(String(claims.nonce || ''), f.nonce)) throw new Error('identity_claims');
   if ((Array.isArray(claims.aud) && claims.aud.length > 1 && claims.azp !== c.clientId) || (claims.azp && claims.azp !== c.clientId)) throw new Error('identity_azp');
   if (claims.email_verified === false) throw new Error('identity_email');
   binding(claims.oid);
@@ -88,3 +88,4 @@ export async function exchange(ticket: string, verifier: string) {
   return issueIdentitySession(binding(subject));
 }
 export function frontendOrigin() { return new URL(config().frontend).origin; }
+
