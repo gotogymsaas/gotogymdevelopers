@@ -52,3 +52,19 @@ export async function consumeTicket(digest: string, challenge: string): Promise<
 export async function closeIdentityDatabase() {
   if (pool) { await pool.end(); pool = undefined; }
 }
+
+
+/**
+ * Read-only readiness probe. Requires both tables and SELECT permission under the
+ * actual runtime identity. It never creates a table or consumes a flow/ticket.
+ */
+export async function identityStoreReady(): Promise<boolean> {
+  try {
+    const db = database();
+    await db.query('SELECT state_hash FROM gotogym_identity_flows LIMIT 0');
+    await db.query('SELECT digest FROM gotogym_identity_tickets LIMIT 0');
+    return true;
+  } catch {
+    return false;
+  }
+}
