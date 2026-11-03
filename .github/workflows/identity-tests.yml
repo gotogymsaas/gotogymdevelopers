@@ -27,3 +27,5 @@ jobs:
         working-directory: backend
       - run: npm ci --ignore-scripts && npm run build
         working-directory: frontend
+      - run: npm test -- --runInBand src/__tests__/identity.test.ts
+        working-directory: frontend
