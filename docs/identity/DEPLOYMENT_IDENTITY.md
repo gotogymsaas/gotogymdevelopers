@@ -43,6 +43,10 @@ OIDC_BINDINGS_JSON es un arreglo de objetos con issuer, oid, active y user. user
 [{"issuer":"https://TENANT.ciamlogin.com/TENANT_ID/v2.0","oid":"OID_REAL","active":true,"user":{"id":"ID_LOCAL_REAL","email":"usuario@example.com","role":"end_user","scopes":["profile:read:self"],"permissions":["profile:read:self"],"tenant":{"tenantId":"TENANT_LOCAL","organizationId":"ORG_LOCAL","membershipId":"MEMBRESIA_LOCAL"},"tokenType":"user"}}]
 ```
 
+**Endpoint de preparación:** `GET /api/v1/auth/identity/status` sólo devuelve `enabled: true` cuando el flag `OIDC_ENABLED` está activo **y** están disponibles la configuración resuelta (no un literal Key Vault), el PostgreSQL con las tablas y permisos de lectura, y el descubrimiento OIDC con issuer exacto. Devuelve sólo `{ "enabled": false, "ready": false }` en caso contrario, sin secretos ni mensajes internos. Un caché de 15 segundos evita hacer llamadas a Entra por cada sondeo. La preparación no prueba un login real ni sustituye la prueba canaria.
+
+Prueba operacional antes de activar: mantener `OIDC_ENABLED=false`, aplicar las migraciones SQL, configurar los valores del servidor Node, validar conectividad TLS de su dominio público y después probar el estado con el flag en un entorno aislado autorizado. Si `ready=false`, revisar únicamente los logs internos sanitizados y la conectividad; no cambiar el login legacy ni volver a apuntar SSO al Django de Coach.
+
 El nuevo SSO usa OIDC_DATABASE_URL y PostgreSQL. Aplicar backend/migrations/001_universal_identity.sql con una identidad de migración; dar al runtime sólo SELECT/INSERT/DELETE sobre esas dos tablas. En producción el cliente exige TLS y valida el certificado. Flujos y tickets se consumen con DELETE RETURNING atómico, compartido entre procesos. Fuera de NODE_ENV=test no hay fallback en memoria o JSON. Probar concurrencia en staging antes de escalar. El proveedor OAuth para terceros sigue usando su persistencia heredada y no queda modernizado por este cambio.
 
 ```bash
