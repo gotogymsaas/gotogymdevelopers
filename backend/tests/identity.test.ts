@@ -58,3 +58,19 @@ test('ID token standard subject must be a string',async()=>{
  tokenOverrides={sub:42};const f=await begin();
  await expect(identity.complete(f.state,'code',f.browser)).rejects.toThrow();
 });
+
+test('SSO status remains disabled when database configuration is missing',async()=>{
+  process.env.OIDC_ENABLED='true';
+  delete process.env.OIDC_DATABASE_URL;
+  const response=await request(app).get('/api/v1/auth/identity/status');
+  expect(response.status).toBe(200);
+  expect(response.body).toEqual({enabled:false,ready:false});
+});
+
+test('SSO status remains disabled with an unresolved Key Vault secret',async()=>{
+  process.env.OIDC_ENABLED='true';
+  process.env.OIDC_DATABASE_URL='postgresql://identity.invalid/identity';
+  process.env.OIDC_CLIENT_SECRET='@Microsoft.KeyVault(SecretUri=https://vault.example/secret)';
+  const response=await request(app).get('/api/v1/auth/identity/status');
+  expect(response.body).toEqual({enabled:false,ready:false});
+});
