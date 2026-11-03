@@ -74,3 +74,16 @@ test('SSO status remains disabled with an unresolved Key Vault secret',async()=>
   const response=await request(app).get('/api/v1/auth/identity/status');
   expect(response.body).toEqual({enabled:false,ready:false});
 });
+
+test.each([false,'false','true',0,1,null])('malformed or unverified email_verified claim %j is denied',async(email_verified)=>{
+  tokenOverrides={email_verified};
+  const f=await begin();
+  await expect(identity.complete(f.state,'code',f.browser)).rejects.toThrow('identity_email');
+});
+
+test('explicit boolean email_verified true is accepted',async()=>{
+  tokenOverrides={email_verified:true};
+  const t=await ticket();
+  const result=await identity.exchange(t,verifier);
+  expect(result.user.id).toBe('real-user');
+});
