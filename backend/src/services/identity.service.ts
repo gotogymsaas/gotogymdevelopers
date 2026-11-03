@@ -122,7 +122,9 @@ export async function complete(state: string, code: string, browser: string) {
   const claims = jwt.verify(tokens.id_token, createPublicKey({ key: keys[0], format: 'jwk' }), { algorithms: ['RS256'], issuer: c.issuer, audience: c.clientId, clockTolerance: 60 }) as JwtPayload;
   if (typeof claims.exp !== 'number' || typeof claims.iat !== 'number' || claims.iat > Date.now() / 1000 + 60 || typeof claims.sub !== 'string' || !claims.sub || typeof claims.oid !== 'string' || !equal(String(claims.nonce || ''), f.nonce)) throw new Error('identity_claims');
   if ((Array.isArray(claims.aud) && claims.aud.length > 1 && claims.azp !== c.clientId) || (claims.azp && claims.azp !== c.clientId)) throw new Error('identity_azp');
-  if (claims.email_verified === false) throw new Error('identity_email');
+  // When emitted, email_verified must be a real boolean true; strings and null are not proof.
+  // Entra External ID may omit the claim, so deployment must separately verify the user flow.
+  if (claims.email_verified !== undefined && claims.email_verified !== true) throw new Error('identity_email');
   binding(claims.oid);
   const ticket = random();
   await saveTicket({ hash: digest(ticket), subject: claims.oid, challenge: f.challenge, expires: Date.now() + 60000 });
