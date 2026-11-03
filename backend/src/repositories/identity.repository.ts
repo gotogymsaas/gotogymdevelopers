@@ -52,3 +52,29 @@ export async function consumeTicket(digest: string, challenge: string): Promise<
 export async function closeIdentityDatabase() {
   if (pool) { await pool.end(); pool = undefined; }
 }
+
+
+/**
+ * Read-only readiness probe. Requires both tables and SELECT permission under the
+ * actual runtime identity. It never creates a table or consumes a flow/ticket.
+ */
+export async function identityStoreReady(): Promise<boolean> {
+  try {
+    const db = database();
+    await db.query('SELECT state_hash FROM gotogym_identity_flows LIMIT 0');
+    await db.query('SELECT digest FROM gotogym_identity_tickets LIMIT 0');
+    // INSERT/DELETE are required for atomic, one-use flows and tickets.
+    // Probe privileges without writing or deleting production rows.
+    const grants = await db.query(`
+      SELECT
+        has_table_privilege(current_user, 'gotogym_identity_flows', 'INSERT') AS flow_insert,
+        has_table_privilege(current_user, 'gotogym_identity_flows', 'DELETE') AS flow_delete,
+        has_table_privilege(current_user, 'gotogym_identity_tickets', 'INSERT') AS ticket_insert,
+        has_table_privilege(current_user, 'gotogym_identity_tickets', 'DELETE') AS ticket_delete
+    `);
+    const row = grants.rows[0];
+    return Boolean(row?.flow_insert && row?.flow_delete && row?.ticket_insert && row?.ticket_delete);
+  } catch {
+    return false;
+  }
+}

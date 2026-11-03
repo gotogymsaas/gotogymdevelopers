@@ -2,7 +2,10 @@ import { Router } from 'express';
 import * as identity from '../../services/identity.service';
 const router = Router();
 router.use((_req, res, next) => { res.set('Cache-Control', 'no-store'); res.set('Referrer-Policy', 'no-referrer'); next(); });
-router.get('/status', (_req, res) => res.json({ enabled: identity.enabled() }));
+router.get('/status', async (_req, res) => {
+  const ready = await identity.readiness();
+  res.json({ enabled: identity.enabled() && ready, ready });
+});
 router.get('/start', async (req, res) => {
   try {
     const result = await identity.begin(String(req.query.challenge || ''));
