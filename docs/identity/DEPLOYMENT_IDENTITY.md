@@ -25,7 +25,17 @@ python manage.py test accounts.test_oidc
 
 ## Developers
 
-Node >=22. Configurar OIDC_ENABLED=true sólo al terminar pruebas; OIDC_FRONTEND_CALLBACK, OIDC_BINDINGS_JSON y JWT_SECRET robusto. El frontend debe apuntar al backend Developers en VITE_API_URL; un backend Django no tiene los mismos endpoints /api/v1/auth/identity.
+Node >=22. Configurar OIDC_ENABLED=true sólo al terminar pruebas; OIDC_FRONTEND_CALLBACK, OIDC_BINDINGS_JSON y JWT_SECRET robusto.
+
+### Dos APIs diferentes: no cambiar el login existente
+
+- `VITE_API_URL=https://api.gotogym.store` sigue atendiendo los servicios y login legacy existentes de Coach; **no sustituirlo** durante el rollout de identidad.
+- `VITE_IDENTITY_API_URL` es **un origen HTTPS separado**, exclusivo para `/api/v1/auth/identity/*` del backend Node Developers. Debe ser el origen productivo real verificado (sin ruta, query ni fragmento). Nunca apuntarlo a `api.gotogym.store`. En desarrollo se permite `http://localhost:<puerto>` o `http://127.0.0.1:<puerto>`.
+- Esta variable queda **sin configurar en producción** hasta que exista el backend Node, su DNS, TLS, CORS para `https://developers.gotogym.store`, el registro Entra independiente, y las migraciones PostgreSQL aplicadas. Sin ella, el botón SSO permanece oculto y el login legacy continúa intacto.
+- Es una variable `VITE_*` de compilación: definirla en el entorno del build de frontend y **recompilar** cuando el origen real esté verificado. No incluir secretos; los valores `OIDC_CLIENT_SECRET` y `OIDC_DATABASE_URL` pertenecen sólo al servidor Node.
+- Validar `GET <ORIGEN_NODE>/api/v1/auth/identity/status` desde el navegador antes del canario; la aplicación no usa como respaldo la API Django del Coach para esos endpoints. Comprobar `Origin` permitido en Node para el `POST /exchange`.
+
+**Bloqueo restante:** no hay confirmación de la URL pública definitiva del backend Node Developers. No inventar el hostname ni un callback en Entra; no activar `OIDC_ENABLED` hasta obtenerlo.
 
 OIDC_BINDINGS_JSON es un arreglo de objetos con issuer, oid, active y user. user contiene id, email, role, scopes, tenant {tenantId, organizationId, membershipId} y tokenType=user. Los valores los asigna el administrador desde una fuente de membresías validada. No cargar la lista de usuarios demo ni resolver por correo. Ejemplo de formato (no credenciales):
 
