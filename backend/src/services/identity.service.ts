@@ -1,7 +1,7 @@
 /** First-party OIDC client. It is deliberately separate from /oauth (third-party IdP). */
 import { createHash, createPublicKey, randomBytes, timingSafeEqual } from 'crypto';
 import jwt, { JwtPayload } from 'jsonwebtoken';
-import { saveFlow, consumeFlow, saveTicket, consumeTicket } from '../repositories/identity.repository';
+import { saveFlow, consumeFlow, saveTicket, consumeTicket, identityStoreReady } from '../repositories/identity.repository';
 import { issueIdentitySession } from './auth.service';
 import type { AuthUser } from '../types/auth';
 
@@ -40,6 +40,52 @@ async function metadata() {
   for (const k of ['authorization_endpoint', 'token_endpoint', 'jwks_uri']) httpsUrl(m[k]);
   return m;
 }
+/**
+ * Fail closed before advertising SSO to browsers. A feature flag by itself is
+ * not evidence that secrets, PostgreSQL migrations and the IdP are usable.
+ * An abbreviated 15s cache and one in-flight promise prevent public status
+ * polling from repeatedly contacting Entra or exhausting the DB pool.
+ */
+const readinessTtlMs = 15000;
+let cachedReadiness: { key: string; until: number; ready: boolean } | undefined;
+let pendingReadiness: { key: string; check: Promise<boolean> } | undefined;
+
+export async function readiness(): Promise<boolean> {
+  if (!enabled()) return false;
+  // Avoid storing client secrets or connection strings in cache keys.
+  const key = digest([
+    process.env.NODE_ENV, process.env.OIDC_ENABLED, process.env.OIDC_ISSUER,
+    process.env.OIDC_DISCOVERY_URL, process.env.OIDC_CLIENT_ID,
+    process.env.OIDC_CLIENT_SECRET, process.env.OIDC_REDIRECT_URI,
+    process.env.OIDC_FRONTEND_CALLBACK, process.env.OIDC_DATABASE_URL,
+    process.env.OIDC_BINDINGS_JSON,
+  ].join('\\0'));
+  if (cachedReadiness?.key === key && cachedReadiness.until > Date.now()) {
+    return cachedReadiness.ready;
+  }
+  if (pendingReadiness?.key === key) return pendingReadiness.check;
+  const check = (async (): Promise<boolean> => {
+    try {
+      config();
+      if (!process.env.OIDC_DATABASE_URL) return false;
+      if (!Array.isArray(JSON.parse(process.env.OIDC_BINDINGS_JSON || '[]'))) return false;
+      if (!(await identityStoreReady())) return false;
+      await metadata(); // Exact issuer + HTTPS authorization, token and JWKS endpoints.
+      return true;
+    } catch {
+      return false; // Never expose settings, tokens, connection strings or provider errors.
+    }
+  })();
+  pendingReadiness = { key, check };
+  try {
+    const ready = await check;
+    cachedReadiness = { key, until: Date.now() + readinessTtlMs, ready };
+    return ready;
+  } finally {
+    if (pendingReadiness?.check === check) pendingReadiness = undefined;
+  }
+}
+
 // Provisioning is explicit by stable issuer+oid. Token roles, email and tenant hints are never authority.
 export function binding(subject: string): AuthUser {
   const c = config();
