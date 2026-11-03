@@ -71,6 +71,8 @@ python -m django test universal_identity --settings=universal_identity.test_sett
 
 Las pruebas anteriores usan auth.User y un payload simulado para aislar el puente. No son la suite completa del Coach. Probar también la integración con api.User, UserSerializer y _build_post_login_context del despliegue real.
 
+**Verificación del correo en Developers:** un ID token que incluya `email_verified` solo se acepta si el valor JSON es el booleano `true`. Los valores `false`, `"false"`, `"true"`, `0`, `1` o `null` se rechazan; un claim ausente no se interpreta como verificado. Antes de habilitar SSO, comprobar directamente en Microsoft Entra que el flujo `GoToGym-SignUpSignIn` verifica la titularidad del correo y que los ID tokens reales cumplen la política. La autorización de Developers sigue viniendo exclusivamente de bindings administrativos por `issuer + oid`, no del email.
+
 ## Prueba de aceptación real
 
 En navegador: entrar a Prime, abrir Developers, abrir Coach; confirmar que no se piden credenciales repetidas mientras el IdP tenga sesión y que oid sea el mismo. Verificar que scopes y tenants no se trasladan entre aplicaciones. Probar cuenta inactiva, correo duplicado, vinculación con contraseña errada, consentimiento, usuario con 2FA local, tickets vencidos y repetidos. Cerrar Prime debe cerrar su sesión y pedir el cierre del IdP; no debe afirmarse que invalida JWT ya emitidos en las otras aplicaciones. Ningún paso de este documento fue ejecutado en Azure por esta entrega.
